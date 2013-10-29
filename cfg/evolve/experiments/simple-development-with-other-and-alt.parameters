@@ -1,0 +1,97 @@
+# ==============================================================
+# Parent parameters
+# ==============================================================
+parent.0 = ../neat-default.parameters
+
+# ==============================================================
+# Problem parameters
+# ==============================================================
+eval.problem = edu.snu.leader.simple.SimpleDevelopmentProblem
+eval.problem.max-timesteps = 500
+eval.problem.min-energy-consumed-per-timestep = 0.01
+eval.problem.activity-energy-loss-multiplier = 0.04
+eval.problem.maturation-energy-threshold = 0.6
+eval.problem.maturation-energy-consumed-per-timestep = 0.02
+eval.problem.energy-gain-multiplier = 0.1
+eval.problem.initial-energy-level = 0.5
+eval.problem.evaluation-count = 6
+eval.problem.alt-evaluation-count = 3
+eval.problem.description-step-count = 26
+eval.problem.predation-input-type = random
+eval.problem.alt-predation-input-type = accurate
+eval.problem.predation-noise-multiplier = 0.0
+eval.problem.other-network-file = data/sample-network.ser
+eval.problem.other-predation-input-type = accurate
+eval.problem.alt-other-predation-input-type = random
+eval.problem.other-predation-noise-multiplier = 0.0
+
+
+stat = edu.snu.leader.util.CrossValidationStatistics
+pop.subpop.0.fitness = edu.snu.leader.util.CrossValidationFitness
+pop.subpop.0.species.fitness = edu.snu.leader.util.CrossValidationFitness
+
+
+# ==============================================================
+# Population parameters
+# ==============================================================
+
+# Population size
+pop.subpop.0.size = 100
+
+# Number of generations
+generations = 101
+
+# ==============================================================
+# Individual parameters
+# ==============================================================
+
+# Number of hard-coded network nodes in the initial population
+neat.individual.nodes.count = 6
+
+# Bias node information
+neat.individual.nodes.0.name = Bias
+neat.individual.nodes.0.type = bias
+neat.individual.nodes.0.drawing-position = 0
+neat.individual.nodes.0.random-activation-function = false
+
+# Energy node information
+neat.individual.nodes.1.name = Energy
+neat.individual.nodes.1.type = input
+neat.individual.nodes.1.drawing-position = 0
+neat.individual.nodes.1.random-activation-function = false
+
+# Maturation node information
+neat.individual.nodes.2.name = Maturation
+neat.individual.nodes.2.type = input
+neat.individual.nodes.2.drawing-position = 0
+neat.individual.nodes.2.random-activation-function = false
+
+# Predation node information
+neat.individual.nodes.3.name = Predation
+neat.individual.nodes.3.type = input
+neat.individual.nodes.3.drawing-position = 0
+neat.individual.nodes.3.random-activation-function = false
+
+# Other's activity level node information
+neat.individual.nodes.4.name = Other-Activity
+neat.individual.nodes.4.type = input
+neat.individual.nodes.4.drawing-position = 0
+neat.individual.nodes.4.random-activation-function = false
+
+# Output node information
+neat.individual.nodes.5.name = Output
+neat.individual.nodes.5.type = output
+neat.individual.nodes.5.drawing-position = 1
+neat.individual.nodes.5.random-activation-function = false
+neat.individual.nodes.5.activation-function = sigmoid
+
+
+# Number of hard-coded network links in the initial population
+neat.individual.links.count = 0
+
+# Flag indicating that the topology should be created
+neat.individual.create-topology = false
+
+# Edge density of created topology
+neat.individual.edge-density = 1.0
+

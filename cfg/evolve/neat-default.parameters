@@ -1,0 +1,105 @@
+# ==============================================================
+# Parent parameters
+# ==============================================================
+parent.0 = ../ec/simple/simple.params
+
+
+# ==============================================================
+# ECJ evolutionary parameters
+# ==============================================================
+# Population size
+pop.subpop.0.size = 100
+
+# Number of generations
+generations = 201
+
+
+
+# ==============================================================
+# ECJ  parameters
+# ==============================================================
+# Custom evaluator
+eval = edu.snu.jyperneat.core.ecj.NeatEvaluator
+eval.speciator = edu.snu.jyperneat.core.species.StandardSpeciator
+eval.compatibility-threshold = 6.0
+eval.compatibility-modifier = 0.3
+eval.target-species-count = 8
+eval.dropoff-age = 15
+eval.age-significance = 1.0
+eval.survival-threshold = 0.2
+eval.mutate-only-prob = 0.25
+
+# Species information
+pop.subpop.0.species = edu.snu.jyperneat.core.ecj.ECJSpecies
+
+# Class used to calculate fitness
+pop.subpop.0.fitness = ec.simple.SimpleFitness
+
+# Class for our individual
+pop.subpop.0.species.ind = edu.snu.jyperneat.core.NeatIndividual
+pop.subpop.0.species.fitness = ec.simple.SimpleFitness
+
+# Operator information
+pop.subpop.0.species.crossover-type = one
+pop.subpop.0.species.mutation-prob = 0.01
+
+# Breeding information
+pop.subpop.0.species.pipe = edu.snu.jyperneat.core.ecj.NeatBreedingPipeline
+neat.breed.smallest-species-size-with-elitism = 5
+neat.breed.mutation-of-species-champ-prob = 0
+neat.breed.clone-generation-champ = true
+
+
+# Job information
+stat = edu.snu.jyperneat.core.ecj.NeatStatistics
+
+
+
+
+# ==============================================================
+# ECJ NeatIndividual parameters
+# ==============================================================
+
+# Age at which links become adults
+neat.individual.adult-link-age = 15
+
+# Do we allow recurrent and self-recurrent connections?
+neat.individual.allow-recurrent-connection = false
+neat.individual.allow-self-recurrent-connection = false
+
+# Activation functions available for hidden nodes
+neat.individual.activation-functions = sigmoid gaussian absolute-value sine
+
+# Do we add a link to the bias for new hidden nodes
+neat.individual.add-bias-to-hidden-nodes = true
+
+# Coefficients for compatibility function
+neat.individual.disjoint-coeff = 2.0
+neat.individual.excess-coeff = 2.0
+neat.individual.weight-diff-coeff = 1.0
+# Disable the fitness coefficient
+neat.individual.fitness-coeff = 0.0
+
+# Minimum weight for a link to show up in the phenotype
+neat.individual.link-gene-min-weight-for-phenotype = 0.2
+
+# Probability that mutation will add a new node
+neat.individual.mutate-add-node-prob = 0.03
+# Probability that mutation will ad a new link
+neat.individual.mutate-add-link-prob = 0.05
+# Probability that mutation will modify link weights
+neat.individual.mutate-link-weights-prob = 0.8
+# Probability that mutation will change a link's weight
+neat.individual.mutate-link-prob = 0.1
+# Probability that mutation will demolish a link
+neat.individual.mutate-demolish-link-prob = 0.0
+
+# Flag indicating that we should override the max individual size
+neat.individual.override-max-individual-size = true
+
+# Scaling factor and offset used in generating random weights
+neat.individual.random-weight-scaling-factor = 6.0
+neat.individual.random-weight-offset = -3.0
+
+
+

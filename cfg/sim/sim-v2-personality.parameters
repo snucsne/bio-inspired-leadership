@@ -1,0 +1,54 @@
+# =========================================================
+# Simulator parameters
+sim-observer-count = 5
+
+# Simulation observers
+sim-observer.0.class-name = edu.snu.leader.spatial.observer.DebugSimObserver
+sim-observer.1.class-name = edu.snu.leader.spatial.observer.PersonalityUpdateSimObserver
+sim-observer.2.class-name = edu.snu.leader.spatial.observer.SingleInitiationOnlySimObserver
+sim-observer.3.class-name = edu.snu.leader.spatial.observer.AllAgentsDepartedSimObserver
+sim-observer.4.class-name = edu.snu.leader.spatial.observer.ResultsReporterSimObserver
+results-file = data/spatial-sim-v2.dat
+
+
+# =========================================================
+# Simulation state parameters
+random-seed = 42
+agent-count = 10
+simulation-run-count = 10
+simulation-run-step-count = 100000
+single-initiator-only = true
+
+
+# =========================================================
+# Agent building parameters
+agent-builder = edu.snu.leader.spatial.builder.PersonalityAgentBuilder
+initial-personality = 0.5
+communication-type = global
+cancel-threshold = 1.0
+initiate-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
+follow-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
+cancel-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
+decision-probability-calculator-class = edu.snu.leader.spatial.calculator.DefaultGautraisDecisionProbabilityCalculator
+locations-file = cfg/sim/locations/locations/metric/valid-metric-loc-010-seed-00001.dat
+
+
+# =========================================================
+# Calculator parameters
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+
+
+# =========================================================
+# Personality trait parameters
+personality-discount = 0.02
+winner-reward = 1
+loser-penalty = 0
+min-personality = 0.1
+max-personality = 0.9
+true-winner-effects-active = true
+true-loser-effects-active = true
+bystander-winner-effects-active = true
+bystander-loser-effects-active = true
+

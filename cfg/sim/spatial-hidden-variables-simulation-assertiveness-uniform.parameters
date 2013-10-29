@@ -1,0 +1,34 @@
+simulation-count = 20000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 200
+rebuild-individuals = false
+use-nearest-neighbor-group-size = false
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership-assertiveness.dat
+
+event-time-calculator-class = edu.snu.leader.hidden.AssertivenessAndDirectionEventTimeCalculator
+modify-initiation-rate = false
+modify-following-rate = true
+modify-cancellation-rate = false
+
+
+individual-builder-class = edu.snu.leader.hidden.AssertivenessAndDirectionIndividualBuilder
+assertiveness-mean = 0.5
+assertiveness-std-dev = 0.1
+min-assertiveness = 0.1
+max-assertiveness = 0.9
+assertiveness-rng-dist = gaussian
+
+direction-mean = 0
+direction-std-dev = 0.1
+min-direction = -1.0
+max-direction = 1.0
+direction-rng-dist = uniform
+
+
+personality-calculator-class = edu.snu.leader.hidden.ConstantPersonalityCalculator
+#personality-calculator-class = edu.snu.leader.hidden.StandardUpdateRulePersonalityCalculator
+
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc

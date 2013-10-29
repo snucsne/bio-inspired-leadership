@@ -1,0 +1,261 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # ===============================================
+> # Experimental parameters
+> 
+> # Number of individuals in the group
+> groupSize <- 10
+> 
+> # Number of simulations to perform
+> simulationCount <- 10000
+> 
+> # The title of the plot
+> #title <- expression(k = 16 * (1-c)^4)
+> #title <- expression(k = 8 * (1-c)^3)
+> #title <- expression(k = 4 * (1-c)^2)
+> #title <- expression(k = 2 * (1-c))
+> #title <- expression(k = 1.4142 * (1-c)^0.5)
+> #title <- expression(k = 1.2599 * (1-c)^0.33333)
+> title <- expression(k = 1.1892 * (1-c)^0.25)
+> 
+> #title = "2.828427 * (1-c)^1.5"
+> 
+> # Plot filename
+> plotFilename <- "conflict-0.25.eps"
+> 
+> # State value plot label
+> stateValueLabel <- "Conflict"
+> 
+> # State values to evaluate (e.g., personality or conflict)
+> stateValues <- seq( 0.1, 0.9, 0.1 )
+> 
+> 
+> # Calculate the initiation rate constant K
+> calculateKInitiate = function( x )
++ {
++     return (1);
++ }
+> 
+> # Calculate the following rate constant K
+> calculateKFollow = function( x )
++ {
++ #    return (16*((1-x)^4));
++ #    return (8*(1-x)^3);
++ #    return (4*(1-x)^2);
++ #    return (2*(1-x));
++ #    return (1.4142*((1-x)^(0.5)));
++ #    return (1.2599 * ((1-x)^0.33333));
++     return (1.1892*((1-x)^(0.25)));
++ 
++ #    return (2.828427 * (1-x)^1.5);
++ #    return ( (10^(1/3.321928) * x)^(3.321928) );
++ }
+> 
+> # Calculate the cancellation rate constant K
+> calculateKCancel = function( x )
++ {
++     return (1);
++ }
+> 
+> 
+> 
+> # *******************************************************************
+> # DO NOT CHANGE BELOW THIS LINE
+> # *******************************************************************
+> 
+> 
+> # ===============================================
+> # Define the simulation constants
+> initiationBase <- 1290
+> followAlpha <- 162.3
+> followBeta <- 57.4
+> cancelAlpha <- 0.009
+> cancelGamma <- 2
+> cancelEpsilon <- 2.3
+> 
+> 
+> # ===============================================
+> # Calculate the initiation rate
+> calculateInitiationTau = function( k )
++ {
++     return (k * initiationBase);
++ }
+> 
+> # ===============================================
+> # Calculate the following rate
+> calculateFollowingTau = function( k, groupSize, departed )
++ {
++     return( (1/k) * (followAlpha + followBeta * (groupSize - departed) / departed ) );
++ }
+> 
+> # ===============================================
+> # Calculate the cancelling rate
+> calculateCancelC = function( k, departed )
++ {
++     return( k * cancelAlpha / (1 + (departed / cancelGamma)^(cancelEpsilon)) );
++ }
+> 
+> # ===============================================
+> # Performs the simulation
+> performSimulation = function( stateValue )
++ {
++ #    cat( "stateValue=[", stateValue, "]\n" );
++ 
++     # Get the k values
++     kInitiate <- calculateKInitiate( stateValue )
++     kFollow <- calculateKFollow( stateValue )
++     kCancel <- calculateKCancel( stateValue )
++ 
++     cat("stateValue=[", stateValue, "]  kFollow=[",kFollow,"]\n", sep="" );
++ 
++     # Set up some variables for various results
++     moveSizeCounts = rep( 0, groupSize );
++     attempts = rep( 0, groupSize );
++     successes = rep( 0, groupSize );
++     totalSuccesses = 0;
++ 
++     # Run through the simulations
++     for( simIdx in 1:simulationCount )
++     {
++ #        cat( "  simIdx=[", simIdx, "]\n" );
++ 
++         departureOrder = c();
++ 
++         simState = data.frame(
++             id = 1:groupSize,
++             remaining = rep(1,groupSize) );
++ 
++         # Calculate the initiattion times
++         simState$initiationTimes = rexp( groupSize,
++                 1 / calculateInitiationTau(kInitiate) );
++ 
++         # Find the first one
++         initiator = which.min( simState$initiationTimes );
++         simState$remaining[ initiator ] = 0;
++         departureOrder = c( departureOrder, initiator );
++         attempts[initiator] = attempts[initiator] + 1;
++ 
++         # Run until everyone follows or the initiator cancels
++         while( 1 )
++         {
++ #            cat("    Remaining: ",simState$remaining,"\n");
++ 
++             # Get the number of individuals remaining
++             remainingCount = length( which( simState$remaining > 0 ) );
++ 
++             # Get the number of departed individuals
++             departedCount = groupSize - remainingCount;
++ 
++             # If there aren't any remaining, we are done
++             if( remainingCount < 1 )
++             {
++ #                cat("      None remaining: ", simState$remaining,"\n");
++                 break;
++             }
++ 
++             # Calculate the following times
++             simState$followingTimes = rexp( groupSize, 1 / calculateFollowingTau( kFollow,
++                     groupSize,
++                     departedCount ) );
++ 
++             # Clear out all the times for ones that have already departed
++             simState$followingTimes[simState$remaining<1]=NA;
++ 
++             # Find the soonest follower
++             follower = which.min( simState$followingTimes );
++ #            cat("      Earliest follower [", simState$followingTimes[follower], "]\n" );
++ 
++             # Calculate the cancelling time
++             cancellingTime = rexp( 1, calculateCancelC( kCancel, departedCount ) );
++ #            cat("      Cancelling time [", cancellingTime, "]\n", sep="");
++ 
++             # Which happens first?
++             if( cancellingTime < simState$followingTimes[follower] )
++             {
++                 # Cancel
++ #                cat( "    Cancelling");
++                 break;
++             }
++             else
++             {
++                 # Follow me!
++                 simState$remaining[follower] = 0;
++                 departureOrder = c( departureOrder, follower );
++ #                cat( "    Following\n");
++             }
++         }
++ 
++         # Keep track of the move size
++         moveSizeCounts[departedCount] = moveSizeCounts[departedCount] + 1;
++ 
++         # Did everyone move?
++         if( departedCount == groupSize )
++         {
++             # Yup
++             successes[initiator] = successes[initiator] + 1;
++             totalSuccesses = totalSuccesses + 1;
++ #            cat("    SUCCESS=[", totalSuccesses, "]\n" );
++         }
++     }
++ 
++     # Return the success percentage
++     return (totalSuccesses / simulationCount);
++ }
+> 
+> # ===============================================
+> # Evaluate the different state values
+> successPercentages <- rep( 0, times=length(stateValues) )
+> for( i in 1:length(stateValues) )
++ {
++     successPercentages[[i]] <- performSimulation( stateValues[[i]] )
++ }
+stateValue=[0.1]  kFollow=[1.158285]
+stateValue=[0.2]  kFollow=[1.124676]
+stateValue=[0.3]  kFollow=[1.087751]
+stateValue=[0.4]  kFollow=[1.046629]
+stateValue=[0.5]  kFollow=[0.999994]
+stateValue=[0.6]  kFollow=[0.945736]
+stateValue=[0.7]  kFollow=[0.8801065]
+stateValue=[0.8]  kFollow=[0.795266]
+stateValue=[0.9]  kFollow=[0.6687363]
+> 
+> successPercentages
+[1] 0.4284 0.4135 0.3959 0.3835 0.3749 0.3495 0.3360 0.2980 0.2449
+> 
+> # ===============================================
+> # Plot the results
+> postscript( file=plotFilename, height=3.5, width=4,
++         onefile=FALSE, pointsize=11,
++         horizontal=FALSE, paper="special" )
+> par(mar=c(5.1,5.1,1.1,1.1))
+> plot( stateValues, successPercentages, type="o",
++         xlab=stateValueLabel,
++         ylab="Success Percentage",
++         xlim=c(0,1.0),
++         ylim=c(0,1.0),
++         main=title )
+> 
+> dev.off()
+null device 
+          1 
+> 
+> 
+> 

@@ -1,0 +1,596 @@
+#!/usr/bin/perl
+use strict;
+
+# -------------------------------------------------------------------
+# Get the data directory
+my $dataDir = shift( @ARGV );
+
+# Get the output file
+my $outputFile = shift( @ARGV );
+
+# Get the eps file
+my $epsFilePrefix = shift( @ARGV );
+
+# -------------------------------------------------------------------
+# Get each of the data files
+opendir( DIR, $dataDir ) or die "Unable to open data directory [$dataDir]: $!\n";
+my @dataFiles = grep { /\.dat$/ } readdir( DIR );
+@dataFiles = sort( @dataFiles );
+closedir( DIR );
+
+print "Found ",($#dataFiles + 1)," files\n";
+
+# -------------------------------------------------------------------
+# Read the data files
+my %data;
+foreach my $dataFile (@dataFiles)
+{
+    # Open the file
+    open( DATA, "$dataDir/$dataFile" ) or die "Unable to open data file [$dataDir/$dataFile]: $!\n";
+
+    # Read each line
+    while( <DATA> )
+    {
+        # Remove any other comments or whitespace
+        s/#.*//;
+        s/^\s+//;
+        s/\s+$//;
+        next unless length;
+
+        my ($key,$value) = split( /\s+=\s+/, $_ );
+
+        if( $key =~ /^move/ )
+        {
+            my ($trash, $id) = split( /\./, $key );
+            if( 0 < $id )
+            {
+                $data{"move"}[$id] += $value;
+                $data{"move-total"} += $value
+            }
+        }
+        elsif( $key =~ /^final-initiators/ )
+        {
+            my ($trash, $id) = split( /\./, $key );
+            if( 0 < $id )
+            {
+                $data{"final-initiators"}[$id] += $value;
+                $data{"final-initiators-total"} += $value
+            }
+        }
+        elsif( $key =~ /^initiation.*attempts/ )
+        {
+            $data{"attempts"} .= " ".$value;
+        }
+        elsif( $key =~ /^initiation.*successes/ )
+        {
+            $data{"successes"} .= " ".$value;
+        }
+        elsif( $key =~ /attempt-percentage/ )
+        {
+            $data{"attempt-percentage"} .= " ".$value;
+        }
+        elsif( $key =~ /success-percentage/ )
+        {
+            $data{"success-percentage"} .= " ".$value;
+        }
+        elsif( $key =~ /failed-followers-mean/ )
+        {
+            $data{"failed-followers-mean"} .= " ".$value;
+        }
+        elsif( $key =~ /eigenvector-centrality/ )
+        {
+            $data{"eigenvector-centrality"} .= " ".$value;
+        }
+        elsif( $key =~ /betweenness/ )
+        {
+            $data{"betweenness"} .= " ".$value;
+        }
+        elsif( $key =~ /mimicing-neighbor-count/ )
+        {
+            $data{"mimicing-neighbor-count"} .= " ".$value;
+        }
+        elsif( $key =~ /^individual.*personality/ )
+        {
+            $data{"personality"} .= " ".$value;
+        }
+    }
+
+    close( DATA );
+}
+
+# -------------------------------------------------------------------
+# Save the success percentage
+my $indCount = $#{$data{"move"}};
+my $successPercentage = $data{"move"}[$indCount] / $data{"move-total"};
+my $successFilename = $outputFile;
+$successFilename =~ s/\.stats/-success-percentage.dat/;
+open( SUCCESS, "> $successFilename" ) or die "Unable to open success file [$successFilename]: $!\n";
+print SUCCESS sprintf( "%04d   %06.4f\n", $indCount, $successPercentage );
+close( SUCCESS );
+
+
+# -------------------------------------------------------------------
+# Create an input file for R
+my $rInputFile = "/tmp/spatial-hidden-var.r";
+my $rOutputFile = "/tmp/spatial-hidden-var.r.out";
+
+open( INPUT, "> $rInputFile" ) or die "Unable to open input file [$rInputFile]: $!\n";
+print INPUT "library('Matching')\n";
+print INPUT "library('igraph')\n";
+print INPUT "outliercolors=c(rep(\"#666666\",1530),rep(\"#EEA500\",85),rep(\"#666666\",935))\n";
+print INPUT "outliercolors=c(rep(\"#666666\",1530),rep(\"#3333FF\",85),rep(\"#666666\",935))\n";
+
+
+# -------------------------------------------------------------------
+# Add the attempt counts
+print INPUT "# Attempt counts\n";
+print INPUT "indattempts <- scan()\n";
+print INPUT $data{"attempts"},"\n";
+print INPUT "\n\n";
+
+# -------------------------------------------------------------------
+# Add the success counts
+print INPUT "# Success counts\n";
+print INPUT "indsuccesses <- scan()\n";
+print INPUT $data{"successes"},"\n";
+print INPUT "\n\n";
+print INPUT "indsuccesspercentage <- indsuccesses / indattempts\n";
+
+# -------------------------------------------------------------------
+# Add the attempt percentages
+print INPUT "# Attempts percentages\n";
+print INPUT "attempts <- scan()\n";
+print INPUT $data{"attempt-percentage"},"\n";
+print INPUT "\n\n";
+
+# -------------------------------------------------------------------
+# Add the attempt percentages
+print INPUT "# Attempts percentages\n";
+print INPUT "attempts <- scan()\n";
+print INPUT $data{"attempt-percentage"},"\n";
+print INPUT "\n\n";
+
+# -------------------------------------------------------------------
+# Add the success percentages
+print INPUT "# Success percentages\n";
+print INPUT "success <- scan()\n";
+print INPUT $data{"success-percentage"},"\n";
+print INPUT "\n\n";
+
+#print INPUT "buildcolor = function(index, leadership)
+#{
+#    if( (index > 1530) && (index < 1616) ){
+#        if( leadership > 0.02 ){
+#            return (\"#3333FF\");
+#        }
+#        else
+#        {
+#            return (\"#FFA500\");
+#        }
+#    }
+#    else
+#    {
+#        return (\"#666666\");
+#    }
+#}
+#for( i in 1:length(outliercolors) ) {
+#    outliercolors[i] = buildcolor(i,success[i])
+#}\n";
+
+
+# -------------------------------------------------------------------
+# Add the mean failed follower count for each individual
+
+print INPUT "# Mean failed follower count\n";
+print INPUT "failedfollowers <- scan()\n";
+print INPUT $data{"failed-followers-mean"},"\n";
+print INPUT "\n\n";
+
+# -------------------------------------------------------------------
+# Add the eigenvector centralities
+print INPUT "# Eigenvector centralities\n";
+print INPUT "eig <- scan()\n";
+print INPUT $data{"eigenvector-centrality"},"\n";
+print INPUT "\n\n";
+
+
+# -------------------------------------------------------------------
+# Add the betweenness values
+print INPUT "# Betweenness values\n";
+print INPUT "bet <- scan()\n";
+print INPUT $data{"betweenness"},"\n";
+print INPUT "\n\n";
+
+
+# -------------------------------------------------------------------
+# Add the mimicing neighbor count
+print INPUT "# Mimicing neighbor count\n";
+print INPUT "mimics <- scan()\n";
+print INPUT $data{"mimicing-neighbor-count"},"\n";
+print INPUT "\n\n";
+
+
+# -------------------------------------------------------------------
+# Add the personalities
+print INPUT "# Personalities\n";
+print INPUT "personalities <- scan()\n";
+print INPUT $data{"personality"},"\n";
+print INPUT "\n\n";
+
+
+# -------------------------------------------------------------------
+# Add the movement counts
+print INPUT "# Movement counts\n";
+print INPUT "movementcounts <- scan()\n";
+foreach my $value (@{$data{"move"}})
+{
+    print INPUT $value," ";
+}
+print INPUT "\n\n";
+print INPUT "movementcounts <- movementcounts / ",$data{"move-total"},"\n\n";
+
+
+
+# -------------------------------------------------------------------
+# Add the final initiator counts
+print INPUT "# Final initiator counts\n";
+print INPUT "initiatorcounts <- scan()\n";
+foreach my $value (@{$data{"final-initiators"}})
+{
+    print INPUT $value," ";
+}
+print INPUT "\n\n";
+print INPUT "initiatorcounts <- initiatorcounts / ",$data{"final-initiators-total"},"\n\n";
+
+
+
+# -------------------------------------------------------------------
+# Output statistics file
+print INPUT "sink(\"$outputFile\")\n";
+
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Individual attempts summary\\n\")\n";
+print INPUT "cat(\"summary.indattempts.mean = \", format( mean(indattempts) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indattempts.max = \", format( max(indattempts) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indattempts.min = \", format( min(indattempts) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indattempts.sd = \", format( sd(indattempts) ), \"\\n\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Individual success summary\\n\")\n";
+print INPUT "cat(\"summary.indsuccesses.mean = \", format( mean(indsuccesses) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indsuccesses.max = \", format( max(indsuccesses) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indsuccesses.min = \", format( min(indsuccesses) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indsuccesses.sd = \", format( sd(indsuccesses) ), \"\\n\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Individual success percentage summary\\n\")\n";
+print INPUT "cat(\"summary.indsuccesspercentage.mean = \", format( mean(indsuccesspercentage) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indsuccesspercentage.max = \", format( max(indsuccesspercentage) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indsuccesspercentage.min = \", format( min(indsuccesspercentage) ), \"\\n\")\n";
+print INPUT "cat(\"summary.indsuccesspercentage.sd = \", format( sd(indsuccesspercentage) ), \"\\n\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Attempt summary\\n\")\n";
+print INPUT "cat(\"summary.attempts.mean = \", format( mean(attempts) ), \"\\n\")\n";
+print INPUT "cat(\"summary.attempts.sd = \", format( sd(attempts) ), \"\\n\")\n";
+#print INPUT "summary(attempts)\n";
+#print INPUT "cat(\"# Standard deviation\\n\")\n";
+#print INPUT "sd(attempts)\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Success summary\\n\")\n";
+print INPUT "cat(\"summary.success.mean = \", format( mean(success) ), \"\\n\")\n";
+print INPUT "cat(\"summary.success.sd = \", format( sd(success) ), \"\\n\")\n";
+#print INPUT "summary(success)\n";
+#print INPUT "cat(\"# Standard deviation\\n\")\n";
+#print INPUT "sd(success)\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Failed followers summary\\n\")\n";
+print INPUT "cat(\"summary.failedfollowers.mean = \", format( mean(failedfollowers) ), \"\\n\")\n";
+print INPUT "cat(\"summary.failedfollowers.sd = \", format( sd(failedfollowers) ), \"\\n\")\n";
+#print INPUT "summary(failedfollowers)\n";
+#print INPUT "cat(\"# Standard deviation\\n\")\n";
+#print INPUT "sd(failedfollowers)\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Eigenvector centrality summary\\n\")\n";
+print INPUT "cat(\"summary.eig.mean = \", format( mean(eig) ), \"\\n\")\n";
+print INPUT "cat(\"summary.eig.sd = \", format( sd(eig) ), \"\\n\")\n";
+#print INPUT "summary(eig)\n";
+#print INPUT "cat(\"# Standard deviation\\n\")\n";
+#print INPUT "sd(eig)\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Betweenness summary\\n\")\n";
+print INPUT "cat(\"summary.bet.mean = \", format( mean(bet) ), \"\\n\")\n";
+print INPUT "cat(\"summary.bet.sd = \", format( sd(bet) ), \"\\n\")\n";
+#print INPUT "summary(bet)\n";
+#print INPUT "cat(\"# Standard deviation\\n\")\n";
+#print INPUT "sd(bet)\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Mimicing neighbors summary\\n\")\n";
+print INPUT "cat(\"summary.mimics.mean = \", format( mean(mimics) ), \"\\n\")\n";
+print INPUT "cat(\"summary.mimics.sd = \", format( sd(mimics) ), \"\\n\")\n";
+#print INPUT "summary(mimics)\n";
+#print INPUT "cat(\"# Standard deviation\\n\")\n";
+#print INPUT "sd(mimics)\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Personality summary\\n\")\n";
+print INPUT "cat(\"summary.personality.mean = \", format( mean(personalities) ), \"\\n\")\n";
+print INPUT "cat(\"summary.personality.sd = \", format( sd(personalities) ), \"\\n\")\n";
+#print INPUT "summary(mimics)\n";
+#print INPUT "cat(\"# Standard deviation\\n\")\n";
+#print INPUT "sd(mimics)\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: eigenvector centrality vs. success\\n\")\n";
+print INPUT "cor(eig,success)\n";
+print INPUT "cor.test(eig,success,method=\"pearson\")\n";
+print INPUT "cor.test(eig,success,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: betweenness vs. success\\n\")\n";
+print INPUT "cor(bet,success)\n";
+print INPUT "cor.test(bet,success,method=\"pearson\")\n";
+print INPUT "cor.test(bet,success,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: mimics vs. success\\n\")\n";
+print INPUT "cor(mimics,success)\n";
+print INPUT "cor.test(mimics,success,method=\"pearson\")\n";
+print INPUT "cor.test(mimics,success,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: eigenvector centrality vs. personalities\\n\")\n";
+print INPUT "cor(eig,personalities)\n";
+print INPUT "cor.test(eig,personalities,method=\"pearson\")\n";
+print INPUT "cor.test(eig,personalities,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: mimics vs. personality\\n\")\n";
+print INPUT "cor(mimics,personalities)\n";
+print INPUT "cor.test(mimics,personalities,method=\"pearson\")\n";
+print INPUT "cor.test(mimics,personalities,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: personalities vs. success\\n\")\n";
+print INPUT "cor(personalities,success)\n";
+print INPUT "cor.test(personalities,success,method=\"pearson\")\n";
+print INPUT "cor.test(personalities,success,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: eigenvector centrality vs. failedfollowers\\n\")\n";
+print INPUT "cor(eig,failedfollowers)\n";
+print INPUT "cor.test(eig,failedfollowers,method=\"pearson\")\n";
+print INPUT "cor.test(eig,failedfollowers,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: betweenness vs. failedfollowers\\n\")\n";
+print INPUT "cor(bet,failedfollowers)\n";
+print INPUT "cor.test(bet,failedfollowers,method=\"pearson\")\n";
+print INPUT "cor.test(bet,failedfollowers,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: mimics vs. failedfollowers\\n\")\n";
+print INPUT "cor(mimics,failedfollowers)\n";
+print INPUT "cor.test(mimics,failedfollowers,method=\"pearson\")\n";
+print INPUT "cor.test(mimics,failedfollowers,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: eigenvector centrality vs. mimics\\n\")\n";
+print INPUT "cor(eig,mimics)\n";
+print INPUT "cor.test(eig,mimics,method=\"pearson\")\n";
+print INPUT "cor.test(eig,mimics,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+print INPUT "cat(\"# =====================================\\n\")\n";
+print INPUT "cat(\"# Correlation: betweenness vs. mimics\\n\")\n";
+print INPUT "cor(bet,mimics)\n";
+print INPUT "cor.test(bet,mimics,method=\"pearson\")\n";
+print INPUT "cor.test(bet,mimics,method=\"spearman\")\n";
+print INPUT "cat(\"\\n\")\n";
+
+# -------------------------------------------------------------------
+# Create a number of scatterplots
+my %plotData = (
+    "eig-vs-success" => { "data"  => "success",
+                   "altdata" => "eig",
+                   "title" => "Leadership",
+                   "alttitle" => "Eigenvector Centrality",
+                   "xmax" => "1.0",
+                   "postfix" => "eig-vs-success" },
+    "eig-vs-personality" => { "data"  => "personalities",
+                   "altdata" => "eig",
+                   "title" => "Personality",
+                   "alttitle" => "Eigenvector Centrality",
+                   "xmax" => "1.0",
+                   "postfix" => "eig-vs-personality" },
+    "eig-vs-failedfollowers" => { "data"  => "failedfollowers",
+                   "altdata" => "eig",
+                   "title" => "Mean Followers When Cancelling",
+                   "alttitle" => "Eigenvector Centrality",
+                   "xmax" => "1.0",
+                   "postfix" => "eig-vs-failedfollowers" },
+#    "eig-vs-attempts" => { "data"  => "attempts",
+#                   "altdata" => "eig",
+#                   "title" => "Attempts Percentage",
+#                   "alttitle" => "Eigenvector Centrality",
+#                   "xmax" => "1.0",
+#                   "postfix" => "eig-vs-attempts" },
+    "eig-vs-mimics" => { "data"  => "mimics",
+                   "altdata" => "eig",
+                   "title" => "Mimicking neighbors",
+                   "alttitle" => "Eigenvector Centrality",
+                   "xmax" => "1.0",
+                   "postfix" => "eig-vs-mimics" },
+    "mimics-vs-success" => { "data"  => "success",
+                   "altdata" => "mimics",
+                   "title" => "Leadership",
+                   "alttitle" => "Mimicking neighbors",
+                   "xmax" => "20",
+                   "postfix" => "mimics-vs-success" },
+    "mimics-vs-failedfollowers" => { "data"  => "failedfollowers",
+                   "altdata" => "mimics",
+                   "title" => "Mean Followers When Cancelling",
+                   "alttitle" => "Mimicking neighbors",
+                   "xmax" => "20",
+    "mimics-vs-personalities" => { "data"  => "personalities",
+                   "altdata" => "mimics",
+                   "title" => "Personality",
+                   "alttitle" => "Mimicking neighbors",
+                   "xmax" => "20",
+                   "postfix" => "mimics-vs-personality" },
+    "personalities-vs-success" => { "data"  => "success",
+                   "altdata" => "personalities",
+                   "title" => "Leadership",
+                   "alttitle" => "Personality",
+                   "xmax" => "20",
+                   "postfix" => "personality-vs-success" },
+                   "postfix" => "mimics-vs-failedfollowers" },
+);
+
+foreach my $type (keys( %plotData ) )
+{
+    my $tmpREPSFile = "/tmp/spatial-hidden-var-".$plotData{$type}{"postfix"}.".eps";
+    `rm $tmpREPSFile`;
+    
+    print INPUT "postscript( file = \"$tmpREPSFile\", height=3.5, width=4, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "par(mar=c(5.1,5.1,1.1,1.1))\n";
+    print INPUT "plot( ",$plotData{$type}{"altdata"},", ",$plotData{$type}{"data"},", col=c(\"#666666\"),\n";
+#    print INPUT "plot( ",$plotData{$type}{"altdata"},", ",$plotData{$type}{"data"},", col=outliercolors,\n";#c(\"#666666\"),\n";
+    print INPUT "    xlab=\"",$plotData{$type}{"alttitle"},"\", ylab=\"\", las = 1,\n";
+    print INPUT "    ylim=c(0,max(",$plotData{$type}{"data"},")),";
+#    print INPUT "    xlim=c(mineigen,1.0) )\n";
+    print INPUT "    xlim=c(0,",$plotData{$type}{"xmax"},") )\n";
+    print INPUT "if( 0 < sd(",$plotData{$type}{"altdata"},") ) abline( lm(",$plotData{$type}{"data"},"~",$plotData{$type}{"altdata"},"), col=\"#0000CC\", lty=1 )\n";
+    print INPUT "mtext(\"",$plotData{$type}{"title"},"\", side=2, line=4, las=0 )\n";
+
+    print INPUT "dev.off()\n\n\n";
+}
+
+
+# -------------------------------------------------------------------
+# Create a box plot for the movement count
+{
+    my $tmpREPSFile = "/tmp/spatial-hidden-var-movement-counts.eps";
+    `rm $tmpREPSFile`;
+    print INPUT "postscript( file = \"$tmpREPSFile\", height=3.75, width=5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "movementcolors <- c(rep(\"black\", (length(movementcounts)- 1)), \"grey\")\n";
+    print INPUT "maxmovementcount <- (ceiling(10*max(movementcounts)))/10\n";
+    print INPUT "barplot(movementcounts, col=movementcolors, mgp=c(2.5,1,0),\n";
+    print INPUT "    xlab=\"Group Size\", ylab=\"Frequency\",\n";
+    print INPUT "    names.arg=c(seq(1,length(movementcounts))), axis.lty=1,\n";
+#    print INPUT "    ylim=c(-0.02,maxmovementcount) )\n";
+    print INPUT "    ylim=c(-0.02,0.8) )\n";
+
+    print INPUT "dev.off()\n\n\n";
+}
+
+# -------------------------------------------------------------------
+# Create a box plot for the final initiators count
+{
+    my $tmpREPSFile = "/tmp/spatial-hidden-var-final-initiator-counts.eps";
+    `rm $tmpREPSFile`;
+    print INPUT "postscript( file = \"$tmpREPSFile\", height=3.75, width=5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "initiatorcolors <- c(\"black\", rep(\"grey\", (length(initiatorcounts)- 1)))\n";
+    print INPUT "maxinitiatorcount <- (ceiling(10*max(initiatorcounts)))/10\n";
+    print INPUT "barplot(initiatorcounts, col=initiatorcolors, mgp=c(2.5,1,0),\n";
+    print INPUT "    xlab=\"Final Initiators\", ylab=\"Frequency\",\n";
+    print INPUT "    names.arg=c(seq(1,length(initiatorcounts))), axis.lty=1,\n";
+#    print INPUT "    ylim=c(-0.02,initiatorcount) )\n";
+    print INPUT "    xlim=c(0.25,10.0),\n";
+    print INPUT "    ylim=c(-0.02,1.0) )\n";
+
+    print INPUT "dev.off()\n\n\n";
+}
+
+
+
+# -------------------------------------------------------------------
+# Close the input file
+close( INPUT );
+
+# -------------------------------------------------------------------
+# Run it
+`R --no-save < $rInputFile > $rOutputFile 2>&1`;
+
+
+# -------------------------------------------------------------------
+# Fix and move the plots
+foreach my $type (keys( %plotData ) )
+{
+    my $tmpREPSFile = "/tmp/spatial-hidden-var-".$plotData{$type}{"postfix"}.".eps";
+    my $fixedREPSFile = "/tmp/fixed-spatial-hidden-var-".$plotData{$type}{"postfix"}.".eps";
+    my $epsFile = $epsFilePrefix."-".$plotData{$type}{"postfix"}.".eps";
+
+    `rm $fixedREPSFile`;
+
+    `./replace-fonts-in-eps.pl $tmpREPSFile $fixedREPSFile`;
+    `eps2eps $fixedREPSFile $epsFile`;
+    `epstopdf $epsFile`;
+}
+
+my $tmpREPSFile = "/tmp/spatial-hidden-var-movement-counts.eps";
+my $fixedREPSFile = "/tmp/fixed-spatial-hidden-var-movement-counts.eps";
+my $epsFile = $epsFilePrefix."-movement-counts.eps";
+
+`rm $fixedREPSFile`;
+
+`./replace-fonts-in-eps.pl $tmpREPSFile $fixedREPSFile`;
+`eps2eps $fixedREPSFile $epsFile`;
+`epstopdf $epsFile`;
+
+$tmpREPSFile = "/tmp/spatial-hidden-var-final-initiator-counts.eps";
+$fixedREPSFile = "/tmp/fixed-spatial-hidden-var-final-initiator-counts.eps";
+$epsFile = $epsFilePrefix."-final-initiator-counts.eps";
+
+`rm $fixedREPSFile`;
+
+`./replace-fonts-in-eps.pl $tmpREPSFile $fixedREPSFile`;
+`eps2eps $fixedREPSFile $epsFile`;
+`epstopdf $epsFile`;
+

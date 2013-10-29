@@ -1,0 +1,11 @@
+simulation-count = 20000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 10
+rebuild-individuals = false
+use-nearest-neighbor-group-size = true
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership.dat
+#locations-file = cfg/sim/locations/complex-formation-binary-few.loc
+follow-factor-k-multiplier = 20
+#cancel-factor-k-multiplier = 1.0

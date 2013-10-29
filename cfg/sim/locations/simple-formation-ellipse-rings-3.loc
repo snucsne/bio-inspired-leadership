@@ -1,0 +1,62 @@
+# -------------------------------------------------------------------
+# Circle formation:
+#   ringCount=[3]
+#   radiusIncrement=[0]
+#   radiusMultiplier=[1]
+#   initialLocationCount=[4]
+#   locationCountIncrement=[4]
+#   locationCountMultiplier=[0]
+#   majorAxis=[1.5]
+#   minorAxis=[0.5]
+#   xOffset=[1]
+#   yOffset=[0]
+
+
+# -------------------------------------------------------------------
+# Ring:
+#   locationCount=[4]
+#   radius=[1]
+#   angleOffsetFlag=[1]
++2.061  +0.354
+-0.061  +0.354
+-0.061  -0.354
++2.061  -0.354
+
+# Total locations generated [4]
+
+# -------------------------------------------------------------------
+# Ring:
+#   locationCount=[8]
+#   radius=[2]
+#   angleOffsetFlag=[0]
++4.000  +0.000
++3.121  +0.707
++1.000  +1.000
+-1.121  +0.707
+-2.000  +0.000
+-1.121  -0.707
++1.000  -1.000
++3.121  -0.707
+
+# Total locations generated [12]
+
+# -------------------------------------------------------------------
+# Ring:
+#   locationCount=[12]
+#   radius=[3]
+#   angleOffsetFlag=[1]
++5.347  +0.388
++4.182  +1.061
++2.165  +1.449
+-0.165  +1.449
+-2.182  +1.061
+-3.347  +0.388
+-3.347  -0.388
+-2.182  -1.061
+-0.165  -1.449
++2.165  -1.449
++4.182  -1.061
++5.347  -0.388
+
+# Total locations generated [24]
+

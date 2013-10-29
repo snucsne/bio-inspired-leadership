@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+
+<!-- Build the Leadership Project -->
+
+<project name="Leader" default="dist" basedir="." >
+
+	<property name="src"     value="src" />
+	<property name="lib"     value="lib" />
+	<property name="compile" value="compile" />
+	<property name="build"   value="build" />
+	<property name="tmp"    value="tmp" />
+	<property name="doc"     value="doc" />
+	<property name="etc"     value="etc" />
+	<property name="data"    value="data" />
+	<property name="cfg"     value="cfg" />
+	<property name="scripts" value="scripts" />
+
+	<!-- Distrubution -->
+	<property name="dist"      value="dist" />
+	<property name="dist.data" value="dist/data" />
+	<property name="dist.lib"  value="dist/lib" />
+	<property name="dist.cfg"  value="dist/cfg" />
+	<property name="dist.src"  value="dist/src" />
+    <property name="dist.log"  value="dist/log" />
+    <property name="dist-test" value="dist-test" />
+
+    <property name="jar-file"  value="leader.jar" />
+    <property name="tar-file"  value="leader.tar" />
+
+	<!-- Initialize -->
+	<target name="init">
+		<path id="project.classpath">
+			<pathelement path="${lib}/" />
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+		<mkdir dir="${tmp}" />
+	</target>
+
+	<!-- Create the compile directory -->
+	<target name="prepare-compile">
+		<tstamp>
+			<format property="compile.run" pattern="MM/dd/yyyy hh:mm aa" />
+		</tstamp>
+		<mkdir dir="${compile}" />
+	</target>
+
+	<!-- Create the build directory -->
+	<target name="prepare-build">
+		<tstamp>
+			<format property="build.run" pattern="MM/dd/yyyy hh:mm aa" />
+		</tstamp>
+		<mkdir dir="${build}" />
+	</target>
+
+	<!-- Create the doc directory -->
+	<target name="prepare-doc">
+		<tstamp>
+			<format property="javadoc.run" pattern="MM/dd/yyyy hh:mm aa" />
+		</tstamp>
+		<mkdir dir="${doc}" />
+	</target>
+
+	<!-- Create the distribution directory -->
+	<target name="prepare-dist">
+		<tstamp>
+			<format property="dist.run" pattern="MM/dd/yyyy hh:mm aa" />
+		</tstamp>
+		<mkdir dir="${dist}" />
+		<mkdir dir="${dist.data}" />
+		<mkdir dir="${dist.lib}" />
+		<mkdir dir="${dist.log}" />
+        <mkdir dir="${dist-test}" />
+	</target>
+
+	<!-- Compiles the util codebase -->
+	<target name="compile" depends="init,prepare-compile">
+		<javac srcdir="${src}"
+				destdir="${compile}"
+				optimize="on"
+				debug="on"
+				excludes="**/*.xml"
+				fork="true"
+				deprecation="on">
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+
+	<!-- Builds the util project -->
+	<target name="build" depends="compile,prepare-build">
+		<jar jarfile="${build}/${jar-file}">
+			<fileset dir="${compile}" />
+		</jar>
+		<!-- <antcall target="test" /> -->
+	</target>
+
+	<!-- Builds the util project distribution -->
+	<target name="dist" depends="build,prepare-dist">
+		<!-- Copy the util jar file -->
+		<copy file="${build}/${jar-file}" todir="${dist}" />
+
+		<!-- Copy all the library files to the lib dir -->
+		<copy todir="${dist.lib}" >
+			<fileset dir="${lib}" />
+		</copy>
+
+		<!-- Copy all the data files to the data dir -->
+<!--
+		<copy todir="${dist.data}" >
+			<fileset dir="${data}" />
+		</copy>
+-->
+		<!-- Copy all the config files to the config dir -->
+		<copy todir="${dist.cfg}" >
+			<fileset dir="${cfg}" />
+		</copy>
+
+		<!-- Copy all the source files to the source dir -->
+		<copy todir="${dist.src}" >
+			<fileset dir="${src}" >
+                <exclude name=".*.swp" />
+            </fileset>
+		</copy>
+
+		<!-- Copy all the scripts to the dist dir -->
+		<copy todir="${dist}" >
+			<fileset dir="${scripts}" />
+		</copy>
+		<chmod dir="${dist}" perm="ugo+rx" includes="**/*.sh"/>
+		<chmod dir="${dist}" perm="ugo+rx" includes="**/*.pl"/>
+
+		<!-- Tar it all up and compress it -->
+		<delete file="${dist}/${tar-file}.gz" />
+		<tar destfile="${tmp}/${tar-file}" >
+			<tarfileset dir="${dist}/" mode="755" username="ant" group="ant" >
+				<include name="*.sh" />
+				<include name="**/*.sh" />
+				<include name="*.pl" />
+				<include name="**/*.pl" />
+			</tarfileset>
+			<tarfileset dir="${dist}" username="ant" group="ant" >
+				<include name="**" />
+				<exclude name="*.sh" />
+				<exclude name="**/*.sh" />
+			</tarfileset>
+		</tar>
+		<gzip zipfile="${tmp}/${tar-file}.gz" src="${tmp}/${tar-file}" />
+		<move file="${tmp}/${tar-file}.gz" todir="${dist}" />
+
+        <copy file="${dist}/${tar-file}.gz" todir="${dist-test}" />
+        <gunzip src="${dist-test}/${tar-file}.gz" />
+        <untar src="${dist-test}/${tar-file}" dest="${dist-test}" />
+		<chmod dir="${dist-test}" perm="ugo+rx" includes="**/*.sh"/>
+		<chmod dir="${dist-test}" perm="ugo+rx" includes="**/*.pl"/>
+        <delete file="${dist-test}/${tar-file}.gz" />
+        <delete file="${dist-test}/${tar-file}" />
+
+	</target>
+
+	<!-- Builds a clean distribution -->
+	<target name="clean-dist" depends="clean,dist">
+		<echo message="Done"/>
+	</target>
+
+	<!-- Clean the project -->
+	<target name="clean">
+		<delete dir="${build}" />
+		<delete dir="${compile}" />
+		<delete dir="${dist}" />
+		<delete dir="${tmp}" />
+        <delete dir="${dist-test}" />
+	</target>
+
+</project>
+
+

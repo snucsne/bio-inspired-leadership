@@ -1,0 +1,148 @@
+
+R version 2.12.1 (2010-12-16)
+Copyright (C) 2010 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ## 20091123
+> ## simus singesbeproc
+> 
+> GroupSize = 10;
+> TauInitiationBase = rep(1290*GroupSize, GroupSize);
+> TauRenonceAlpha = rep(0.009,GroupSize);
+> TauRenonceGamma = rep(2, GroupSize);
+> TauRenonceEpsilon = rep(2.3, GroupSize);
+> TauSuiviAlpha = rep(162.3, GroupSize);
+> TauSuiviBeta  = rep(75.4, GroupSize);
+> 
+> # BEE 2012.06.27
+> TauSuiviK = rep(40, GroupSize);
+> TauSuiviK[1]=1
+> 
+> 
+> TauInitiation = function(qui)
++   {
++     return ( TauInitiationBase[qui] );
++   }
+> TauRenonce   = function(qui,partis)
++   {
++     return ( 1/ ( TauRenonceAlpha[qui]/(1+(partis/TauRenonceGamma[qui])^TauRenonceEpsilon[qui]) ) );
++   }
+> TauSuivi = function(qui, partis,leader)
++   {
++     return (TauSuiviK[leader] * ( TauSuiviAlpha + TauSuiviBeta*(GroupSize-partis)/partis ));
++   }
+> 
+>  
+> InitNb = 10000 ;
+> ## moving size
+> MoveSizes = rep(0, GroupSize);
+> ## nb of attempts per indiv
+> Attempts = rep(0,GroupSize);
+> ## nb of success per indiv
+> Successs = rep(0,GroupSize);
+> ##  moving orders
+> Ordres = matrix(0,GroupSize,GroupSize);
+> 
+> 
+> for (initrank in 1:InitNb)
++   {
++     #########    UNE SIMU\n");
++     ordreDeparts = c();
++     simul = data.frame(
++       ident = 1:GroupSize,
++       Restant = rep(1,GroupSize));
++     simul$NextDates = rexp(GroupSize, 1/TauInitiation(simul$ident));
++     initiateur = which.min(simul$NextDates);
++     simul$Restant[initiateur]=0;
++     ordreDeparts = c(ordreDeparts,initiateur);
++     Attempts[initiateur] = Attempts[initiateur]+1;
++     
++     ## cat("\n\n\n") ; print(simul);
++     while (1)
++       {
++         stillthere = length(which(simul$Restant==1));
++         partis = GroupSize - stillthere;
++         if (stillthere<1) break;
++ 
++         simul$NextDates = rexp(GroupSize, 1/TauSuivi(simul$ident,partis,initiateur));
++         simul$NextDates[simul$Restant<1]=NA;
++         suiveur = which.min(simul$NextDates);
++ 
++         dateRenonce = rexp(1,1/TauRenonce(initiateur,partis));
++ 
++         if (dateRenonce < simul$NextDates[suiveur]) {
++           ## cat("## give-up at ",dateRenonce,"  (< ",suiveur," = ",simul$NextDates[suiveur],")\n");
++           break;
++         } else {
++           simul$Restant[suiveur]=0;
++           ordreDeparts = c(ordreDeparts,suiveur);
++         }
++         ## cat("\n"); print(simul); print(ordreDeparts);
++       }
++     ###############################
++     
++     ## stocker le resultat
++     ##     histo des tailles
++     MoveSizes[partis] = MoveSizes[partis]+1;
++     ## success
++     if (partis == GroupSize)
++           Successs[initiateur] = Successs[initiateur]+1;
++ 
++     ##     ordres
++     if (length(ordreDeparts)>1)
++       {
++         for (indiv in 1:(length(ordreDeparts)-1))
++           {
++             for (follow in (indiv+1):length(ordreDeparts))
++               {
++                 Ordres[ordreDeparts[indiv],ordreDeparts[follow]] = Ordres[ordreDeparts[indiv],ordreDeparts[follow]]+1;
++               }
++           }
++       }
++   }
+> RepartSuccess = Successs/sum(Successs);
+> LeaderRepart = RepartSuccess[1]/(1/GroupSize);
+> AllResults = list(MoveSizes = MoveSizes,Attempts  = Attempts,Successs  = Successs, RepartSuccess = RepartSuccess, Orders    = Ordres);
+> #save(AllResults, file="all-equal.rda");
+> print(AllResults);
+$MoveSizes
+ [1] 9105  403   78   36   11   13    9   11   12  322
+
+$Attempts
+ [1]  965 1064  979  999  979 1011 1017  962 1050  974
+
+$Successs
+ [1] 322   0   0   0   0   0   0   0   0   0
+
+$RepartSuccess
+ [1] 1 0 0 0 0 0 0 0 0 0
+
+$Orders
+      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+ [1,]    0  395  390  394  393  384  392  397  385   406
+ [2,]    6    0  197  179  196  166  192  172  179   179
+ [3,]    8  165    0  170  180  164  173  169  163   168
+ [4,]    3  182  189    0  184  178  176  188  171   176
+ [5,]    8  175  178  180    0  178  177  186  183   166
+ [6,]    9  197  195  188  186    0  189  180  174   190
+ [7,]    4  170  185  178  178  171    0  191  182   179
+ [8,]    7  187  193  175  178  181  169    0  174   184
+ [9,]    6  183  193  184  176  185  181  179    0   180
+[10,]    5  188  194  187  197  180  176  171  178     0
+
+> 

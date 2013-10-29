@@ -1,0 +1,22 @@
+simulation-count = 60000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 225
+rebuild-individuals = false
+use-nearest-neighbor-group-size = false
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership-personality.dat
+
+event-time-calculator-class = edu.snu.leader.hidden.PersonalityEventTimeCalculator
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+
+
+individual-builder-class = edu.snu.leader.hidden.SpecificPersonalityIndividualBuilder
+specific-personality = 0.1
+
+personality-calculator-class = edu.snu.leader.hidden.ConstantPersonalityCalculator
+
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc

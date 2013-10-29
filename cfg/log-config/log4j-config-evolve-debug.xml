@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- Define the custom file appender -->
+	<appender name="FileAppender" class="org.apache.log4j.FileAppender">
+		<param name="File" value="log/evolve-debug-${hostname}.log" />
+		<param name="Append" value="false" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{HH:mm:ss.SSS} %-25.25c{1} [%-5p] - %m%n" />
+		</layout>
+	</appender>
+
+    <category name="edu.ou.air.mates.evolve">
+        <level value="debug" />
+    </category>
+
+    <category name="edu.ou.air.mates.evaluate">
+        <level value="debug" />
+    </category>
+
+	<root>
+		<priority value="warn" />
+		<appender-ref ref="FileAppender" />
+	</root>
+
+</log4j:configuration>
+

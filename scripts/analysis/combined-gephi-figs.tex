@@ -1,0 +1,26 @@
+\documentclass[10pt]{article}
+\usepackage[paperwidth=11in,paperheight=6in,margin=0.1in]{geometry}
+\usepackage{graphicx}
+\usepackage[labelformat=empty]{caption}
+\usepackage{subfig}
+
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{center}
+  {\huge  ##TITLE##}
+\end{center}
+
+\begin{figure}[h!]
+\centering
+  \subfloat[Use Nearest Neighbor Group Size: {\bf TRUE}]{
+    \includegraphics[width=0.45\textwidth]{gephi-true}
+  }\hspace{2em}%
+  \subfloat[Use Nearest Neighbor Group Size: {\bf FALSE}]{
+    \includegraphics[width=0.45\textwidth]{gephi-false}
+  }
+\end{figure}
+
+\end{document}
+

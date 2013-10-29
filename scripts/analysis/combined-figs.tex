@@ -1,0 +1,69 @@
+\documentclass[10pt]{article}
+\usepackage[paperwidth=24in,paperheight=15in,margin=0.5in,textwidth=23in]{geometry}
+\usepackage{graphicx}
+\usepackage[labelformat=empty]{caption}
+\usepackage[textfont=scriptsize]{subfig}
+
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{center}
+  {\huge  ##TITLE##}
+\end{center}
+
+\begin{figure}[h!]
+\centering
+  \caption{Using nearest neighbor count as group size N: {\bf True}}
+  \subfloat{
+    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-movement-counts-true}
+  }\hspace{2em}%
+  \subfloat{
+    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-success-true}
+  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-mimicing-neighbors-true}
+%  }\hspace{2em}%
+  \subfloat{
+    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-success-mimic-true}
+%  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-movement-counts-true}
+%  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-success-followers-true}
+%  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-failed-followers-true}
+  }
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+  \caption{Using nearest neighbor count as group size N: {\bf False}}
+  \subfloat{
+    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-movement-counts-false}
+  }\hspace{2em}%
+  \subfloat{
+    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-success-false}
+  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-mimicing-neighbors-false}
+%  }\hspace{2em}%
+  \subfloat{
+    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-success-mimic-false}
+%  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-movement-counts-false}
+%  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-success-followers-false}
+%  }\hspace{2em}%
+%  \subfloat{
+%    \includegraphics[width=0.18\textwidth]{spatial-hidden-vars-failed-followers-false}
+  }
+
+\end{figure}
+
+\end{document}
+

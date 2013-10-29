@@ -1,0 +1,37 @@
+Initiate
+k = calculateK( personality )
+tau = tau / k
+_initRateBase * groupSize
+
+
+
+Follow
+k = calculateK( 1.0f - personality)
+tau = tau / k
+_followAlpha + ((_followBeta * (gorupSize - departed)) / departed)
+
+value=[0.2]  replot 1/((0.09485)*(162.3+75.4*(10-x)/x))
+value=[0.5]  replot 1/(162.3+75.4*(10-x)/x)
+value=[0.8]  replot 1/((1.90515)*(162.3+75.4*(10-x)/x))
+
+
+
+Cancel
+k = calculateK( 1.0f - personality)
+cRate = cRate * k
+_cancelAlpha / (1.0f + Math.pow( (departed / _cancelGamma), _cancelEpsilon ) )
+
+value=[0.2]  replot 0.09485*0.009/(1+(x/2)**2.3)
+value=[0.5]  plot 0.009/(1+(x/2)**2.3)
+value=[0.8]  replot 1.90515*0.009/(1+(x/2)**2.3)
+
+
+
+
+k = 2.0f * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * 10.0f) ) );
+
+
+value=[0.2]  k=[0.09485]     k=[0.09485174635513356]
+value=[0.5]  k=[1.0]
+value=[0.8]  k=[1.90515]     k=[1.9051482536448667]
+

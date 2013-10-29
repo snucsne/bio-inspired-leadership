@@ -1,0 +1,28 @@
+simulation-count = 60000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 110
+rebuild-individuals = false
+use-nearest-neighbor-group-size = false
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership-conflict.dat
+
+event-time-calculator-class = edu.snu.leader.hidden.ConflictEventTimeCalculator
+modify-initiation-rate = false
+modify-following-rate = true
+modify-cancellation-rate = false
+
+
+individual-builder-class = edu.snu.leader.hidden.ConflictDistributionIndividualBuilder
+conflict-mean = 0.5
+conflict-std-dev = 0
+min-conflict = 0.1
+max-conflict = 0.9
+conflict-rng-dist = gaussian
+
+
+personality-calculator-class = edu.snu.leader.hidden.ConstantPersonalityCalculator
+#personality-calculator-class = edu.snu.leader.hidden.StandardUpdateRulePersonalityCalculator
+
+
+#locations-file = cfg/sim/locations/complex-formation-binary-few.loc

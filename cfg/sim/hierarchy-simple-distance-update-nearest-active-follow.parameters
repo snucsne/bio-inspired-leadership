@@ -1,0 +1,17 @@
+# Simulation parameters
+random-seed = 42
+indivdiual-count = 40
+nearest-neighbor-count = 6
+
+# Results reporter and configuration parameters
+reporter-class = edu.snu.leader.hierarchy.simple.DefaultReporter
+stats-file = data/hierarchy-simple-distance-update-nearest-active-follow.dat
+
+# Update strategy and configuration parameters
+update-strategy-class = edu.snu.leader.hierarchy.simple.SimpleDistanceUpdateStrategy
+motivation-time-increase = 0.001
+motivation-neighbor-increase = 0.01
+
+# Follow strategy and configuration parameters
+follow-strategy-class = edu.snu.leader.hierarchy.simple.FollowNearestActiveNeighborStrategy
+
