@@ -33,8 +33,10 @@ public abstract class AbstractEventTimeCalculator implements EventTimeCalculator
     /** Key for modifying the cancellation rate flag */
     protected static final String _MODIFY_CANCELLATION_RATE_KEY = "modify-cancellation-rate";
 
-    /** Newline string */
-    protected static final String _NEWLINE = System.lineSeparator();
+    /** Newline string.  NOTE: The old way is temporarily used
+      * because a student can't use Java 1.7.  Once that is fixed, the new way will be used. */
+    //protected static final String _NEWLINE = System.lineSeparator();
+    protected static final String _NEWLINE = System.getProperty("line.separator");
 
 
 

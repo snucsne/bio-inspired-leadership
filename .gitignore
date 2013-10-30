@@ -4,4 +4,4 @@ compile
 dist-test
 dist
 tmp
-**/*.swp
+**/.*.swp

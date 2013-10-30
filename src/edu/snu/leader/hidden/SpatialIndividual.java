@@ -31,8 +31,10 @@ public class SpatialIndividual
     private static final Logger _LOG = Logger.getLogger(
             SpatialIndividual.class.getName() );
 
-    /** Newline string */
-    protected static final String _NEWLINE = System.lineSeparator();
+    /** Newline string.  NOTE: The old way is temporarily used
+      * because a student can't use Java 1.7.  Once that is fixed, the new way will be used. */
+    //protected static final String _NEWLINE = System.lineSeparator();
+    protected static final String _NEWLINE = System.getProperty("line.separator");
 
 
     public static class InitiationEvent
