@@ -1,0 +1,7 @@
+.metadata
+build
+compile
+dist-test
+dist
+tmp
+**/*.swp

@@ -14,7 +14,7 @@ package edu.snu.leader.hidden;
 public interface PersonalityCalculator
 {
     /**
-     * Initializes the updater
+     * Initializes the calculator
      *
      * @param simState The simulation's state
      */

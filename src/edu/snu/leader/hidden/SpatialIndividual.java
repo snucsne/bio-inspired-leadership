@@ -70,6 +70,15 @@ public class SpatialIndividual
      * denotes maximum boldness, while 0.0 denotes maximum shyness. */
     protected float _personality = 0.0f;
 
+    /** The individual's initial personality */
+    protected float _initialPersonality = 0.0f;
+
+    /** The individual's personality after the last initiation attempt */
+    protected float _personalityAfterLastInitiation = 0.0f;
+
+    /** The simulation index of this individual's last initiation attempt */
+    protected long _lastInitiationAttempt = 0;
+
     /** The individual's assertiveness */
     protected float _assertiveness = 0.0f;
 
@@ -152,6 +161,7 @@ public class SpatialIndividual
         _id = id;
         _location = location;
         _personality = personality;
+        _initialPersonality = personality;
         _assertiveness = assertiveness;
         _preferredDirection = preferredDirection;
         _conflict = conflict;
@@ -621,6 +631,10 @@ public class SpatialIndividual
             }
         }
 
+        // Save the individual's personality and the simulation index
+        _personalityAfterLastInitiation = _personality;
+        _lastInitiationAttempt = simState.getSimIndex();
+
         // Are we keeping track of these things?
         if( _describeInitiationHistory )
         {
@@ -661,6 +675,10 @@ public class SpatialIndividual
                         getTotalFollowerCount() );
             }
         }
+
+        // Save the individual's personality and the simulation index
+        _personalityAfterLastInitiation = _personality;
+        _lastInitiationAttempt = simState.getSimIndex();
 
         // Are we keeping track of these things?
         if( _describeInitiationHistory )
@@ -888,6 +906,36 @@ public class SpatialIndividual
     public float getPersonality()
     {
         return _personality;
+    }
+
+    /**
+     * Returns the initial personality for this individual
+     *
+     * @return The initial personality
+     */
+    public float getInitialPersonality()
+    {
+        return _initialPersonality;
+    }
+
+    /**
+     * Returns the personality after the individual's last initiation attempt
+     *
+     * @return The personality after the individual's last initiation attempt
+     */
+    public float getPersonalityAfterLastInitiation()
+    {
+        return _personalityAfterLastInitiation;
+    }
+
+    /**
+     * Returns the simulation index of the individual's last initiation attempt
+     *
+     * @return The simulation index of the individual's last initiation attempt
+     */
+    public long getLastInitiationAttempt()
+    {
+        return _lastInitiationAttempt;
     }
 
     /**
