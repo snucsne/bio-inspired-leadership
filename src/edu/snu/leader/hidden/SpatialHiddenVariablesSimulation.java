@@ -4,6 +4,9 @@
 package edu.snu.leader.hidden;
 
 // Imports
+import edu.snu.leader.hidden.event.DepartureEvent;
+import edu.snu.leader.hidden.event.EventTimeCalculator;
+import edu.snu.leader.hidden.observer.SimulationObserver;
 import edu.snu.leader.util.MiscUtils;
 
 import org.apache.log4j.Logger;

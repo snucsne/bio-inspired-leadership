@@ -7,6 +7,10 @@ package edu.snu.leader.hidden;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+
+import edu.snu.leader.hidden.personality.PersonalityCalculator;
+import edu.snu.leader.hidden.personality.PersonalityUpdateType;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -6,6 +6,10 @@ package edu.snu.leader.hidden;
 // Imports
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+
+import edu.snu.leader.hidden.event.DepartureEvent;
+import edu.snu.leader.hidden.event.EventTimeCalculator;
+
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
