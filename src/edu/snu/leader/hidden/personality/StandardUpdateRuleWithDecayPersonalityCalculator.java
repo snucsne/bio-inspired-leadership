@@ -1,16 +1,14 @@
 /*
  * COPYRIGHT
  */
-package edu.snu.leader.hidden;
+package edu.snu.leader.hidden.personality;
 
+// Imports
 import java.util.Properties;
-
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-
-import edu.snu.leader.hidden.personality.PersonalityCalculator;
-import edu.snu.leader.hidden.personality.PersonalityDecayCalculator;
-import edu.snu.leader.hidden.personality.PersonalityUpdateType;
+import edu.snu.leader.hidden.SimulationState;
+import edu.snu.leader.hidden.SpatialIndividual;
 import edu.snu.leader.util.MiscUtils;
 
 /**
@@ -256,6 +254,14 @@ public class StandardUpdateRuleWithDecayPersonalityCalculator implements
             {
                 // Calculate decayed personality
                 newPersonality = _decayCalc.calculateDecayedPersonality( individual );
+                
+                _LOG.debug( "Personality decay: ind=["
+                        + individual.getID()
+                        + "] old=["
+                        + individual.getPersonality()
+                        + "] new=["
+                        + newPersonality
+                        + "]" );
             }
         }
 

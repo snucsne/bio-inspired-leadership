@@ -1,7 +1,9 @@
 /*
  * COPYRIGHT
  */
-package edu.snu.leader.hidden;
+package edu.snu.leader.hidden.personality;
+
+import edu.snu.leader.hidden.SpatialIndividual;
 
 /**
  * ExponentialDecay

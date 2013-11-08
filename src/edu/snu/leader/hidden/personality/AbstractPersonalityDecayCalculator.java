@@ -1,13 +1,14 @@
 /* 
  * COPYRIGHT
  */
-package edu.snu.leader.hidden;
+package edu.snu.leader.hidden.personality;
 
 import java.util.Properties;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
-import edu.snu.leader.hidden.personality.PersonalityDecayCalculator;
+import edu.snu.leader.hidden.SimulationState;
+import edu.snu.leader.hidden.SpatialIndividual;
 
 /**
  * AbstractPersonalityDecayCalculator
