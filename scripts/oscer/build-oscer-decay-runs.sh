@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WALL_TIME=24
+WALL_TIME=12
 BASE_DIR=/home/eskridge/leader
 
 for DECAY_TIME_MULT in 10 50 100 500 1000 2000
@@ -25,17 +25,17 @@ do
                     $BASE_DIR \
                     \'./perform-personality-decay.sh \
                     cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters \
-                    $BASE_DIR/data/$CALC_DIR/decay-mult-$FORMATTED_DECAY/ \
+                    data/$CALC_DIR/decay-mult-$FORMATTED_DECAY/ \
                     $PERSONALITY \
                     $CALC \
                     $DECAY_TIME_MULT \'
 
         done
 
-        echo ""
+#        echo ""
 
     done
 
-    echo ""
+#    echo ""
 
 done

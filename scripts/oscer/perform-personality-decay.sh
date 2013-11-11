@@ -108,6 +108,10 @@ done
                     edu.snu.leader.hidden.SpatialHiddenVariablesSimulation > tmp-$$.out
 
         done
+
+        tar cfz $RESULTS_DIR.tar.gz $RESULTS_DIR/*
+        rm -rf $RESULTS_DIR
+
     done
 #done
 
