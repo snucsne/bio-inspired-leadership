@@ -25,7 +25,7 @@ do
                     $BASE_DIR \
                     \'./perform-personality-decay.sh \
                     cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters \
-                    data/$CALC_DIR/decay-mult-$FORMATTED_DECAY/ \
+                    data/ \
                     $PERSONALITY \
                     $CALC \
                     $DECAY_TIME_MULT \'

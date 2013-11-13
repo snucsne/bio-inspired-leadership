@@ -16,6 +16,11 @@ DECAY_CALC=$4
 # Get the decay time multiplier
 DECAY_TIME_MULT=$5
 
+# =========================================================
+CALC_DIR=`echo $DECAY_CALC | sed 's/.*\.//' | sed 's/Decay//' | tr '[A-Z]' '[a-z]'`
+CALC_LETTER=`echo $CALC_DIR | sed -E 's/([a-z]).*/\1/'`
+FORMATTED_DECAY=$(printf "%04d" $DECAY_TIME_MULT)
+
 
 # =========================================================
 # Get the host
@@ -73,7 +78,7 @@ done
         DECAY_TIME=$(($DECAY_TIME_MULT*$INDCOUNT))
         #echo Running personality [$PERSONALITY] with ind count [$FORMATTEDINDCOUNT]
 
-        RESULTS_DIR="$DIR/personality-$PERSONALITY/indcount-$FORMATTEDINDCOUNT"
+        RESULTS_DIR="$DIR/$CALC_DIR/decay-mult-$FORMATTED_DECAY/personality-$PERSONALITY/indcount-$FORMATTEDINDCOUNT"
         if [ ! -d "$RESULTS_DIR" ]; then
             mkdir -p $RESULTS_DIR
         fi
@@ -105,11 +110,11 @@ done
                     -Dlogname=decay \
                     -Dpersonality-decay-calculator=$DECAY_CALC \
                     -Ddecay-time=$DECAY_TIME \
-                    edu.snu.leader.hidden.SpatialHiddenVariablesSimulation > tmp-$$.out
+                    edu.snu.leader.hidden.SpatialHiddenVariablesSimulation > decay-$$.out
 
         done
 
-        tar cfz $RESULTS_DIR.tar.gz $RESULTS_DIR/*
+        tar cfz $DIR/$CALC_DIR-decay-mult-$FORMATTED_DECAY-personality-$PERSONALITY-indcount-$FORMATTEDINDCOUNT.tar.gz $RESULTS_DIR/*
         rm -rf $RESULTS_DIR
 
     done
