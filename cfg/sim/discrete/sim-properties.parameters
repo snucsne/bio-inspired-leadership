@@ -1,0 +1,59 @@
+#Author: Tim Solum
+#general information about the simulator
+simulation-count = 20000
+max-simulation-time-steps = 20000
+random-seed = 1
+individual-count = 10
+pre-calculate-probabilities = false
+
+#communication types
+communication-type = global
+
+#topological
+nearest-neighbor-count = 10
+
+#metric
+max-location-radius = 10
+
+#adhesion time limit is used when both global and only one initiator allowed
+can-multiple-initiate = false
+adhesion-time-limit = 20000
+
+#sueur variables
+alpha = 0.006161429
+#alpha c applies to gautrait's as well
+alpha-c = 0.009
+beta = 0.013422819
+beta-c = -0.009
+S = 2
+q = 2.3
+
+#adaptive personality variables
+lambda = 0.2
+
+#gautrais variables
+tau-o = 1290
+gamma-c = 2.0
+epsilon-c = 2.3
+alpha-f = 162.3
+beta-f = 75.4
+
+#cancellation threshold
+cancellation-threshold = 1.0
+#The class that builds the agents
+agent-builder = edu.snu.leader.discrete.simulator.SueurSimpleAngularAgentBuilder
+#The calculator used for the probabilities of decisions
+decision-calculator = edu.snu.leader.discrete.simulator.GautraisConflictDecisionCalculator
+
+#starting locations file used
+locations-file = cfg/sim/locations/metric/valid-metric-loc-010-seed-00001.dat
+#the destinations for the agents
+destinations-file = cfg/sim/destinations/destinations-one-10-seed-1.dat
+
+#The time delay between each time step in milliseconds (1000 = 1 sec)
+live-delay = 100
+
+
+#root directory for where the results will be reported
+#currently not used in simulator
+results-dir = results
