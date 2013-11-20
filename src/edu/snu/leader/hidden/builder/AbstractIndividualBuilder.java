@@ -47,7 +47,7 @@ public abstract class AbstractIndividualBuilder implements IndividualBuilder
     protected static final float DEFAULT_PREFERRED_DIR = 0.0f;
 
     /** Default abstract conflict */
-    protected static final float DEFAULT_CONFLICT_DIR = 0.0f;
+    protected static final float DEFAULT_RAW_CONFLICT = 0.0f;
 
     /** Default flag for describing initiation histories */
     protected static final boolean DEFAULT_DESCRIBE_INITIATION_HISTORY = false;

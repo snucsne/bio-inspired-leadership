@@ -59,31 +59,31 @@ public class StandardUpdateRulePersonalityCalculator
 
 
     /** The update rule's discount */
-    private float _discount = 0.0f;
+    protected float _discount = 0.0f;
 
     /** The update rule's true winner discount */
-    private float _trueWinnerDiscount = 0.0f;
+    protected float _trueWinnerDiscount = 0.0f;
 
     /** The update rule's true loser discount */
-    private float _trueLoserDiscount = 0.0f;
+    protected float _trueLoserDiscount = 0.0f;
 
     /** The update rule's true winner reward */
-    private float _winnerReward = 0.0f;
+    protected float _winnerReward = 0.0f;
 
     /** The update rule's true loser reward */
-    private float _loserPenalty = 0.0f;
+    protected float _loserPenalty = 0.0f;
 
     /** Flag indicating whether or not true winner effects are active */
-    private boolean _trueWinnerEffectActive = false;
+    protected boolean _trueWinnerEffectActive = false;
 
     /** Flag indicating whether or not true loser effects are active */
-    private boolean _trueLoserEffectActive = false;
+    protected boolean _trueLoserEffectActive = false;
 
     /** The minimum allowable personality value */
-    private float _minPersonality = 0.0f;
+    protected float _minPersonality = 0.0f;
 
     /** The maximum allowable personality value */
-    private float _maxPersonality = 1.0f;
+    protected float _maxPersonality = 1.0f;
 
 
     /**
@@ -220,8 +220,8 @@ public class StandardUpdateRulePersonalityCalculator
             // True winner
             if( _trueWinnerEffectActive )
             {
-                result = _winnerReward;
-                discount = _trueWinnerDiscount;
+                result = calculateTrueWinnerResult( individual, followers );
+                discount = calculateTrueWinnerDiscount( individual, followers );
                 valid = true;
             }
         }
@@ -230,7 +230,7 @@ public class StandardUpdateRulePersonalityCalculator
             // True loser
             if( _trueLoserEffectActive )
             {
-                result = _loserPenalty;
+                result = calculateTrueLoserResult( individual, followers );;
                 discount = _trueLoserDiscount;
                 valid = true;
             }
@@ -243,26 +243,75 @@ public class StandardUpdateRulePersonalityCalculator
             newPersonality = ( (1.0f - discount) * individual.getPersonality() )
                     + ( discount * result );
 
-            // Ensure it is within bounds
-            if( _minPersonality > newPersonality )
-            {
-                newPersonality = _minPersonality;
-            }
-            else if( _maxPersonality < newPersonality )
-            {
-                newPersonality = _maxPersonality;
-            }
-
-//            _LOG.info( "oldPersonality=["
-//                    + String.format( "%06.4f", currentPersonality )
-//                    + "] newPersonality=["
-//                    + String.format( "%06.4f", newPersonality )
-//                    + "] udpateType=["
-//                    + updateType
-//                    + "]" );
+            newPersonality = ensureValidPersonality( newPersonality );
         }
 
 
         return newPersonality;
+    }
+
+    /**
+     * Calculates the true winner result for the given individual and number
+     * of followers
+     *
+     * @param individual The winning, initiating individual
+     * @param followers The number of followers
+     * @return The true winner result
+     */
+    protected float calculateTrueWinnerResult( SpatialIndividual individual,
+            int followers )
+    {
+        return _winnerReward;
+    }
+
+    /**
+     * Calculates the true winner discount for the given individual and number
+     * of followers
+     *
+     * @param individual The winning, initiating individual
+     * @param followers The number of followers
+     * @return The true winner discount
+     */
+    protected float calculateTrueWinnerDiscount( SpatialIndividual individual,
+            int followers )
+    {
+        return _trueWinnerDiscount;
+    }
+
+    /**
+     * Calculates the true loser result for the given individual and number
+     * of followers
+     *
+     * @param individual The loser, initiating individual
+     * @param followers The number of followers
+     * @return The true loser result
+     */
+    protected float calculateTrueLoserResult( SpatialIndividual individual,
+            int followers )
+    {
+        return _loserPenalty;
+    }
+
+
+    /**
+     * Ensure that the personality value is within bounds
+     *
+     * @param personality A calculated personality value
+     * @return The new personality value within bounds
+     */
+    protected float ensureValidPersonality( float personality )
+    {
+        // Is it under the minimum?
+        if( _minPersonality > personality )
+        {
+            personality = _minPersonality;
+        }
+        // Is it over the maximum?
+        else if( _maxPersonality < personality )
+        {
+            personality = _maxPersonality;
+        }
+
+        return personality;
     }
 }

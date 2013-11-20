@@ -166,7 +166,7 @@ public class AssertivenessAndDirectionIndividualBuilder
         _LOG.info( "Using _assertivenessRNDist=[" + _assertivenessRNDist + "]" );
 
 
-        // Get the mean  value
+        // Get the mean direction value
         String directionMeanStr = props.getProperty( _DIR_MEAN_KEY );
         Validate.notEmpty( directionMeanStr,
                 "Direction mean (key="
@@ -202,7 +202,7 @@ public class AssertivenessAndDirectionIndividualBuilder
         _maxDirection = Float.parseFloat( maxDirectionStr );
         _LOG.info( "Using _maxDirection=[" + _maxDirection + "]" );
 
-        // Get the random number distribution for
+        // Get the random number distribution for the direction
         String directionRNDistStr = props.getProperty( _DIR_RNG_DIST_KEY );
         Validate.notEmpty( directionRNDistStr,
                 "Random number distribution for direction (key="
@@ -276,7 +276,7 @@ public class AssertivenessAndDirectionIndividualBuilder
                 DEFAULT_PERSONALITY,
                 assertiveness,
                 preferredDirection,
-                DEFAULT_CONFLICT_DIR,
+                DEFAULT_RAW_CONFLICT,
                 false );
 
         return ind;

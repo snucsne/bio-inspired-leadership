@@ -83,7 +83,7 @@ public class SpecificPersonalityIndividualBuilder
                 _personality,
                 DEFAULT_ASSERTIVENESS,
                 DEFAULT_PREFERRED_DIR,
-                DEFAULT_CONFLICT_DIR,
+                DEFAULT_RAW_CONFLICT,
                 false );
 
         return ind;

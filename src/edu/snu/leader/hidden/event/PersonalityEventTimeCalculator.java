@@ -255,13 +255,13 @@ public class PersonalityEventTimeCalculator extends AbstractEventTimeCalculator
                 builder.append( tau );
                 builder.append( _NEWLINE );
 
-                _LOG.warn( "Initiate: personality=["
-                        + personality
-                        + "] k=["
-                        + k
-                        + "] tau=["
-                        + tau
-                        + "]" );
+//                _LOG.warn( "Initiate: personality=["
+//                        + personality
+//                        + "] k=["
+//                        + k
+//                        + "] tau=["
+//                        + tau
+//                        + "]" );
             }
 
             description = builder.toString();
@@ -311,13 +311,13 @@ public class PersonalityEventTimeCalculator extends AbstractEventTimeCalculator
                     builder.append( tau );
                     builder.append( _NEWLINE );
 
-                    _LOG.warn( "Follow: personality=["
-                            + personality
-                            + "] k=["
-                            + k
-                            + "] tau=["
-                            + tau
-                            + "]" );
+//                    _LOG.warn( "Follow: personality=["
+//                            + personality
+//                            + "] k=["
+//                            + k
+//                            + "] tau=["
+//                            + tau
+//                            + "]" );
 
                 }
                 builder.append( _NEWLINE );
@@ -371,13 +371,13 @@ public class PersonalityEventTimeCalculator extends AbstractEventTimeCalculator
                     builder.append( (1.0f / cRate ) );
                     builder.append( _NEWLINE );
 
-                    _LOG.warn( "Cancel: personality=["
-                            + personality
-                            + "] k=["
-                            + k
-                            + "] cRate=["
-                            + (1.0f/cRate)
-                            + "]" );
+//                    _LOG.warn( "Cancel: personality=["
+//                            + personality
+//                            + "] k=["
+//                            + k
+//                            + "] cRate=["
+//                            + (1.0f/cRate)
+//                            + "]" );
 
                 }
                 builder.append( _NEWLINE );

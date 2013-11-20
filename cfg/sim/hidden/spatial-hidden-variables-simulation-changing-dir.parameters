@@ -1,0 +1,42 @@
+simulation-count = 20000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 200
+rebuild-individuals = false
+use-nearest-neighbor-group-size = false
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership-assertiveness.dat
+
+event-time-calculator-class = edu.snu.leader.hidden.event.PersonalityEventTimeCalculator
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+
+
+individual-builder-class = edu.snu.leader.hidden.builder.PersonalityDistributionAndDirIndividualBuilder
+personality-mean = 0.5
+personality-std-dev = 0
+min-personality = 0.1
+max-personality = 0.9
+personality-rng-dist = gaussian
+
+direction-mean = 0
+direction-std-dev = 0.05
+min-direction = -1.0
+max-direction = 1.0
+direction-delta = 0.5
+positive-delta-probability = 0.5
+
+personality-calculator-class = edu.snu.leader.hidden.personality.DirectionUpdateRulePersonalityCalculator
+personality-discount = 0.02
+min-personality = 0.1
+max-personality = 0.9
+true-winner-effects-active = true
+true-loser-effects-active = true
+winner-reward = 1.0
+loser-penalty = 0.0
+modify-winner-discount = true
+modify-winner-reward = false
+directions-file = cfg/sim/environment/env-dir-change-test.dat
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc

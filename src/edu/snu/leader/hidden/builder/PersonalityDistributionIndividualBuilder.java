@@ -169,8 +169,8 @@ public class PersonalityDistributionIndividualBuilder extends
                 location,
                 personality,
                 DEFAULT_ASSERTIVENESS,
-                DEFAULT_PREFERRED_DIR,
-                DEFAULT_CONFLICT_DIR,
+                createPreferredDir(),
+                DEFAULT_RAW_CONFLICT,
                 true );
 
         return ind;
@@ -211,5 +211,15 @@ public class PersonalityDistributionIndividualBuilder extends
                 + _minPersonality;
 
         return personality;
+    }
+
+    /**
+     * Creates the preferred direction for an individual
+     *
+     * @return The preferred direction
+     */
+    protected float createPreferredDir()
+    {
+        return DEFAULT_PREFERRED_DIR;
     }
 }

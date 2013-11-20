@@ -129,7 +129,7 @@ public class ForcedPersonalityDistributionIndividualBuilder
                 personality,
                 DEFAULT_ASSERTIVENESS,
                 DEFAULT_PREFERRED_DIR,
-                DEFAULT_CONFLICT_DIR,
+                DEFAULT_RAW_CONFLICT,
                 true );
 
         return ind;

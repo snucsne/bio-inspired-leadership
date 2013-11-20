@@ -40,7 +40,7 @@ public class DefaultIndividualBuilder extends AbstractIndividualBuilder
                 DEFAULT_PERSONALITY,
                 DEFAULT_ASSERTIVENESS,
                 DEFAULT_PREFERRED_DIR,
-                DEFAULT_CONFLICT_DIR,
+                DEFAULT_RAW_CONFLICT,
                 DEFAULT_DESCRIBE_INITIATION_HISTORY );
 
         return ind;
