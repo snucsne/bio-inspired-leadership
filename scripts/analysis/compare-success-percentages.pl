@@ -257,12 +257,12 @@ sub createRInput
         print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
         print INPUT "axis( 4, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
 
-        print INPUT "mtext( \"Shy\", side=2, line=2, adj=0.0 )\n";
-        print INPUT "mtext( \"Shy\", side=4, line=2, adj=0.0 )\n";
-        print INPUT "mtext( \"Moderate\", side=2, line=2, adj=0.5 )\n";
-        print INPUT "mtext( \"Moderate\", side=4, line=2, adj=0.5 )\n";
-        print INPUT "mtext( \"Bold\", side=2, line=2, adj=1.0 )\n";
-        print INPUT "mtext( \"Bold\", side=4, line=2, adj=1.0 )\n";
+#        print INPUT "mtext( \"Shy\", side=2, line=2, adj=0.0 )\n";
+#        print INPUT "mtext( \"Shy\", side=4, line=2, adj=0.0 )\n";
+#        print INPUT "mtext( \"Moderate\", side=2, line=2, adj=0.5 )\n";
+#        print INPUT "mtext( \"Moderate\", side=4, line=2, adj=0.5 )\n";
+#        print INPUT "mtext( \"Bold\", side=2, line=2, adj=1.0 )\n";
+#        print INPUT "mtext( \"Bold\", side=4, line=2, adj=1.0 )\n";
 
         print INPUT "lines($dataPositionsIDStr,$meansIDStr,col=\"$lineColor\",lwd=2)\n";
         print INPUT "dev.off()\n\n\n";
