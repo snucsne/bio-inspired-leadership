@@ -221,7 +221,7 @@ public class DirectionUpdateRulePersonalityCalculator
             float multiplier = (float) _gaussian.value( dirDiff ) / 10.0f;
             result *= multiplier;
 
-            _LOG.warn( "multiplier=["
+            _LOG.debug( "multiplier=["
                     + multiplier
                     + "] result=["
                     + result
@@ -257,7 +257,7 @@ public class DirectionUpdateRulePersonalityCalculator
             float multiplier = (float) _gaussian.value( dirDiff ) / 10.0f;
             discount *= multiplier;
 
-            _LOG.warn( "multiplier=["
+            _LOG.debug( "multiplier=["
                     + multiplier
                     + "] discount=["
                     + discount
@@ -303,6 +303,9 @@ public class DirectionUpdateRulePersonalityCalculator
                 float direction = Float.parseFloat( parts[1] );
                 float sigma = Float.parseFloat( parts[2] );
 
+                // Multiply the sim index by the group size
+                simIndex *= _simState.getIndividualCount();
+
                 // Create the direction change
                 _directionChanges.offer( new DirectionChange(
                         simIndex, direction, sigma ) );
@@ -343,7 +346,7 @@ public class DirectionUpdateRulePersonalityCalculator
             dirDiff = 2.0f - dirDiff;
         }
 
-        _LOG.warn( "dirDiff=["
+        _LOG.debug( "dirDiff=["
                 + dirDiff
                 + "] preferredDir=["
                 + individual.getPreferredDirection()

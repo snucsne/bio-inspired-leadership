@@ -35,8 +35,8 @@ true-winner-effects-active = true
 true-loser-effects-active = true
 winner-reward = 1.0
 loser-penalty = 0.0
-modify-winner-discount = true
-modify-winner-reward = false
+modify-winner-discount = false
+modify-winner-reward = true
 directions-file = cfg/sim/environment/env-dir-change-test.dat
 
 locations-file = cfg/sim/locations/complex-formation-binary-few.loc
