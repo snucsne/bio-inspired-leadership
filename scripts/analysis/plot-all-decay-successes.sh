@@ -6,7 +6,7 @@ BASE_DIR=$1
 
 
 # =========================================================
-for TYPE in constant exponential linear;
+for TYPE in momentum; #constant exponential linear momentum;
 do
     for MULT in $BASE_DIR/$TYPE/decay-mult*;
     do
