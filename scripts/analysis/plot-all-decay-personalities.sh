@@ -6,17 +6,17 @@ BASE_DIR=$1
 
 
 # =========================================================
-for TYPE in constant exponential linear;
+for TYPE in momentum; #constant exponential linear;
 do
-    for MULT in $BASE_DIR/$TYPE/decay-mult-0100;
+    for MULT in $BASE_DIR/$TYPE/decay-mult-*;
     do
 
-        for PERSONALITY in $MULT/personality-0.2;
+        for PERSONALITY in $MULT/personality-0.*;
         do
 
             ./analyze-all-personality-results.sh $PERSONALITY/
 #read -p "Press [Enter] to continue..."
-exit
+#exit
         done
     done
 done

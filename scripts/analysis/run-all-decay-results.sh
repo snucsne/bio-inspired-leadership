@@ -5,11 +5,11 @@
 BASE_DIR=$1
 
 # =========================================================
-for TYPE in exponential;
+for TYPE in momentum;
 do
-    for MULT in $BASE_DIR/$TYPE/decay-mult-*100*;
+    for MULT in $BASE_DIR/$TYPE/decay-mult-*;
     do
-        for PERSONALITY in $MULT/personality-0.2;
+        for PERSONALITY in $MULT/personality-0.*;
         do
 
             echo $PERSONALITY
