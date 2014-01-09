@@ -66,6 +66,8 @@ public class SimulationState
     /** Reporter for reporting the results in a way that Dr. Eskridge's files can analyze */
     private Reporter _eskridgeResultsReporter = null;
 
+    private static int _destinationSizeRadius = 0;
+    
     /**
      * Initialize the simulation state
      * 
@@ -78,12 +80,20 @@ public class SimulationState
         // Save the properties
         _props = props;
 
+        String useRandomRandomSeedStr = _props.getProperty( "use-random-random-seed" );
+        Validate.notEmpty( useRandomRandomSeedStr, "use-random-random-seed required" );
+        boolean useRandomRandomSeed = Boolean.parseBoolean( useRandomRandomSeedStr );
+        
         // Get the random number generator seed
         String randomSeedStr = props.getProperty( _RANDOM_SEED_KEY );
         Validate.notEmpty( randomSeedStr, "Random seed is required" );
         long seed = Long.parseLong( randomSeedStr );
-        if(Simulator.getRandomSeedOverride() != -1){
+        if(Simulator.getRandomSeedOverride() != -1 && !useRandomRandomSeed){
             seed = Simulator.getRandomSeedOverride();
+            _props.put( "random-seed", String.valueOf(seed) );
+        }
+        else if(useRandomRandomSeed){
+            seed = System.currentTimeMillis();
             _props.put( "random-seed", String.valueOf(seed) );
         }
         _random = new MersenneTwisterFast( seed );
@@ -96,6 +106,11 @@ public class SimulationState
         Validate.notEmpty( maxSimulationTimeSteps,
                 "Max simulation time steps required" );
         _maxSimulationTimeSteps = Integer.parseInt( maxSimulationTimeSteps );
+        
+        String destinationSizeRadius = _props.getProperty( "destination-size-radius" );
+        Validate.notEmpty( destinationSizeRadius,
+                "destination-size-radius required" );
+        _destinationSizeRadius = Integer.parseInt( destinationSizeRadius );
 
         _communicationType = getProperties().getProperty( "communication-type" );
         Validate.notEmpty( _communicationType,
@@ -140,7 +155,7 @@ public class SimulationState
                 temp.reset();
             }
             Agent.numInitiating = 0;
-            Agent.numStopped = 0;
+            Agent.numReachedDestination = 0;
 
             // report the all run information and clear it for next run
             System.out.println( "Finished sim run " + _currentSimulationRun );
@@ -274,6 +289,10 @@ public class SimulationState
     public int getAgentCount()
     {
         return _agents.size();
+    }
+    
+    public static int getDestinationRadius(){
+        return _destinationSizeRadius;
     }
     
     
@@ -412,7 +431,7 @@ public class SimulationState
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".location = " + String.format("%1.4f", temp.getCurrentLocation().getX()) + " " + String.format("%1.4f", temp.getCurrentLocation().getY()));
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".personality = " + temp.getPersonalityTrait().getPersonality() );
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".assertiveness = " + temp.getPersonalityTrait().getPersonality() );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".preferred-direction = 0.0" );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".preferred-direction = 0.0");
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".conflict = 0.0" );
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".nearest-neighbors = " + neighborBuilder.toString() );
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".eigenvector-centrality = %%%" + agentId + "-EIGENVECTOR-CENTRALITY%%%" );

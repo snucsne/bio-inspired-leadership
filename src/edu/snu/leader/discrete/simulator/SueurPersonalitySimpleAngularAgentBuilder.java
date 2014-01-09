@@ -2,8 +2,8 @@ package edu.snu.leader.discrete.simulator;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class SueurPersonalitySimpleAngularAgentBuilder implements AgentBuilder
     @Override
     public List<Agent> build()
     {
-        List<Agent> agents = new LinkedList<Agent>();
+        List<Agent> agents = new ArrayList<Agent>();
         // build them
         DecisionProbabilityCalculator temp = (DecisionProbabilityCalculator) MiscUtils.loadAndInstantiate(
                 _simState.getProperties().getProperty( "decision-calculator" ),

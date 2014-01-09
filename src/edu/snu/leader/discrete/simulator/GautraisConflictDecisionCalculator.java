@@ -3,10 +3,11 @@ package edu.snu.leader.discrete.simulator;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import edu.snu.leader.discrete.behavior.Decision;
-import edu.snu.leader.discrete.behavior.Decision.DecisionType;
 import edu.snu.leader.discrete.utils.Reporter;
+
 
 public class GautraisConflictDecisionCalculator implements
 DecisionProbabilityCalculator
@@ -25,6 +26,9 @@ DecisionProbabilityCalculator
     private double _alphaF = 0;
 
     private double _betaF = 0;
+    
+    /** The conflict value for agents that have zero velocity */
+    private double _defaultConflictValue = 0;
     
     private double[] _followProbabilities = null;
     private double[] _cancelProbabilities = null;
@@ -58,6 +62,10 @@ DecisionProbabilityCalculator
         Validate.notEmpty( betaF, "beta-f may not be empty" );
         _betaF = Double.parseDouble( betaF );
         
+        String defConflictValue = _simState.getProperties().getProperty( "default-conflict-value" );
+        Validate.notEmpty( defConflictValue, "default-conflict-value may not be empty" );
+        _defaultConflictValue = Double.parseDouble( defConflictValue );
+        
         // add gautrais info to root directory path
         _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "GautraisValues" );
     }
@@ -83,9 +91,15 @@ DecisionProbabilityCalculator
     @Override
     public void calcInitiateProb( Decision decision )
     {
-        double conflict = calculateConflict( decision );
-        //just conflict for initiate
-        decision.setProbability(( 1 / kValue( conflict ) ) *( 1 / _tauO ));
+        double tauI = _tauO;
+        double conflict = _defaultConflictValue;
+        //if agent is not zero velocity
+        if(!decision.getAgent().getCurrentVelocity().equals( Vector2D.ZERO )){
+            conflict = calculateConflict( decision );
+        }
+        double k = kValue(conflict);
+        tauI /= k;
+        decision.setProbability( 1 / tauI );
     }
 
     @Override
@@ -122,7 +136,8 @@ DecisionProbabilityCalculator
     @Override
     public void calcCancelProb( Decision decision )
     {
-        double conflict = calculateConflict( decision );
+        //conflict is not used for cancellation rates
+//        double conflict = calculateConflict( decision );
         double Cr = 0;
         // followers
         int r = 1;
@@ -141,8 +156,9 @@ DecisionProbabilityCalculator
 
         // calculate Cr
         Cr = _alphaC / ( 1 + ( Math.pow( r / _gammaC, _epsilonC ) ) );
+
         //1-conflict for cancel
-        Cr *= kValue( 1 - conflict );
+//        Cr *= kValue( 1 - conflict );//conflict does not affect canceling rates
         decision.setProbability( Cr );
 
     }
@@ -160,22 +176,29 @@ DecisionProbabilityCalculator
         return k;
     }
     
+    //TODO bug here
     private double calculateConflict(Decision decision){
         // Ci = p^.5 * |di - dI|^.5
         float p = decision.getAgent().getPersonalityTrait().getPersonality();
-        // agent's preferred direction
-        double di = decision.getAgent().getPreferredDirection();
-        // leader's preferred direction
-        double dI = decision.getLeader().getPreferredDirection();
+//        // agent's preferred direction
+//        double di = decision.getAgent().getPreferredDirection();
+//        // leader's preferred direction
+//        double dI = decision.getLeader().getPreferredDirection();
         // difference in preferred directions
         double dir_diff = 0;
-        // if decision is to follow calculate, otherwise dir_diff = 0
-        if( decision.getDecisionType().equals( DecisionType.FOLLOW ) )
-        {
-            dir_diff = Math.abs( di - dI );
+//        dir_diff = Math.abs( di - dI );
+     // if decision is to follow calculate, otherwise dir_diff = 0
+//        if( decision.getDecisionType().equals( DecisionType.FOLLOW ) || decision.getDecisionType().equals( DecisionType.DO_NOTHING ) )
+//        {
+//            dir_diff = Math.abs( di - dI ) / Math.PI;
+        if(!decision.getAgent().getCurrentVelocity().equals( Vector2D.ZERO )){
+            dir_diff = decision.getLeader().getPreferredDestination().normalize().dotProduct( decision.getAgent().getCurrentVelocity().normalize() );
         }
+//            System.out.println(decision.getAgent().getId() + ": " + dir_diff + " " + decision.getLeader().getId());
+//        }
         // the formula
         double Ci = Math.pow( p, .5 ) * Math.pow( dir_diff, .5 );
+        Ci = .1;
         return Ci;
     }
 }

@@ -26,7 +26,7 @@ import edu.snu.leader.discrete.utils.Utils;
 public class Agent
 {
     /** The number of agents that have made the stop decision */
-    public static int numStopped = 0;
+    public static int numReachedDestination = 0;
 
     /** The number of agents that have made the initiate decision */
     public static int numInitiating = 0;
@@ -111,6 +111,8 @@ public class Agent
      */
     private Map<Object, ObservedGroupTime> _observedGroupHistory = null;
 
+    private boolean _hasReachedDestination = false;
+    
     /** The leader of this Agent if it has one */
     private Agent _leader = this;
 
@@ -128,6 +130,9 @@ public class Agent
 
     /** Whether or not we should pre calculate the decision probabilities */
     private boolean _preCalcProbs = false;
+    
+    /** Whether or not we should include stopped agents in the nearest neighbor count */
+    private boolean _excludeStoppedAgents = false;
 
     /**
      * Builds an Agent disregarding Personality and Conflict
@@ -213,6 +218,10 @@ public class Agent
         String preCalcProbs = _simState.getProperties().getProperty( "pre-calculate-probabilities" );
         Validate.notEmpty( preCalcProbs, "pre-calculate-probabilities may not be empty" );
         _preCalcProbs  = Boolean.parseBoolean( preCalcProbs );
+        
+        String excludeStoppedAgents = _simState.getProperties().getProperty( "exclude-stopped-agents" );
+        Validate.notEmpty( excludeStoppedAgents, "exclude-stopped-agents may not be empty" );
+        _excludeStoppedAgents  = Boolean.parseBoolean( excludeStoppedAgents );
 
         _communicationType = _simState.getCommunicationType();
 
@@ -240,6 +249,7 @@ public class Agent
         // reset leader and ability to initiate
         _leader = this;
         _canInitiate = true;
+        _hasReachedDestination = false;
 
         _uniqueIdCount = 0;
     }
@@ -249,10 +259,7 @@ public class Agent
      */
     public void makeDecision()
     {
-        // only make a decision if this agent has not yet decided to stop
-        if( !_currentDecision.getDecision().getDecisionType().equals(
-                DecisionType.STOP ) )
-        {
+        if(!hasReachedDestination()){
             // whether or not there was a do nothing decision in list of
             // decisions
             boolean isAbleToDoNothing = false;
@@ -260,26 +267,26 @@ public class Agent
             // list
             // of decisions if there was one
             int doNothingIndex = 0;
-
+    
             // get nearest neighbors
             List<Agent> neighbors = getNearestNeighbors();
-
+    
             // update observed group history
             for( int i = 0; i < neighbors.size(); i++ )
             {
                 addObservedGroupMember( neighbors.get( i ) );
             }
-
+    
             // calculate probabilities and report them
             double sum = 0.0;
             List<Decision> possibleDecisions = generatePossibleDecisions();
-
-            double[] followProbs = getDecisionCalculator().getPreCalculatedFollowProbabilities();
-            double[] cancelProbs = getDecisionCalculator().getPreCalculatedCancelProbabilities();
+    
             for( int i = 0; i < possibleDecisions.size(); i++ )
             {
                 Decision decision = possibleDecisions.get( i );
                 if(_preCalcProbs){
+                    double[] followProbs = getDecisionCalculator().getPreCalculatedFollowProbabilities();
+                    double[] cancelProbs = getDecisionCalculator().getPreCalculatedCancelProbabilities();
                     // calculate initiate decision and report probability
                     if( decision.getDecisionType() == DecisionType.INITIATION )
                     {
@@ -356,7 +363,7 @@ public class Agent
                 // add probabilities to the sum
                 sum += decision.getProbability();
             }
-
+    
             // do the math!
             // if we can do nothing
             if( isAbleToDoNothing )
@@ -421,12 +428,12 @@ public class Agent
                 }
                 _hasNewDecision = true;
             }
-
+    
             if( _hasNewDecision )
             {
                 // add the new decision to the history
                 _decisionHistory.add( _currentDecision );
-
+    
                 // once an agent decides to initiate restrict the possibility of
                 // others to initiate
                 if( _currentDecision.getDecision().getDecisionType() == DecisionType.INITIATION
@@ -444,49 +451,38 @@ public class Agent
      */
     public void execute()
     {
-        // execute the new decision if we have one
-        if( _hasNewDecision )
-        {
-            _currentDecision.getDecision().choose();
-            if( _currentDecision.getDecision().getDecisionType() == DecisionType.INITIATION )// &&
-                                                                                             // _canInitiate
-                                                                                             // )
+        if(!hasReachedDestination()){
+            // execute the new decision if we have one
+            if( _hasNewDecision )
             {
-                _numberTimesInitiated++;
-                _currentInitiationHistoryEvent = new InitiationHistoryEvent();
-                _currentInitiationHistoryEvent.simRun = _simState.getCurrentSimulationRun();
-                _currentInitiationHistoryEvent.beforePersonality = getPersonalityTrait().getPersonality();
-                _simState.addGroup( _group );
-                Simulator.agentMoved();
-                numInitiating++;
+                _currentDecision.getDecision().choose();
+                if( _currentDecision.getDecision().getDecisionType() == DecisionType.INITIATION )// &&
+                                                                                                 // _canInitiate
+                                                                                                 // )
+                {
+                    _numberTimesInitiated++;
+                    _currentInitiationHistoryEvent = new InitiationHistoryEvent();
+                    _currentInitiationHistoryEvent.simRun = _simState.getCurrentSimulationRun();
+                    _currentInitiationHistoryEvent.beforePersonality = getPersonalityTrait().getPersonality();
+                    _simState.addGroup( _group );
+                    Simulator.agentMoved();
+                    numInitiating++;
+                }
+                else if( _currentDecision.getDecision().getDecisionType() == DecisionType.FOLLOW )
+                {
+                    Simulator.agentMoved();
+                }
+                _hasNewDecision = false;
             }
-            else if( _currentDecision.getDecision().getDecisionType() == DecisionType.FOLLOW )
+            if( _currentDecision.getDecision().getDecisionType().equals(
+                    DecisionType.DO_NOTHING ) )
             {
-                Simulator.agentMoved();
+                _currentDecision.getDecision().choose();
             }
-            _hasNewDecision = false;
-        }
-        if( _currentDecision.getDecision().getDecisionType().equals(
-                DecisionType.DO_NOTHING ) )
-        {
-            _currentDecision.getDecision().choose();
-        }
-
-        if( !_currentDecision.getDecision().getDecisionType().equals(
-                DecisionType.STOP ) )
-        {
             _movementBehavior.move();
         }
     }
-
-    public void stop()
-    {
-        _currentDecision = new DecisionEvent( new Stop( this ), getTime() );
-        _currentDecision.getDecision().choose();
-        _decisionHistory.add( _currentDecision );
-        numStopped++;
-    }
-
+    
     /**
      * Updates the Agent and its traits
      */
@@ -652,7 +648,15 @@ public class Agent
         {
             while( iter.hasNext() )
             {
-                nearest.add( iter.next() );
+                Agent temp = iter.next();
+                if(_excludeStoppedAgents){
+                    if(!temp.getCurrentVelocity().equals( Vector2D.ZERO )){
+                        nearest.add( temp );
+                    }
+                }
+                else{
+                    nearest.add( temp );
+                }
             }
             nearest.remove( this );
         }
@@ -778,6 +782,18 @@ public class Agent
     {
         return _numberTimesSuccessful;
     }
+    
+    public void reachedDestination(){
+        if(!_hasReachedDestination){
+            numReachedDestination++;
+            _currentVelocity = Vector2D.ZERO;
+        }
+        _hasReachedDestination = true;
+    }
+    
+    public boolean hasReachedDestination(){
+        return _hasReachedDestination;
+    }
 
     /**
      * Generates a list of possible decisions
@@ -842,7 +858,9 @@ public class Agent
         {
             Agent temp = iter.next().getValue();
             if( temp.getGroup().getId() != Group.NONE.getId()
-                    && temp.getGroup().getId() != _group.getId() )
+                    && temp.getGroup().getId() != _group.getId()
+//                    && !temp.getCurrentVelocity().equals( Vector2D.ZERO) //temporary to prevent following of non-moving agents
+                    )
             {
                 possibleDecisions.add( new Follow( this, temp ) );
             }
@@ -863,7 +881,7 @@ public class Agent
      */
     private boolean isInitiationPossible()
     {
-        return _canInitiate;
+        return _canMultipleInitiate || _canInitiate;
     }
 
     public class ObservedGroupTime

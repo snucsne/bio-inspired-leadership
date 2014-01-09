@@ -237,14 +237,14 @@ public class Simulator
                 {
                     groupCount++;
                 }
-                if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
+                else if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
                         DecisionType.INITIATION ) )
                 {
                     groupCount++;
                     initiationAgent = temp;
                 }
                 // if an agent is canceling then this simulation is finished
-                if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
+                else if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
                         DecisionType.CANCELLATION ) )
                 {
                     // temp.endOfInitiation( false, groupCount );
@@ -292,6 +292,10 @@ public class Simulator
         else if( _simState.getSimulationTime() < _simState.getMaxSimulationTimeSteps() )
         {
             isActive = true;
+            if(Agent.numReachedDestination >= _simState.getAgentCount()){
+                _successCount++;
+                isActive = false;
+            }
         }
 
         return isActive;

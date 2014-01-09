@@ -73,10 +73,10 @@ public class GautraisDecisionCalculator implements
         _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "GautraisValues" );
         
         if(_preCalcProbs){
-            _followProbabilities = new double[agentCount + 1];
-            _cancelProbabilities = new double[agentCount + 1];
+            _followProbabilities = new double[agentCount];
+            _cancelProbabilities = new double[agentCount ];
             
-            for(int r = 1; r < agentCount + 1; r++){
+            for(int r = 1; r < agentCount; r++){
                 _followProbabilities[r] = 1 / (_alphaF + ( ( _betaF * ( agentCount - r ) ) / r ));
                 _cancelProbabilities[r] = _alphaC / ( 1 + ( Math.pow( r / _gammaC, _epsilonC ) ) );
             }
@@ -105,7 +105,9 @@ public class GautraisDecisionCalculator implements
     @Override
     public void calcInitiateProb( Decision decision )
     {
-        decision.setProbability( 1 / _tauO );
+        //tauO is the base initiation rate (should be multiplied by agent count but makes the simulations go a lot slower
+        double tauI = _tauO;// * _simState.getAgentCount();
+        decision.setProbability( 1 / tauI );
     }
 
     @Override

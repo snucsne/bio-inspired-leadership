@@ -14,6 +14,6 @@ public class DoNothing extends Decision
     @Override
     public void choose()
     {
-        // _agent.setCurrentVelocity( _leader.getCurrentVelocity() );
+         _agent.setCurrentVelocity( _leader.getCurrentVelocity() );
     }
 }

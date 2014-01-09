@@ -36,10 +36,10 @@ public class Group
 
     /** Array of 70 unique colors to use for groups */
     private static Color[] _colors = { new Color( 0x000000 ),
-            new Color( 0x9ACD32 ), new Color( 0xFFFF00 ),
+            new Color( 0x9ACD32 ), new Color( 0x008080 ),
             new Color( 0xF5DEB3 ), new Color( 0xEE82EE ),
             new Color( 0x40E0D0 ), new Color( 0xFF6347 ),
-            new Color( 0xD8BFD8 ), new Color( 0x008080 ),
+            new Color( 0xD8BFD8 ), new Color( 0xFFFF00 ),
             new Color( 0x4682B4 ), new Color( 0x00FF7F ),
             new Color( 0x708090 ), new Color( 0x6A5ACD ),
             new Color( 0x87CEEB ), new Color( 0xC0C0C0 ),
@@ -83,8 +83,8 @@ public class Group
     private Group()
     {
         _id = "Group" + uniqueIdCount++;
-        _members = new ArrayList<Agent>();
-        _membershipEvents = new LinkedList<MembershipEvent>();
+        _members = new LinkedList<Agent>();
+        _membershipEvents = new ArrayList<MembershipEvent>();
         for( int i = 0; i < Group._colors.length; i++ )
         {
             if( !_colorsInUse[i] )
@@ -173,19 +173,16 @@ public class Group
         int temp = _members.size();
         while( temp > 0 )
         {
-            _members.get( 0 ).setCurrentVelocity( Vector2D.ZERO );
-            _members.get( 0 ).setLeader( _members.get( 0 ) );
-            _members.get( 0 ).setCurrentDestination(
-                    _members.get( 0 ).getInitialLocation() );
-            if( !( _members.get( 0 ).getCurrentDestination().subtract( _members.get(
-                    0 ).getCurrentLocation() ) ).equals( Vector2D.ZERO ) )
-            {
-                _members.get( 0 ).setCurrentVelocity(
-                        ( _members.get( 0 ).getCurrentDestination().subtract( _members.get(
-                                0 ).getCurrentLocation() ) ).normalize().scalarMultiply(
-                                _members.get( 0 ).getSpeed() ) );
-            }
-            Group.NONE.addAgent( _members.get( 0 ), _members.get( 0 ).getTime() );
+            Agent tempAgent = _members.get( 0 );
+            tempAgent.setCurrentVelocity( Vector2D.ZERO );
+//            tempAgent.setCurrentDestination( tempAgent.getInitialLocation() );
+//            if( !( tempAgent.getCurrentDestination().subtract( tempAgent.getCurrentLocation() ) ).equals( Vector2D.ZERO ) )
+//            {
+//                tempAgent.setCurrentVelocity( ( tempAgent.getCurrentDestination().subtract( 
+//                        tempAgent.getCurrentLocation() ) ).normalize().scalarMultiply(
+//                        tempAgent.getSpeed() ) );
+//            }
+            Group.NONE.addAgent( tempAgent, tempAgent.getTime() );
             temp--;
         }
         if( !this.equals( Group.NONE ) )

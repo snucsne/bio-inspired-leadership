@@ -80,6 +80,6 @@ public abstract class Decision
 
     // ////////Nested enum\\\\\\\\\\
     public enum DecisionType {
-        INITIATION, FOLLOW, CANCELLATION, DO_NOTHING, STOP
+        INITIATION, FOLLOW, CANCELLATION, DO_NOTHING
     }
 }

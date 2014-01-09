@@ -172,7 +172,8 @@ public class SueurConflictPersonalityDecisionCalculator implements
         // if decision is to follow calculate, otherwise dir_diff = 0
         if( decision.getDecisionType().equals( DecisionType.FOLLOW ) )
         {
-            dir_diff = Math.abs( di - dI );
+            dir_diff = Math.abs( di - dI ) / Math.PI;
+//            dir_diff = decision.getAgent().getPreferredDestination().dotProduct( decision.getAgent().getCurrentVelocity() ) / Math.PI;
         }
 
         // the formula

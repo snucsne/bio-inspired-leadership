@@ -2,8 +2,8 @@ package edu.snu.leader.discrete.simulator;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
     @Override
     public List<Agent> build()
     {
-        List<Agent> agents = new LinkedList<Agent>();
+        List<Agent> agents = new ArrayList<Agent>();
         // build them
         DecisionProbabilityCalculator temp = (DecisionProbabilityCalculator) MiscUtils.loadAndInstantiate(
                 _simState.getProperties().getProperty( "decision-calculator" ),
@@ -116,32 +116,33 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
         // initialize them
         for( int i = 0; i < _numAgents; i++ )
         {
+            Agent tempAgent = agents.get( i );
             MovementBehavior mb = new SimpleAngularMovement();
-            agents.get( i ).initialize( _simState, _locations[i] );
+            tempAgent.initialize( _simState, _locations[i] );
             // set their destination
-            agents.get( i ).setPreferredDestination(
+            tempAgent.setPreferredDestination(
                     new Vector2D( _destinations[i].getX(),
                             _destinations[i].getY() ) );
             // set their color for their destination
             // if new destination then give it new color
-            if( destinationColors.containsKey( agents.get( i ).getPreferredDestination() ) )
+            if( destinationColors.containsKey( tempAgent.getPreferredDestination() ) )
             {
-                agents.get( i ).setDestinationColor(
-                        destinationColors.get( agents.get( i ).getPreferredDestination() ) );
+                tempAgent.setDestinationColor(
+                        destinationColors.get( tempAgent.getPreferredDestination() ) );
             }
             // not a new destination, give it the color other's have been
             // assigned
             else
             {
                 destinationColors.put(
-                        agents.get( i ).getPreferredDestination(),
+                        tempAgent.getPreferredDestination(),
                         colors[colorCount] );
-                agents.get( i ).setDestinationColor( colors[colorCount] );
+                tempAgent.setDestinationColor( colors[colorCount] );
                 colorCount++;
             }
             // set and initialize movement behavior
-            agents.get( i ).setMovementBehavior( mb );
-            mb.initialize( agents.get( i ) );
+            tempAgent.setMovementBehavior( mb );
+            mb.initialize( tempAgent );
         }
         return agents;
     }

@@ -9,14 +9,23 @@ pre-calculate-probabilities = false
 #communication types
 communication-type = global
 
+#Setting this to true will exclude agents that have stopped from decision calculations
+exclude-stopped-agents = true
+
+#setting this to true will make the simulator use a different random seed every run (doesn't always start on 1)
+use-random-random-seed = true
+
 #topological
 nearest-neighbor-count = 10
 
 #metric
 max-location-radius = 10
 
+destination-size-radius = 35
+
+can-multiple-initiate = true
+
 #adhesion time limit is used when both global and only one initiator allowed
-can-multiple-initiate = false
 adhesion-time-limit = 20000
 
 #sueur variables
@@ -38,6 +47,9 @@ epsilon-c = 2.3
 alpha-f = 162.3
 beta-f = 75.4
 
+#default conflict value for zero velocity initiation
+default-conflict-value = 0.9
+
 #cancellation threshold
 cancellation-threshold = 1.0
 #The class that builds the agents
@@ -48,10 +60,10 @@ decision-calculator = edu.snu.leader.discrete.simulator.GautraisConflictDecision
 #starting locations file used
 locations-file = cfg/sim/locations/metric/valid-metric-loc-010-seed-00001.dat
 #the destinations for the agents
-destinations-file = cfg/sim/destinations/destinations-one-10-seed-1.dat
+destinations-file = cfg/sim/destinations/destinations-split-10-dis-150.0-ang-72.00-per-0.500-seed-1.dat
 
 #The time delay between each time step in milliseconds (1000 = 1 sec)
-live-delay = 100
+live-delay = 30
 
 
 #root directory for where the results will be reported
