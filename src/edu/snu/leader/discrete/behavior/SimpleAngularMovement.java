@@ -32,7 +32,6 @@ public class SimpleAngularMovement implements MovementBehavior
         {
             _agent.setCurrentLocation( _agent.getCurrentLocation().add(
                     _agent.getCurrentVelocity() ) );
-            System.out.println(_agent.getId() + " " + _agent.getCurrentDecision().getDecision().getDecisionType() + " " + _agent.getLeader().getId() + ": " + _agent.getCurrentVelocity() + " pref: " + _agent.getPreferredDestination() + " time: " + _agent.getTime());
         }
     }
 

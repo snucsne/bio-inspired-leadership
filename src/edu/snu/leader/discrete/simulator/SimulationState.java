@@ -16,6 +16,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import ec.util.MersenneTwisterFast;
+import edu.snu.leader.discrete.behavior.Decision;
+import edu.snu.leader.discrete.simulator.Agent.ConflictHistoryEvent;
 import edu.snu.leader.discrete.simulator.Agent.InitiationHistoryEvent;
 import edu.snu.leader.discrete.utils.Reporter;
 
@@ -65,6 +67,7 @@ public class SimulationState
 
     /** Reporter for reporting the results in a way that Dr. Eskridge's files can analyze */
     private Reporter _eskridgeResultsReporter = null;
+    public List<ConflictHistoryEvent> conflictEvents = null;
 
     private static int _destinationSizeRadius = 0;
     
@@ -125,6 +128,7 @@ public class SimulationState
 
         _groups.add( Group.NONE );
         
+        conflictEvents = new LinkedList<ConflictHistoryEvent>();
         _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false);
         addPropertiesOutputToEskridgeResultsReporter();
         _LOG.trace( "Leaving initialize( props )" );
@@ -177,6 +181,7 @@ public class SimulationState
                 addIndividualInititationStatsToEskridgeResultsReporter();
                 addIndividualDataToEskridgeResultsReporter();
                 addAggregateDataToEskridgeResultsReporter();
+                addConflictEventsToEskridgeResultsReporter();
                 _eskridgeResultsReporter.report( true );
                 System.out.println( "Done" );
             }
@@ -472,4 +477,61 @@ public class SimulationState
         _eskridgeResultsReporter.appendLine("");
     }
     
+    private void addConflictEventsToEskridgeResultsReporter(){
+        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+        _eskridgeResultsReporter.appendLine( "# Conflict Events");
+        
+        StringBuilder b = new StringBuilder();
+        
+        Iterator<ConflictHistoryEvent> iterC = conflictEvents.iterator();
+        while(iterC.hasNext()){
+            ConflictHistoryEvent tempC = iterC.next();
+            
+            String agentName = tempC.agentId;
+            agentName =  agentName.replaceAll( "Agent", "");
+            agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
+            
+            b.append( "[" + String.format("%06d", tempC.timeStep) + "] ");
+            b.append( "[" + agentName + "] ");
+            b.append( "[" + tempC.destinationId + "] ");
+            
+            String leaderName = null;
+            if(tempC.decisionMade.getLeader().getId().equals( tempC.agentId )){
+                leaderName = "-";
+            }
+            else{
+                leaderName = tempC.decisionMade.getLeader().getId().toString();
+                leaderName =  leaderName.replaceAll( "Agent", "");
+                leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
+            }
+            b.append( "[" + String.format("%s", tempC.decisionMade.getDecisionType()) + " " + leaderName + "] ");
+            
+            b.append( "[" );
+            Iterator<Decision> iterD = tempC.possibleDecisions.iterator();
+            while(iterD.hasNext()){
+                Decision tempD = iterD.next();
+                
+                if(tempD.getLeader().getId().equals( tempD.getAgent().getId() )){
+                    leaderName = "-";
+                }
+                else{
+                    leaderName = tempD.getLeader().getId().toString();
+                    leaderName =  leaderName.replaceAll( "Agent", "");
+                    leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
+                }
+                
+                b.append( String.format("%s", tempD.getDecisionType()) + " " );
+                b.append( leaderName + " " );
+                b.append( String.format("%1.7f", tempD.getProbability()) + " " );
+                b.append( String.format("%1.5f", tempD.getConflict()) + ", " );
+            }
+            //delete extra space and comma
+            b.deleteCharAt( b.length() - 1);
+            b.deleteCharAt( b.length() - 1);
+            b.append( "]\n");
+        }
+        _eskridgeResultsReporter.appendLine( b.toString() );
+        
+        _eskridgeResultsReporter.appendLine("");
+    }
 }

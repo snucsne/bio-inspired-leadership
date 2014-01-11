@@ -25,6 +25,8 @@ public class Utils
     private Utils()
     {
     };
+    
+    
 
     /**
      * Reads a locations file and creates an array of points

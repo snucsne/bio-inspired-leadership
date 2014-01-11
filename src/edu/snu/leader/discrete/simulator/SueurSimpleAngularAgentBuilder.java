@@ -112,6 +112,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
         
         
         Map<Vector2D, Color> destinationColors = new HashMap<Vector2D, Color>();
+        Map<Color, Integer> destinationIds = new HashMap<Color, Integer>();
         int colorCount = 0;
         // initialize them
         for( int i = 0; i < _numAgents; i++ )
@@ -123,23 +124,25 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
             tempAgent.setPreferredDestination(
                     new Vector2D( _destinations[i].getX(),
                             _destinations[i].getY() ) );
+            Color destinationColor = null;
             // set their color for their destination
             // if new destination then give it new color
             if( destinationColors.containsKey( tempAgent.getPreferredDestination() ) )
             {
-                tempAgent.setDestinationColor(
-                        destinationColors.get( tempAgent.getPreferredDestination() ) );
+                destinationColor = destinationColors.get( tempAgent.getPreferredDestination() );
+                tempAgent.setDestinationColor( destinationColor );
             }
             // not a new destination, give it the color other's have been
             // assigned
             else
             {
-                destinationColors.put(
-                        tempAgent.getPreferredDestination(),
-                        colors[colorCount] );
-                tempAgent.setDestinationColor( colors[colorCount] );
+                destinationColor = colors[colorCount];
+                destinationColors.put( tempAgent.getPreferredDestination(), destinationColor );
+                destinationIds.put( destinationColor, colorCount );
+                tempAgent.setDestinationColor( destinationColor );
                 colorCount++;
             }
+            tempAgent.setPreferredDestinationId( "D-" + destinationIds.get( destinationColor ) );
             // set and initialize movement behavior
             tempAgent.setMovementBehavior( mb );
             mb.initialize( tempAgent );

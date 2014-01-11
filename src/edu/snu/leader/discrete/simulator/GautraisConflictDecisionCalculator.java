@@ -176,29 +176,54 @@ DecisionProbabilityCalculator
         return k;
     }
     
-    //TODO bug here
+    //TODO make sure this is working well :D
     private double calculateConflict(Decision decision){
+        //old formula
         // Ci = p^.5 * |di - dI|^.5
-        float p = decision.getAgent().getPersonalityTrait().getPersonality();
-//        // agent's preferred direction
-//        double di = decision.getAgent().getPreferredDirection();
-//        // leader's preferred direction
-//        double dI = decision.getLeader().getPreferredDirection();
-        // difference in preferred directions
-        double dir_diff = 0;
-//        dir_diff = Math.abs( di - dI );
-     // if decision is to follow calculate, otherwise dir_diff = 0
-//        if( decision.getDecisionType().equals( DecisionType.FOLLOW ) || decision.getDecisionType().equals( DecisionType.DO_NOTHING ) )
-//        {
-//            dir_diff = Math.abs( di - dI ) / Math.PI;
-        if(!decision.getAgent().getCurrentVelocity().equals( Vector2D.ZERO )){
-            dir_diff = decision.getLeader().getPreferredDestination().normalize().dotProduct( decision.getAgent().getCurrentVelocity().normalize() );
+        Agent agent = decision.getAgent();
+        Agent leader = decision.getLeader();
+//        float p = agent.getPersonalityTrait().getPersonality();
+        double Ci = 0.0;
+
+        //calculate the leader's next location
+        Vector2D leaderNextLocation = leader.getCurrentDestination().add( leader.getCurrentVelocity() );
+        //calculate the sides of a triangle
+        //calculate side from agent's preferred destination to leader's next
+        double A = Vector2D.distance( agent.getPreferredDestination(), leaderNextLocation );
+        //calculate side from agent's preferred destination to leader's current
+        double B = Vector2D.distance( agent.getPreferredDestination(), leader.getCurrentLocation() );
+        //calculate side from leader's current to leader's next
+        double C = Vector2D.distance( leader.getCurrentLocation(), leaderNextLocation );
+        
+        double angle = 0.0;
+        
+        //check to see if any side is a length close to 0
+        if(A < 1 || B < 1 || C < 1){
+            //if a side is 0 then there is no triangle it is a line
+            //if segment B is longer than C then the degree should be 180
+            if(B > C){
+                angle = 180;
+            }
+            //if the segment B is shorter than C then the degree should be 0
+            else{
+                angle = 0.0;
+            }
         }
-//            System.out.println(decision.getAgent().getId() + ": " + dir_diff + " " + decision.getLeader().getId());
-//        }
-        // the formula
-        double Ci = Math.pow( p, .5 ) * Math.pow( dir_diff, .5 );
-        Ci = .1;
+        //have three sides so use law of cosines
+        else{
+            //calculate angle between leader's current position and agent's preferred destination by law of cosines
+            angle = Math.acos( ( Math.pow( B, 2 ) + Math.pow( C, 2 ) - Math.pow( A, 2 ) ) / (2 * B * C ) );
+        }
+        
+        //if angle is greater than 180 than it becomes 360 - angle
+        if(angle > 180){
+            angle = 360 - angle;
+        }
+        angle = angle * 180 / Math.PI;
+        Ci = angle / 180;
+        // old formula
+//        double Ci = Math.pow( p, .5 ) * Math.pow( dir_diff, .5 );
+        decision.setConflict( Ci );
         return Ci;
     }
 }

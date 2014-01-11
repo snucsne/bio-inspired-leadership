@@ -13,7 +13,7 @@ public class Main
     public static int run = 0;
 
     /** How many runs there will be */
-    public static final int totalRuns = 50;
+    public static final int totalRuns = 1;
 
     public static void main( String[] args )
     {

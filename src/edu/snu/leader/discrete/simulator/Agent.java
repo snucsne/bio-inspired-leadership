@@ -41,7 +41,7 @@ public class Agent
     private List<InitiationHistoryEvent> _initiationHistory = null;
 
     private InitiationHistoryEvent _currentInitiationHistoryEvent = null;
-
+    
     /**
      * This is used across agents to make sure only one initiates...only
      * slightly hacky
@@ -75,7 +75,7 @@ public class Agent
     private DecisionEvent _currentDecision = null;
 
     private List<DecisionEvent> _decisionHistory = null;
-
+    
     private DecisionProbabilityCalculator _decisionCalc = null;
 
     /** The cancellation threshold */
@@ -84,6 +84,9 @@ public class Agent
     // ////////2D movement variables\\\\\\\\\\
     /** Preferred destination of this agent */
     private Vector2D _preferredDestination = Vector2D.ZERO;
+    
+    /** The id of the preferred destination */
+    private String _destinationId = null;
 
     /** Current destination of this agent */
     private Vector2D _currentDestination = Vector2D.ZERO;
@@ -131,9 +134,6 @@ public class Agent
     /** Whether or not we should pre calculate the decision probabilities */
     private boolean _preCalcProbs = false;
     
-    /** Whether or not we should include stopped agents in the nearest neighbor count */
-    private boolean _excludeStoppedAgents = false;
-
     /**
      * Builds an Agent disregarding Personality and Conflict
      * 
@@ -219,10 +219,6 @@ public class Agent
         Validate.notEmpty( preCalcProbs, "pre-calculate-probabilities may not be empty" );
         _preCalcProbs  = Boolean.parseBoolean( preCalcProbs );
         
-        String excludeStoppedAgents = _simState.getProperties().getProperty( "exclude-stopped-agents" );
-        Validate.notEmpty( excludeStoppedAgents, "exclude-stopped-agents may not be empty" );
-        _excludeStoppedAgents  = Boolean.parseBoolean( excludeStoppedAgents );
-
         _communicationType = _simState.getCommunicationType();
 
         reset();
@@ -443,6 +439,11 @@ public class Agent
                     _canInitiate = false;
                 }
             }
+            
+            //if it was a new decision add it to the conflict history list
+            if(_hasNewDecision){
+                _simState.conflictEvents.add( new ConflictHistoryEvent(getTime(), getId().toString(), getPreferredDestinationId(), getCurrentDecision().getDecision(), possibleDecisions) );
+            }
         }
     }
 
@@ -649,16 +650,10 @@ public class Agent
             while( iter.hasNext() )
             {
                 Agent temp = iter.next();
-                if(_excludeStoppedAgents){
-                    if(!temp.getCurrentVelocity().equals( Vector2D.ZERO )){
-                        nearest.add( temp );
-                    }
-                }
-                else{
-                    nearest.add( temp );
-                }
+                nearest.add( temp );
             }
             nearest.remove( this );
+            
         }
         return nearest;
     }
@@ -688,10 +683,18 @@ public class Agent
     {
         return _preferredDestination;
     }
+    
+    public String getPreferredDestinationId(){
+        return _destinationId;
+    }
 
     public void setPreferredDestination( Vector2D newDestination )
     {
         _preferredDestination = newDestination;
+    }
+    
+    public void setPreferredDestinationId( String destinationId ){
+        _destinationId = destinationId;
     }
 
     public Vector2D getCurrentDestination()
@@ -765,7 +768,7 @@ public class Agent
     {
         return _initiationHistory;
     }
-
+    
     public void endOfInitiation( boolean wasSuccessful, int followers )
     {
         if( wasSuccessful )
@@ -859,7 +862,7 @@ public class Agent
             Agent temp = iter.next().getValue();
             if( temp.getGroup().getId() != Group.NONE.getId()
                     && temp.getGroup().getId() != _group.getId()
-//                    && !temp.getCurrentVelocity().equals( Vector2D.ZERO) //temporary to prevent following of non-moving agents
+                    && !temp.getCurrentVelocity().equals( Vector2D.ZERO) //temporary to prevent following of non-moving agents
                     )
             {
                 possibleDecisions.add( new Follow( this, temp ) );
@@ -908,5 +911,26 @@ public class Agent
         public float afterPersonality = 0.0f;
 
         public int participants = 0;
+    }
+    
+    public class ConflictHistoryEvent
+    {
+        public int timeStep = 0;
+        
+        public String agentId = null;
+        
+        public String destinationId = null;
+        
+        public Decision decisionMade = null;
+        
+        public List<Decision> possibleDecisions = null;
+        
+        public ConflictHistoryEvent(int timeStep, String agentId, String destinationId, Decision decisionMade, List<Decision> possibleDecisions){
+            this.timeStep = timeStep;
+            this.agentId = agentId;
+            this.destinationId = destinationId;
+            this.decisionMade = decisionMade;
+            this.possibleDecisions = possibleDecisions;
+        }
     }
 }
