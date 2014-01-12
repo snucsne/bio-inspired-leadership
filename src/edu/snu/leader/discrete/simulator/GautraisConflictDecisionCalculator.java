@@ -178,11 +178,8 @@ DecisionProbabilityCalculator
     
     //TODO make sure this is working well :D
     private double calculateConflict(Decision decision){
-        //old formula
-        // Ci = p^.5 * |di - dI|^.5
         Agent agent = decision.getAgent();
         Agent leader = decision.getLeader();
-//        float p = agent.getPersonalityTrait().getPersonality();
         double Ci = 0.0;
 
         //calculate the leader's next location
@@ -197,8 +194,10 @@ DecisionProbabilityCalculator
         
         double angle = 0.0;
         
-        //check to see if any side is a length close to 0
-        if(A < 1 || B < 1 || C < 1){
+//        A = Math.round( A * 100.0 ) / 100.0;
+//        B = Math.round( B * 100.0) / 100.0;
+//        C = Math.round( C * 100.0 ) / 100.0;
+        if(A <= 0 || B <= 0 || C <= 0){
             //if a side is 0 then there is no triangle it is a line
             //if segment B is longer than C then the degree should be 180
             if(B > C){
@@ -212,18 +211,30 @@ DecisionProbabilityCalculator
         //have three sides so use law of cosines
         else{
             //calculate angle between leader's current position and agent's preferred destination by law of cosines
-            angle = Math.acos( ( Math.pow( B, 2 ) + Math.pow( C, 2 ) - Math.pow( A, 2 ) ) / (2 * B * C ) );
+            double lawOfCosines = (Math.pow( A, 2 ) - Math.pow( B, 2 ) - Math.pow( C, 2 ) ) / (-2 * B * C);
+            //because of rounding error there can be lawOfCosines values that are oh so slightly larger or smaller than 1 or -1
+            //this augments them to their correct values
+            if(lawOfCosines < -1){
+                lawOfCosines = -1;
+            }
+            else if(lawOfCosines > 1){
+                lawOfCosines = 1;
+            }
+            angle = Math.acos( lawOfCosines );
         }
         
         //if angle is greater than 180 than it becomes 360 - angle
         if(angle > 180){
             angle = 360 - angle;
         }
+        //make it into degrees
         angle = angle * 180 / Math.PI;
+        //calculate conflict
         Ci = angle / 180;
-        // old formula
-//        double Ci = Math.pow( p, .5 ) * Math.pow( dir_diff, .5 );
+        //set the conflict for the decision
         decision.setConflict( Ci );
+        
+        //return the conflict value for whatever needs to use it
         return Ci;
     }
 }

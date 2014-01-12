@@ -112,48 +112,51 @@ public class Utils
         double sum = 0.0;
 
         // calculate the probability ranges for each decision
-        boolean found = false;
-        int count = 0;
-        while(!found){
-            Decision temp = possibleDecisions.get( count );
-            forTheMath.add( new ProbabilityRange( sum, sum
-                    + temp.getProbability() ) );
-            // if the random number falls within the probability range the its
-            // the decision we want
-            if( forTheMath.get( count ).isThisTheOne( rand ) )
-            {
-                decision = possibleDecisions.get( count );
-                if(decision == null){
-                    System.out.println("CRAP");
-                }
-                found = true;
-            }
-            sum += temp.getProbability();
-            count++;
-        }
-        
-        // calculate the probability ranges for each decision  
-        // OLD CODE
-//        for( int i = 0; i < possibleDecisions.size(); i++ )
-//        {
-//            Decision temp = possibleDecisions.get( i );
+//        boolean found = false;
+//        int count = 0;
+//        while(!found){
+//            Decision temp = possibleDecisions.get( count );
 //            forTheMath.add( new ProbabilityRange( sum, sum
 //                    + temp.getProbability() ) );
 //            // if the random number falls within the probability range the its
 //            // the decision we want
-//            if( forTheMath.get( i ).isThisTheOne( rand ) )
+//            if( forTheMath.get( count ).isThisTheOne( rand ) )
 //            {
-//                decision = possibleDecisions.get( i );
+//                decision = possibleDecisions.get( count );
 //                if(decision == null){
 //                    System.out.println("CRAP");
 //                }
-//                break;
+//                found = true;
 //            }
 //            sum += temp.getProbability();
+//            count++;
 //        }
+        
+        // calculate the probability ranges for each decision  
+        // OLD CODE
+        for( int i = 0; i < possibleDecisions.size(); i++ )
+        {
+            Decision temp = possibleDecisions.get( i );
+            forTheMath.add( new ProbabilityRange( sum, sum
+                    + temp.getProbability() ) );
+            // if the random number falls within the probability range the its
+            // the decision we want
+            if( forTheMath.get( i ).isThisTheOne( rand ) )
+            {
+                decision = possibleDecisions.get( i );
+                if(decision == null){
+                    System.out.println("CRAP");
+                }
+                break;
+            }
+            sum += temp.getProbability();
+        }
         if(decision == null){
             System.out.println("ERROR Num decisions = " + possibleDecisions.size());
             System.out.println("ERROR Rand = " + rand);
+            for(int i = 0; i < possibleDecisions.size();i++){
+                System.out.println(possibleDecisions.get( i ).getConflict());
+            }
             System.out.println(Arrays.toString( possibleDecisions.toArray() ));
         }
         return decision;
