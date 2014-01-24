@@ -28,7 +28,7 @@ DecisionProbabilityCalculator
     private double _betaF = 0;
     
     /** The conflict value for agents that have zero velocity */
-    private double _defaultConflictValue = 0;
+    private double _defaultConflictValue = .1;
     
     private double[] _followProbabilities = null;
     private double[] _cancelProbabilities = null;
@@ -93,12 +93,13 @@ DecisionProbabilityCalculator
     {
         double tauI = _tauO;
         double conflict = _defaultConflictValue;
-        //if agent is not zero velocity
-        if(!decision.getAgent().getCurrentVelocity().equals( Vector2D.ZERO )){
-            conflict = calculateConflict( decision );
-        }
+        //calculate conflict
+        conflict = calculateConflict( decision );
+        //calculate k value
         double k = kValue(conflict);
+        //calculate tauI
         tauI /= k;
+        //set probability
         decision.setProbability( 1 / tauI );
     }
 
@@ -180,7 +181,7 @@ DecisionProbabilityCalculator
     private double calculateConflict(Decision decision){
         Agent agent = decision.getAgent();
         Agent leader = decision.getLeader();
-        double Ci = 0.0;
+        double Ci = 0.1;
 
         //calculate the leader's next location
         Vector2D leaderNextLocation = leader.getCurrentDestination().add( leader.getCurrentVelocity() );
@@ -192,48 +193,64 @@ DecisionProbabilityCalculator
         //calculate side from leader's current to leader's next
         double C = Vector2D.distance( leader.getCurrentLocation(), leaderNextLocation );
         
-        double angle = 0.0;
-        
-//        A = Math.round( A * 100.0 ) / 100.0;
-//        B = Math.round( B * 100.0) / 100.0;
-//        C = Math.round( C * 100.0 ) / 100.0;
-        if(A <= 0 || B <= 0 || C <= 0){
-            //if a side is 0 then there is no triangle it is a line
-            //if segment B is longer than C then the degree should be 180
-            if(B > C){
-                angle = 180;
-            }
-            //if the segment B is shorter than C then the degree should be 0
-            else{
-                angle = 0.0;
-            }
+        //check if the leader is in the agent's preferred destination
+        if(leader.getCurrentLocation().distance1(
+                agent.getPreferredDestination() ) < SimulationState.getDestinationRadius()){
+            Ci = 0.1;
         }
-        //have three sides so use law of cosines
+        //check if the leader is not moving
+        else if(leader.getCurrentVelocity().equals( Vector2D.ZERO )){
+            Ci = .9;
+        }
         else{
-            //calculate angle between leader's current position and agent's preferred destination by law of cosines
-            double lawOfCosines = (Math.pow( A, 2 ) - Math.pow( B, 2 ) - Math.pow( C, 2 ) ) / (-2 * B * C);
-            //because of rounding error there can be lawOfCosines values that are oh so slightly larger or smaller than 1 or -1
-            //this augments them to their correct values
-            if(lawOfCosines < -1){
-                lawOfCosines = -1;
+            double angle = 0.0;
+            
+            if(A <= 0 || B <= 0 || C <= 0){
+                //if a side is 0 then there is no triangle it is a line
+                //if segment B is longer than C then the degree should be 180
+                if(B > C){
+                    angle = 180;
+                }
+                //if the segment B is shorter than C then the degree should be 0
+                else{
+                    angle = 0.0;
+                }
             }
-            else if(lawOfCosines > 1){
-                lawOfCosines = 1;
+            //have three sides so use law of cosines
+            else{
+                //calculate angle between leader's current position and agent's preferred destination by law of cosines
+                double lawOfCosines = (Math.pow( A, 2 ) - Math.pow( B, 2 ) - Math.pow( C, 2 ) ) / (-2 * B * C);
+                //because of rounding error there can be lawOfCosines values that are oh so slightly larger or smaller than 1 or -1
+                //this augments them to their correct values
+                if(lawOfCosines < -1){
+                    lawOfCosines = -1;
+                }
+                else if(lawOfCosines > 1){
+                    lawOfCosines = 1;
+                }
+                angle = Math.acos( lawOfCosines );
             }
-            angle = Math.acos( lawOfCosines );
+            
+            //if angle is greater than 180 than it becomes 360 - angle
+            if(angle > 180){
+                angle = 360 - angle;
+            }
+            //make it into degrees
+            angle = angle * 180 / Math.PI;
+            //calculate conflict
+            Ci = angle / 180;
         }
         
-        //if angle is greater than 180 than it becomes 360 - angle
-        if(angle > 180){
-            angle = 360 - angle;
+        //prevent K value from becoming 0
+        if(Ci < .1){
+            Ci = .1;
         }
-        //make it into degrees
-        angle = angle * 180 / Math.PI;
-        //calculate conflict
-        Ci = angle / 180;
+        else if (Ci > .9){
+            Ci = .9;
+        }
+        
         //set the conflict for the decision
         decision.setConflict( Ci );
-        
         //return the conflict value for whatever needs to use it
         return Ci;
     }

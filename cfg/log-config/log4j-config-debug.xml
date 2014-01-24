@@ -13,7 +13,7 @@
 
 	<!-- Define the custom file appender -->
 	<appender name="FileAppender" class="org.apache.log4j.FileAppender">
-		<param name="File" value="log/debug-${logname}-${hostname}.log" />
+		<param name="File" value="log/debug-${hostname}.log" />
 		<param name="Append" value="false" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{HH:mm:ss.SSS} %-25.25c{1} [%-5p] - %m%n" />

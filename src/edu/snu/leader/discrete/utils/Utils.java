@@ -110,7 +110,7 @@ public class Utils
         List<ProbabilityRange> forTheMath = new ArrayList<ProbabilityRange>();
         Decision decision = null;
         double sum = 0.0;
-
+        //TODO this solution may have a bug
         // calculate the probability ranges for each decision
 //        boolean found = false;
 //        int count = 0;
@@ -133,7 +133,7 @@ public class Utils
 //        }
         
         // calculate the probability ranges for each decision  
-        // OLD CODE
+        // OLD CODE but it works
         for( int i = 0; i < possibleDecisions.size(); i++ )
         {
             Decision temp = possibleDecisions.get( i );

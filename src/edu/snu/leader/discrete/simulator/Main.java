@@ -41,8 +41,8 @@ public class Main
             else{
             // run graphical
                  DebugLocationsStructure db = new DebugLocationsStructure(
-                 "Presentation Demo",
-                 800, 600, 15 );
+                 "Conflict Simulation",
+                 800, 600, 30 );
                  db.run();
             }
         }

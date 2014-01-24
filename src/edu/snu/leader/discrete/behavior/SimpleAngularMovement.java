@@ -13,8 +13,6 @@ public class SimpleAngularMovement implements MovementBehavior
     @Override
     public void move()
     {
-        // set current velocity to that of the leader's
-        _agent.setCurrentVelocity( _agent.getLeader().getCurrentVelocity() );
         // if agent is initiating and is with 3 units of their destination stop
         if( _agent.getCurrentLocation().distance1(
                         _agent.getPreferredDestination() ) < SimulationState.getDestinationRadius() )
@@ -30,6 +28,11 @@ public class SimpleAngularMovement implements MovementBehavior
         // otherwise move normally
         else
         {
+//            _agent.setCurrentDestination( _agent.getLeader().getCurrentLocation() );
+//            if(!_agent.getCurrentDestination().subtract( _agent.getCurrentLocation()).equals( Vector2D.ZERO )){
+//                _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract( _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
+//                        _agent.getSpeed() ) );
+//            }
             _agent.setCurrentLocation( _agent.getCurrentLocation().add(
                     _agent.getCurrentVelocity() ) );
         }

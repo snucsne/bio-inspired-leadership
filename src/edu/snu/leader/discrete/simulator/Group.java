@@ -34,6 +34,13 @@ public class Group
     /** Array that keeps track of what colors are in use so they can be recycled */
     private static boolean[] _colorsInUse = new boolean[70];
 
+    /*
+     * new Color( 0x114477 ), new Color( 0x777711 ),
+            new Color( 0x771155 ), new Color( 0x117744 ),
+            new Color( 0x771122 ), new Color( 0x117777 ),
+            new Color( 0x774411 ),
+     */
+    
     /** Array of 70 unique colors to use for groups */
     private static Color[] _colors = { new Color( 0x000000 ),
             new Color( 0x9ACD32 ), new Color( 0x008080 ),

@@ -364,8 +364,8 @@ public class Agent
             // if we can do nothing
             if( isAbleToDoNothing )
             {
-                double rand = Utils.getRandomNumber(
-                        _simState.getRandomGenerator(), 0, 1 );
+                double rand = Utils.getRandomNumber( _simState.getRandomGenerator(), 0, 1 );
+
                 // if the sum is less than the random then we do nothing,
                 // decision
                 // does not change
@@ -374,6 +374,7 @@ public class Agent
                     // _currentDecision = new
                     // DecisionEvent(possibleDecisions.get(doNothingIndex),
                     // _simState.getSimulationTime());
+                    _hasNewDecision = false;
                 }
                 // we did not do nothing, find out what decision we did make
                 else
@@ -381,7 +382,7 @@ public class Agent
                     // removing do nothing decision is not necessary, but I did
                     // just
                     // in case
-                    possibleDecisions.remove( doNothingIndex );
+//                    possibleDecisions.remove( doNothingIndex );//TODO be careful here
                     // set the new decision
                     boolean wasInitiating = false;
                     if( _currentDecision.getDecision().getDecisionType().equals(
@@ -442,7 +443,7 @@ public class Agent
             
             //if it was a new decision add it to the conflict history list
             if(_hasNewDecision){
-                _simState.conflictEvents.add( new ConflictHistoryEvent(getTime(), getId().toString(), getPreferredDestinationId(), getCurrentDecision().getDecision(), possibleDecisions) );
+                _simState.conflictEvents.add( new ConflictHistoryEvent(_simState.getCurrentSimulationRun(), getTime(), getId().toString(), getPreferredDestinationId(), getCurrentDecision().getDecision(), possibleDecisions) );
             }
         }
     }
@@ -453,14 +454,18 @@ public class Agent
     public void execute()
     {
         if(!hasReachedDestination()){
+            if( _currentDecision.getDecision().getDecisionType() != DecisionType.INITIATION ){
+                _currentDecision.getDecision().choose();
+            }
             // execute the new decision if we have one
             if( _hasNewDecision )
             {
-                _currentDecision.getDecision().choose();
+//                _currentDecision.getDecision().choose();
                 if( _currentDecision.getDecision().getDecisionType() == DecisionType.INITIATION )// &&
                                                                                                  // _canInitiate
                                                                                                  // )
                 {
+                    _currentDecision.getDecision().choose();
                     _numberTimesInitiated++;
                     _currentInitiationHistoryEvent = new InitiationHistoryEvent();
                     _currentInitiationHistoryEvent.simRun = _simState.getCurrentSimulationRun();
@@ -473,15 +478,10 @@ public class Agent
                 {
                     Simulator.agentMoved();
                 }
-                _hasNewDecision = false;
-            }
-            if( _currentDecision.getDecision().getDecisionType().equals(
-                    DecisionType.DO_NOTHING ) )
-            {
-                _currentDecision.getDecision().choose();
             }
             _movementBehavior.move();
         }
+        _hasNewDecision = false;
     }
     
     /**
@@ -790,8 +790,10 @@ public class Agent
         if(!_hasReachedDestination){
             numReachedDestination++;
             _currentVelocity = Vector2D.ZERO;
+            _simState.conflictEvents.add( new ConflictHistoryEvent(_simState.getCurrentSimulationRun(), getTime(), getId().toString(), getPreferredDestinationId(), new Reached(this), null) );
         }
         _hasReachedDestination = true;
+        _hasNewDecision = false;
     }
     
     public boolean hasReachedDestination(){
@@ -811,6 +813,10 @@ public class Agent
         // TODO potential bug here (I think it is finally fixed ^.^ (8-24-13))
         // if our current leader is no longer initiating then look for oldest
         // group member near us, also make sure we are not off on our own
+//        if(this._id.toString().equals( "Agent1") && getTime() > 6708 && getTime() < 6717){
+//            System.out.println(getTime() + "   "  + getId() + " " + getGroup().getId() + "==" + _observedGroupHistory.get( _leader.getId() ).groupId + " " + _leader.getId()) ;
+//        }//TODO delete
+        
         if( _leader == this
                 || _group.getId().equals(
                         _observedGroupHistory.get( _leader.getId() ).groupId ) )
@@ -862,7 +868,7 @@ public class Agent
             Agent temp = iter.next().getValue();
             if( temp.getGroup().getId() != Group.NONE.getId()
                     && temp.getGroup().getId() != _group.getId()
-                    && !temp.getCurrentVelocity().equals( Vector2D.ZERO) //temporary to prevent following of non-moving agents
+//                    && !temp.getCurrentVelocity().equals( Vector2D.ZERO) //temporary to prevent following of non-moving agents
                     )
             {
                 possibleDecisions.add( new Follow( this, temp ) );
@@ -915,6 +921,8 @@ public class Agent
     
     public class ConflictHistoryEvent
     {
+        public int currentRun = 0;
+        
         public int timeStep = 0;
         
         public String agentId = null;
@@ -925,7 +933,8 @@ public class Agent
         
         public List<Decision> possibleDecisions = null;
         
-        public ConflictHistoryEvent(int timeStep, String agentId, String destinationId, Decision decisionMade, List<Decision> possibleDecisions){
+        public ConflictHistoryEvent(int currentRun, int timeStep, String agentId, String destinationId, Decision decisionMade, List<Decision> possibleDecisions){
+            this.currentRun = currentRun;
             this.timeStep = timeStep;
             this.agentId = agentId;
             this.destinationId = destinationId;

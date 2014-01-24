@@ -491,6 +491,7 @@ public class SimulationState
     private void addConflictEventsToConflictResultsReporter(){
         _conflictResultsReporter.appendLine( "# " + SPACER);
         _conflictResultsReporter.appendLine( "# Conflict Events");
+        _conflictResultsReporter.appendLine( "# Run  Time  Agent    Dest  Dec Type     Leader    Event(Type:Leader:Prob:Conflict)" );
         
         StringBuilder b = new StringBuilder();
         
@@ -502,6 +503,7 @@ public class SimulationState
             agentName =  agentName.replaceAll( "Agent", "");
             agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
             
+            b.append( String.format( "%03d", tempC.currentRun) + "  ");
             b.append( String.format("%06d", tempC.timeStep) + "  ");
             b.append( agentName + "  ");
             b.append( tempC.destinationId + "  ");
@@ -516,28 +518,32 @@ public class SimulationState
                 leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
             }
             b.append( String.format("%-12s", tempC.decisionMade.getDecisionType()) + " " + leaderName + "  ");
-            
-            Iterator<Decision> iterD = tempC.possibleDecisions.iterator();
-            while(iterD.hasNext()){
-                Decision tempD = iterD.next();
-                
-                if(tempD.getLeader().getId().equals( tempD.getAgent().getId() )){
-                    leaderName = "-        ";
+            if(tempC.possibleDecisions != null){
+                Iterator<Decision> iterD = tempC.possibleDecisions.iterator();
+                while(iterD.hasNext()){
+                    Decision tempD = iterD.next();
+                    
+                    if(tempD.getLeader().getId().equals( tempD.getAgent().getId() )){
+                        leaderName = "-        ";
+                    }
+                    else{
+                        leaderName = tempD.getLeader().getId().toString();
+                        leaderName =  leaderName.replaceAll( "Agent", "");
+                        leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
+                    }
+                    
+                    b.append( (String.format("%-12s", tempD.getDecisionType()) + ":").replaceAll( " ", "" ) );
+                    b.append( (leaderName + ":").replaceAll( " ", "" ) );
+                    b.append( (String.format("%1.7f", tempD.getProbability()) + ":").replaceAll( " ", "" ) );
+                    b.append( (String.format("%1.5f", tempD.getConflict()) + ",").replaceAll( " ", "" ) );
                 }
-                else{
-                    leaderName = tempD.getLeader().getId().toString();
-                    leaderName =  leaderName.replaceAll( "Agent", "");
-                    leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
-                }
-                
-                b.append( (String.format("%-12s", tempD.getDecisionType()) + ":").replaceAll( " ", "" ) );
-                b.append( (leaderName + ":").replaceAll( " ", "" ) );
-                b.append( (String.format("%1.7f", tempD.getProbability()) + ":").replaceAll( " ", "" ) );
-                b.append( (String.format("%1.5f", tempD.getConflict()) + ",").replaceAll( " ", "" ) );
+                //delete extra comma
+                b.deleteCharAt( b.length() - 1);
             }
-            //delete extra space and comma
-            b.deleteCharAt( b.length() - 1);
-            b.deleteCharAt( b.length() - 1);
+            else{
+                b.append( "-" );
+            }
+            
             b.append( "\n");
         }
         _conflictResultsReporter.appendLine( b.toString() );
