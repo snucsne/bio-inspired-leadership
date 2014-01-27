@@ -48,7 +48,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
     /** the y offset for moving the agents and destinations on screen so they can be seen when zooming */
     private int _yOffset = _windowHeight / 3;
     /** The diameter of the agent circles */
-    private final int _agentSize = 2;
+    private final int _agentSize = Agent.AGENT_DIAMETER;
     /** The diameter of the destination circles */
     private final int _destinationSize = 4;
     /** The x offset for the font */

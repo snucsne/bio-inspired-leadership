@@ -237,6 +237,20 @@ public class Group
         }
         return temp;
     }
+    
+    public int getTimeJoined( Agent agent){
+        int timeJoined = Integer.MAX_VALUE;
+        int count = _membershipEvents.size() - 1;
+        boolean isFound = false;
+        while(count >= 0 && !isFound){
+            MembershipEvent temp = _membershipEvents.get( count );
+            if(agent.getId().equals( temp.getAgent().getId() )){
+                timeJoined = temp.getTime();
+            }
+            count--;
+        }
+        return timeJoined;
+    }
 
     public Color getGroupColor()
     {

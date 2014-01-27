@@ -1,6 +1,6 @@
 #Author: Tim Solum
 #general information about the simulator
-simulation-count = 20
+simulation-count = 1
 max-simulation-time-steps = 20000
 random-seed = 1
 individual-count = 10

@@ -148,6 +148,16 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
                 colorCount++;
             }
             tempAgent.setPreferredDestinationId( "D-" + destinationIds.get( destinationColor ) );
+            
+            String agentName = tempAgent.getId().toString();
+            agentName =  agentName.replaceAll( "Agent", "");
+            agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
+            
+            tempAgent.setPositionReportHeader( "world-object-name=" + agentName + "\n" 
+                                                    + "team-name=" + tempAgent.getPreferredDestinationId() + "\n" 
+                                                    + "collision-bounding-radius=" + (Agent.AGENT_DIAMETER / 2) + "\n\n"
+                                                    + "position=" + tempAgent.getInitialLocation().getX() + "," + tempAgent.getInitialLocation().getY() + ",0\n");
+            
             // set and initialize movement behavior
             tempAgent.setMovementBehavior( mb );
             mb.initialize( tempAgent );

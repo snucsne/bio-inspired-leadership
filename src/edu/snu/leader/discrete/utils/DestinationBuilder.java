@@ -43,6 +43,7 @@ public class DestinationBuilder
             db.generateCircle( 55, count );
 
             db.generateOneNorth( 70 );
+            db.generateDifferentDistance(.5, 200, 100, 75);
         }
     }
 
@@ -51,6 +52,36 @@ public class DestinationBuilder
         _destinationCount = destinationCount;
         _randomSeed = seed;
         _rng = new MersenneTwisterFast( _randomSeed );
+    }
+    
+    public void generateDifferentDistance( double percentNorth, double northY, double eastX, double eastY ){
+        _destinations = new Point2D[_destinationCount];
+        // The number of north destinations
+        int numberNorth = (int) Math.round( _destinationCount * percentNorth );
+        
+        Point2D north = new Point2D.Double( 0, -northY );
+        
+        Point2D east = new Point2D.Double( eastX, -eastY );
+        
+        // fill destinations array
+        for( int i = 0; i < _destinationCount; i++ )
+        {
+            // add north destinations until we don't need anymore
+            if( numberNorth > 0 )
+            {
+                _destinations[i] = north;
+                numberNorth--;
+            }
+            else
+            {
+                _destinations[i] = east;
+            }
+        }
+        
+        
+        String filename = directory + "destinations-diffdis-" + _destinationCount
+                + "-per-" + percentNorth + "-seed-" + _randomSeed + ".dat";
+        saveToFile( filename );
     }
 
     /**

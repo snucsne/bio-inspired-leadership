@@ -15,6 +15,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import edu.snu.leader.discrete.behavior.*;
 import edu.snu.leader.discrete.behavior.Decision.DecisionType;
+import edu.snu.leader.discrete.utils.Reporter;
 import edu.snu.leader.discrete.utils.Utils;
 
 
@@ -25,6 +26,9 @@ import edu.snu.leader.discrete.utils.Utils;
  */
 public class Agent
 {
+    public static final int AGENT_DIAMETER = 4;
+    private String _positionHistoryHeader = null;
+    
     /** The number of agents that have made the stop decision */
     public static int numReachedDestination = 0;
 
@@ -41,6 +45,8 @@ public class Agent
     private List<InitiationHistoryEvent> _initiationHistory = null;
 
     private InitiationHistoryEvent _currentInitiationHistoryEvent = null;
+    
+    private Reporter _positionHistory = null;
     
     /**
      * This is used across agents to make sure only one initiates...only
@@ -221,6 +227,8 @@ public class Agent
         
         _communicationType = _simState.getCommunicationType();
 
+        _positionHistory = new Reporter(_id.toString() + ".dat", "", false);
+        
         reset();
 
         _personalityTrait.initialize( this );
@@ -240,6 +248,9 @@ public class Agent
         // clear histories and reporters
         _observedGroupHistory.clear();
         _decisionHistory.clear();
+        _positionHistory.clear();
+        _positionHistory.append( _positionHistoryHeader );
+        
         _currentDecision = new DecisionEvent( new DoNothing( this, this ), 0 );
 
         // reset leader and ability to initiate
@@ -481,6 +492,7 @@ public class Agent
             }
             _movementBehavior.move();
         }
+        _positionHistory.append( "position=" + _currentLocation.getX() + "," + _currentLocation.getY() + ",0\n" );
         _hasNewDecision = false;
     }
     
@@ -670,8 +682,10 @@ public class Agent
      */
     public void addObservedGroupMember( Agent agent )
     {
-        _observedGroupHistory.put( agent.getId(), new ObservedGroupTime(
-                agent.getGroup().getId(), getTime() ) );
+        if(!_observedGroupHistory.containsValue( agent.getGroup().getId() )){
+            _observedGroupHistory.put( agent.getId(), new ObservedGroupTime(
+                    agent.getGroup().getId(), agent.getGroup().getTimeJoined( agent ) ) );
+        }
     }
 
     public void setMovementBehavior( MovementBehavior mb )
@@ -876,6 +890,16 @@ public class Agent
         }
 
         return possibleDecisions;
+    }
+    
+    public void reportPositions( boolean shouldReport ){
+        _positionHistory.report( shouldReport );
+    }
+    
+    public void setPositionReportHeader( String header ){
+        _positionHistoryHeader = header;
+        _positionHistory.clear();
+        _positionHistory.append( header );
     }
 
     public static boolean canMultipleInitiate()
