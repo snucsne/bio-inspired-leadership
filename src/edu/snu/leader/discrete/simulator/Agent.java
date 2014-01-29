@@ -26,7 +26,7 @@ import edu.snu.leader.discrete.utils.Utils;
  */
 public class Agent
 {
-    public static final int AGENT_DIAMETER = 4;
+    public static final int AGENT_DIAMETER = 2;
     private String _positionHistoryHeader = null;
     
     /** The number of agents that have made the stop decision */
@@ -465,18 +465,12 @@ public class Agent
     public void execute()
     {
         if(!hasReachedDestination()){
-            if( _currentDecision.getDecision().getDecisionType() != DecisionType.INITIATION ){
-                _currentDecision.getDecision().choose();
-            }
             // execute the new decision if we have one
             if( _hasNewDecision )
             {
-//                _currentDecision.getDecision().choose();
-                if( _currentDecision.getDecision().getDecisionType() == DecisionType.INITIATION )// &&
-                                                                                                 // _canInitiate
-                                                                                                 // )
+                _currentDecision.getDecision().choose();
+                if( _currentDecision.getDecision().getDecisionType() == DecisionType.INITIATION )
                 {
-                    _currentDecision.getDecision().choose();
                     _numberTimesInitiated++;
                     _currentInitiationHistoryEvent = new InitiationHistoryEvent();
                     _currentInitiationHistoryEvent.simRun = _simState.getCurrentSimulationRun();
@@ -490,8 +484,24 @@ public class Agent
                     Simulator.agentMoved();
                 }
             }
-            _movementBehavior.move();
+            else{
+                if(!_id.equals( _leader.getId() )){
+                    setCurrentDestination( _leader.getCurrentLocation() );
+                    if(!getCurrentDestination().subtract( getCurrentLocation()).equals( Vector2D.ZERO )){
+                        setCurrentVelocity( ( getCurrentDestination().subtract( getCurrentLocation() ) ).normalize().scalarMultiply(
+                                getSpeed() ) );
+                    }
+                }
+//                _currentDecision.getDecision().choose();
+            }
+//            if( _currentDecision.getDecision().getDecisionType() == DecisionType.DO_NOTHING ){
+//                
+//                _currentDecision.getDecision().choose();
+//            }
+//            _movementBehavior.move();
+//            _positionHistory.append( "position=" + _currentLocation.getX() + "," + _currentLocation.getY() + ",0\n" );
         }
+        _movementBehavior.move();
         _positionHistory.append( "position=" + _currentLocation.getX() + "," + _currentLocation.getY() + ",0\n" );
         _hasNewDecision = false;
     }
@@ -682,10 +692,18 @@ public class Agent
      */
     public void addObservedGroupMember( Agent agent )
     {
-        if(!_observedGroupHistory.containsValue( agent.getGroup().getId() )){
+        if(!_observedGroupHistory.containsKey( agent.getId() )){
             _observedGroupHistory.put( agent.getId(), new ObservedGroupTime(
-                    agent.getGroup().getId(), agent.getGroup().getTimeJoined( agent ) ) );
+                    agent.getGroup().getId(), getTime() ) );
         }
+        else if(!_observedGroupHistory.get( agent.getId() ).groupId.equals( agent.getGroup().getId() )){
+            _observedGroupHistory.put( agent.getId(), new ObservedGroupTime(
+                    agent.getGroup().getId(), getTime() ) );
+        }
+//        else{
+//            _observedGroupHistory.put( agent.getId(), new ObservedGroupTime(
+//                    agent.getGroup().getId(), agent.getGroup().getLastTimeJoined( agent ) ) );
+//        }
     }
 
     public void setMovementBehavior( MovementBehavior mb )
@@ -827,9 +845,6 @@ public class Agent
         // TODO potential bug here (I think it is finally fixed ^.^ (8-24-13))
         // if our current leader is no longer initiating then look for oldest
         // group member near us, also make sure we are not off on our own
-//        if(this._id.toString().equals( "Agent1") && getTime() > 6708 && getTime() < 6717){
-//            System.out.println(getTime() + "   "  + getId() + " " + getGroup().getId() + "==" + _observedGroupHistory.get( _leader.getId() ).groupId + " " + _leader.getId()) ;
-//        }//TODO delete
         
         if( _leader == this
                 || _group.getId().equals(

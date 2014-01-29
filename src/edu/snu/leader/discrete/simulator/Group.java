@@ -78,7 +78,7 @@ public class Group
             new Color( 0x4B0082 ), new Color( 0xFF69B4 ),
             new Color( 0xFFD700 ), new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
 
-    /** Total number of groups. Set to -1 so that Group0 will not be counted */
+    /** Total number of groups.  */
     public static int totalNumGroups = 1;
 
     /** This is a default group */
@@ -182,13 +182,6 @@ public class Group
         {
             Agent tempAgent = _members.get( 0 );
             tempAgent.setCurrentVelocity( Vector2D.ZERO );
-//            tempAgent.setCurrentDestination( tempAgent.getInitialLocation() );
-//            if( !( tempAgent.getCurrentDestination().subtract( tempAgent.getCurrentLocation() ) ).equals( Vector2D.ZERO ) )
-//            {
-//                tempAgent.setCurrentVelocity( ( tempAgent.getCurrentDestination().subtract( 
-//                        tempAgent.getCurrentLocation() ) ).normalize().scalarMultiply(
-//                        tempAgent.getSpeed() ) );
-//            }
             Group.NONE.addAgent( tempAgent, tempAgent.getTime() );
             temp--;
         }
@@ -238,14 +231,15 @@ public class Group
         return temp;
     }
     
-    public int getTimeJoined( Agent agent){
+    public int getLastTimeJoined( Agent agent){
         int timeJoined = Integer.MAX_VALUE;
         int count = _membershipEvents.size() - 1;
         boolean isFound = false;
         while(count >= 0 && !isFound){
             MembershipEvent temp = _membershipEvents.get( count );
-            if(agent.getId().equals( temp.getAgent().getId() )){
+            if(agent.getId().equals( temp.getAgent().getId() ) && temp.getType().equals( MembershipEventType.JOIN )){
                 timeJoined = temp.getTime();
+                isFound = true;
             }
             count--;
         }

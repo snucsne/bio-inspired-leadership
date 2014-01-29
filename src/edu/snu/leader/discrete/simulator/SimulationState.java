@@ -30,7 +30,7 @@ import edu.snu.leader.discrete.utils.Reporter;
 public class SimulationState
 {
     final boolean SHOULD_REPORT_ESKRIDGE = false;
-    final boolean SHOULD_REPORT_CONFLICT = true;
+    final boolean SHOULD_REPORT_CONFLICT = false;
     final boolean SHOULD_REPORT_POSITIONS = true;
     
     /** Used for the Eskridge reporter */

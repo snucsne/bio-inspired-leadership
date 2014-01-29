@@ -3,7 +3,7 @@
 simulation-count = 1
 max-simulation-time-steps = 20000
 random-seed = 1
-individual-count = 10
+individual-count = 20
 pre-calculate-probabilities = false
 
 #communication types
@@ -52,12 +52,12 @@ cancellation-threshold = 1.0
 #The class that builds the agents
 agent-builder = edu.snu.leader.discrete.simulator.SueurSimpleAngularAgentBuilder
 #The calculator used for the probabilities of decisions
-decision-calculator = edu.snu.leader.discrete.simulator.GautraisConflictDecisionCalculator
+decision-calculator = edu.snu.leader.discrete.simulator.GautraisDecisionCalculator
 
 #starting locations file used
-locations-file = cfg/sim/locations/metric/valid-metric-loc-010-seed-00001.dat
+locations-file = cfg/sim/locations/metric/valid-metric-loc-020-seed-00001.dat
 #the destinations for the agents
-destinations-file = cfg/sim/destinations/destinations-split-10-dis-150.0-ang-72.00-per-0.500-seed-1.dat
+destinations-file = cfg/sim/destinations/destinations-diffdis-20-per-0.5-seed-1.dat
 
 #The time delay between each time step in milliseconds (1000 = 1 sec)
 live-delay = 30

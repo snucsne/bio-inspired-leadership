@@ -52,7 +52,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
     /** The diameter of the destination circles */
     private final int _destinationSize = 4;
     /** The x offset for the font */
-    private final int _fontXOffset = 1;
+    private final int _fontXOffset = 30;
     /** The y offset for the font */
     private final int _fontYOffset = 12;
     /** The font size */
