@@ -37,6 +37,7 @@ winner-reward = 1.0
 loser-penalty = 0.0
 modify-winner-discount = false
 modify-winner-reward = true
-directions-file = cfg/sim/environment/env-dir-change-test.dat
+#directions-file = cfg/sim/environment/env-dir-change-test.dat
+directions-file = cfg/sim/environment/env-dir-change-reverse.dat
 
 locations-file = cfg/sim/locations/complex-formation-binary-few.loc

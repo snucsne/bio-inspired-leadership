@@ -168,6 +168,7 @@ public class SpatialIndividual
         _location = location;
         _personality = personality;
         _initialPersonality = personality;
+        _personalityAfterLastInitiation = personality;
         _assertiveness = assertiveness;
         _preferredDirection = preferredDirection;
         _conflict = conflict;

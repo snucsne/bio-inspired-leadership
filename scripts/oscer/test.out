@@ -1,0 +1,96 @@
+./submit-job.sh 1 c00100.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ConstantDecay 10 '
+./submit-job.sh 1 l00100.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.LinearDecay 10 '
+./submit-job.sh 1 e00100.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ExponentialDecay 10 '
+./submit-job.sh 1 m00100.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.MomentumDecay 10 '
+
+./submit-job.sh 1 c00100.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ConstantDecay 10 '
+./submit-job.sh 1 l00100.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.LinearDecay 10 '
+./submit-job.sh 1 e00100.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ExponentialDecay 10 '
+./submit-job.sh 1 m00100.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.MomentumDecay 10 '
+
+./submit-job.sh 1 c00100.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ConstantDecay 10 '
+./submit-job.sh 1 l00100.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.LinearDecay 10 '
+./submit-job.sh 1 e00100.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ExponentialDecay 10 '
+./submit-job.sh 1 m00100.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.MomentumDecay 10 '
+
+
+./submit-job.sh 1 c00500.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ConstantDecay 50 '
+./submit-job.sh 1 l00500.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.LinearDecay 50 '
+./submit-job.sh 1 e00500.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ExponentialDecay 50 '
+./submit-job.sh 1 m00500.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.MomentumDecay 50 '
+
+./submit-job.sh 1 c00500.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ConstantDecay 50 '
+./submit-job.sh 1 l00500.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.LinearDecay 50 '
+./submit-job.sh 1 e00500.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ExponentialDecay 50 '
+./submit-job.sh 1 m00500.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.MomentumDecay 50 '
+
+./submit-job.sh 1 c00500.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ConstantDecay 50 '
+./submit-job.sh 1 l00500.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.LinearDecay 50 '
+./submit-job.sh 1 e00500.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ExponentialDecay 50 '
+./submit-job.sh 1 m00500.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.MomentumDecay 50 '
+
+
+./submit-job.sh 1 c01000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ConstantDecay 100 '
+./submit-job.sh 1 l01000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.LinearDecay 100 '
+./submit-job.sh 1 e01000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ExponentialDecay 100 '
+./submit-job.sh 1 m01000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.MomentumDecay 100 '
+
+./submit-job.sh 1 c01000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ConstantDecay 100 '
+./submit-job.sh 1 l01000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.LinearDecay 100 '
+./submit-job.sh 1 e01000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ExponentialDecay 100 '
+./submit-job.sh 1 m01000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.MomentumDecay 100 '
+
+./submit-job.sh 1 c01000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ConstantDecay 100 '
+./submit-job.sh 1 l01000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.LinearDecay 100 '
+./submit-job.sh 1 e01000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ExponentialDecay 100 '
+./submit-job.sh 1 m01000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.MomentumDecay 100 '
+
+
+./submit-job.sh 1 c05000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ConstantDecay 500 '
+./submit-job.sh 1 l05000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.LinearDecay 500 '
+./submit-job.sh 1 e05000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ExponentialDecay 500 '
+./submit-job.sh 1 m05000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.MomentumDecay 500 '
+
+./submit-job.sh 1 c05000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ConstantDecay 500 '
+./submit-job.sh 1 l05000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.LinearDecay 500 '
+./submit-job.sh 1 e05000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ExponentialDecay 500 '
+./submit-job.sh 1 m05000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.MomentumDecay 500 '
+
+./submit-job.sh 1 c05000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ConstantDecay 500 '
+./submit-job.sh 1 l05000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.LinearDecay 500 '
+./submit-job.sh 1 e05000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ExponentialDecay 500 '
+./submit-job.sh 1 m05000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.MomentumDecay 500 '
+
+
+./submit-job.sh 1 c10000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ConstantDecay 1000 '
+./submit-job.sh 1 l10000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.LinearDecay 1000 '
+./submit-job.sh 1 e10000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ExponentialDecay 1000 '
+./submit-job.sh 1 m10000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.MomentumDecay 1000 '
+
+./submit-job.sh 1 c10000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ConstantDecay 1000 '
+./submit-job.sh 1 l10000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.LinearDecay 1000 '
+./submit-job.sh 1 e10000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ExponentialDecay 1000 '
+./submit-job.sh 1 m10000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.MomentumDecay 1000 '
+
+./submit-job.sh 1 c10000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ConstantDecay 1000 '
+./submit-job.sh 1 l10000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.LinearDecay 1000 '
+./submit-job.sh 1 e10000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ExponentialDecay 1000 '
+./submit-job.sh 1 m10000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.MomentumDecay 1000 '
+
+
+./submit-job.sh 1 c20000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ConstantDecay 2000 '
+./submit-job.sh 1 l20000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.LinearDecay 2000 '
+./submit-job.sh 1 e20000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.ExponentialDecay 2000 '
+./submit-job.sh 1 m20000.2 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.2 edu.snu.leader.hidden.personality.MomentumDecay 2000 '
+
+./submit-job.sh 1 c20000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ConstantDecay 2000 '
+./submit-job.sh 1 l20000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.LinearDecay 2000 '
+./submit-job.sh 1 e20000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.ExponentialDecay 2000 '
+./submit-job.sh 1 m20000.5 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.5 edu.snu.leader.hidden.personality.MomentumDecay 2000 '
+
+./submit-job.sh 1 c20000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ConstantDecay 2000 '
+./submit-job.sh 1 l20000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.LinearDecay 2000 '
+./submit-job.sh 1 e20000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.ExponentialDecay 2000 '
+./submit-job.sh 1 m20000.8 12 /home/eskridge/leader './perform-personality-decay.sh cfg/sim/hidden/spatial-hidden-variables-simulation-personality-decay.parameters data/ 0.8 edu.snu.leader.hidden.personality.MomentumDecay 2000 '
+
+

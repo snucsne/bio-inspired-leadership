@@ -6,11 +6,9 @@ package edu.snu.leader.hidden.personality;
 // Imports
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
-
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.LinkedList;
@@ -19,21 +17,21 @@ import java.util.Queue;
 
 
 /**
- * DirectionUpdateRulePersonalityCalculator
+ * DirectionUpdateRuleWithDecayPersonalityCalculator
  *
  * TODO Class description
  *
  * @author Brent Eskridge
  * @version $Revision$ ($Author$)
  */
-public class DirectionUpdateRulePersonalityCalculator
-        extends StandardUpdateRulePersonalityCalculator
+public class DirectionUpdateRuleWithDecayPersonalityCalculator
+        extends StandardUpdateRuleWithDecayPersonalityCalculator
         implements PersonalityCalculator
 {
 
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
-            DirectionUpdateRulePersonalityCalculator.class.getName() );
+            DirectionUpdateRuleWithDecayPersonalityCalculator.class.getName() );
 
     /** Class to store loaded direction changes */
     protected static class DirectionChange {

@@ -1,0 +1,34 @@
+\documentclass[10pt]{article}
+\usepackage[paperwidth=24in,paperheight=15in,margin=0.5in,textwidth=23in]{geometry}
+\usepackage{graphicx}
+\usepackage[labelformat=empty]{caption}
+\usepackage[textfont=Large]{subfig}
+
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{center}
+  {\huge  ##TITLE##}
+\end{center}
+
+\begin{figure}[h!]
+\centering
+  \subfloat[Constant]{
+    \includegraphics[width=0.18\textwidth]{constant-figure}
+  }\hspace{2em}%
+  \subfloat[Linear]{
+    \includegraphics[width=0.18\textwidth]{linear-figure}
+  }%\hspace{2em}%
+
+  \subfloat[Exponential]{
+    \includegraphics[width=0.18\textwidth]{exponential-figure}
+  }\hspace{2em}%
+  \subfloat[Momentum]{
+    \includegraphics[width=0.18\textwidth]{momentum-figure}
+  }
+\end{figure}
+
+
+\end{document}
+

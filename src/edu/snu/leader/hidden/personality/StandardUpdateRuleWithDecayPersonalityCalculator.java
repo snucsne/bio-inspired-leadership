@@ -5,88 +5,38 @@ package edu.snu.leader.hidden.personality;
 
 // Imports
 import java.util.Properties;
+
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
 import edu.snu.leader.util.MiscUtils;
 
 /**
  * StandardUpdateRuleWithDecayPersonalityCalculator
- * 
+ *
  * @author Jeremy Acre
  * @version $Revision$ ($Author$)
  */
-public class StandardUpdateRuleWithDecayPersonalityCalculator implements
-        PersonalityCalculator
+public class StandardUpdateRuleWithDecayPersonalityCalculator
+    extends StandardUpdateRulePersonalityCalculator
+        implements PersonalityCalculator
 {
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
             StandardUpdateRuleWithDecayPersonalityCalculator.class.getName() );
 
-    
-    
-    /** Key for the discount */
-    private static final String _DISCOUNT_KEY = "personality-discount";
-
-    /** Key for the minimum personality value */
-    private static final String _MIN_PERSONALITY_KEY = "min-personality";
-
-    /** Key for the maximum personality value */
-    private static final String _MAX_PERSONALITY_KEY = "max-personality";
-
-    /** Key for the true winner discount */
-    private static final String _TRUE_WINNER_DISCOUNT_KEY = "true-winner-discount";
-
-    /** Key for the true loser discount */
-    private static final String _TRUE_LOSER_DISCOUNT_KEY = "true-loser-discount";
-
-    /** Key for the flag indicating that true winner effects are active */
-    private static final String _TRUE_WINNER_EFFECTS_ACTIVE_KEY = "true-winner-effects-active";
-
-    /** Key for the flag indicating that true loser effects are active */
-    private static final String _TRUE_LOSER_EFFECTS_ACTIVE_KEY = "true-loser-effects-active";
-
-    /** Key for the winner reward */
-    private static final String _WINNER_REWARD_KEY = "winner-reward";
-
-    /** Key for the loser penalty */
-    private static final String _LOSER_PENALTY_KEY = "loser-penalty";
-    
     /** Key for the decay calculator */
     private static final String _PERSONALITY_DECAY_CALCULATOR_KEY = "personality-decay-calculator";
 
-    
-    /** The update rule's discount */
-    private float _discount = 0.0f;
 
-    /** The update rule's true winner discount */
-    private float _trueWinnerDiscount = 0.0f;
+    /** The simulation state */
+    private SimulationState _simState = null;
 
-    /** The update rule's true loser discount */
-    private float _trueLoserDiscount = 0.0f;
-
-    /** The update rule's true winner reward */
-    private float _winnerReward = 0.0f;
-
-    /** The update rule's true loser reward */
-    private float _loserPenalty = 0.0f;
-
-    /** Flag indicating whether or not true winner effects are active */
-    private boolean _trueWinnerEffectActive = false;
-
-    /** Flag indicating whether or not true loser effects are active */
-    private boolean _trueLoserEffectActive = false;
-
-    /** The minimum allowable personality value */
-    private float _minPersonality = 0.0f;
-
-    /** The maximum allowable personality value */
-    private float _maxPersonality = 1.0f;
-    
     /** The decay calculator */
     private PersonalityDecayCalculator _decayCalc;
-    
+
     /**
      * Initializes the updater
      *
@@ -97,110 +47,23 @@ public class StandardUpdateRuleWithDecayPersonalityCalculator implements
     {
         _LOG.trace( "Entering initialize( simState )" );
 
+        // Call the superclass implementation
+        super.initialize( simState );
+
         // Get the properties
+        _simState = simState;
         Properties props = simState.getProps();
 
-        // Get the discount value
-        String discountStr = props.getProperty( _DISCOUNT_KEY );
-        Validate.notEmpty( discountStr,
-                "Personality discount (key="
-                + _DISCOUNT_KEY
-                + ") may not be empty" );
-        _discount = Float.parseFloat( discountStr );
-        _LOG.info( "Using _discount=[" + _discount + "]" );
-
-        // Get the true winner discount value
-        String trueWinnerDiscountStr = props.getProperty( _TRUE_WINNER_DISCOUNT_KEY );
-        if( null != trueWinnerDiscountStr )
-        {
-            _trueWinnerDiscount = Float.parseFloat( trueWinnerDiscountStr );
-        }
-        else
-        {
-            _trueWinnerDiscount = _discount;
-        }
-        _LOG.info( "Using _trueWinnerDiscount=[" + _trueWinnerDiscount + "]" );
-
-        // Get the true loser discount value
-        String trueLoserDiscountStr = props.getProperty( _TRUE_LOSER_DISCOUNT_KEY );
-        if( null != trueLoserDiscountStr )
-        {
-            _trueLoserDiscount = Float.parseFloat( trueLoserDiscountStr );
-        }
-        else
-        {
-            _trueLoserDiscount = _discount;
-        }
-        _LOG.info( "Using _trueLoserDiscount=[" + _trueLoserDiscount + "]" );
-
-        // Get the winner reward
-        String winnerRewardStr = props.getProperty( _WINNER_REWARD_KEY );
-        Validate.notEmpty( winnerRewardStr,
-                "Winner reward (key=["
-                + _WINNER_REWARD_KEY
-                + "]) may not be empty" );
-        _winnerReward = Float.parseFloat( winnerRewardStr );
-        _LOG.info( "Using _winnerReward=[" + _winnerReward + "]" );
-
-        // Get the loser penalty
-        String loserPenaltyStr = props.getProperty( _LOSER_PENALTY_KEY );
-        Validate.notEmpty( loserPenaltyStr,
-                "Loser penalty (key=["
-                + _LOSER_PENALTY_KEY
-                + "]) may not be empty" );
-        _loserPenalty = Float.parseFloat( loserPenaltyStr );
-        _LOG.info( "Using _loserPenalty=[" + _loserPenalty + "]" );
-
-        // Get the true winner effect flag
-        String trueWinnerEffectStr = props.getProperty( _TRUE_WINNER_EFFECTS_ACTIVE_KEY );
-        Validate.notEmpty( trueWinnerEffectStr,
-                "True winner effects active flag (key=["
-                        + _TRUE_WINNER_EFFECTS_ACTIVE_KEY
-                        + "]) may not be empty" );
-        _trueWinnerEffectActive = Boolean.parseBoolean( trueWinnerEffectStr );
-        _LOG.info( "Using _trueWinnerEffectActive=["
-                + _trueWinnerEffectActive
-                + "]" );
-
-        // Get the true loser effect flag
-        String trueLoserEffectStr = props.getProperty( _TRUE_LOSER_EFFECTS_ACTIVE_KEY );
-        Validate.notEmpty( trueLoserEffectStr,
-                "True loser effects active flag (key=["
-                        + _TRUE_LOSER_EFFECTS_ACTIVE_KEY
-                        + "]) may not be empty" );
-        _trueLoserEffectActive = Boolean.parseBoolean( trueLoserEffectStr );
-        _LOG.info( "Using _trueLoserEffectActive=["
-                + _trueLoserEffectActive
-                + "]" );
-
-        // Get the min personality
-        String minPersonalityStr = props.getProperty( _MIN_PERSONALITY_KEY );
-        Validate.notEmpty( minPersonalityStr,
-                "Minimum personality value (key="
-                + _MIN_PERSONALITY_KEY
-                + ") may not be empty" );
-        _minPersonality = Float.parseFloat( minPersonalityStr );
-        _LOG.info( "Using _minPersonality=[" + _minPersonality + "]" );
-
-        // Get the max personality
-        String maxPersonalityStr = props.getProperty( _MAX_PERSONALITY_KEY );
-        Validate.notEmpty( maxPersonalityStr,
-                "Maximum personality value (key="
-                + _MAX_PERSONALITY_KEY
-                + ") may not be empty" );
-        _maxPersonality = Float.parseFloat( maxPersonalityStr );
-        _LOG.info( "Using _maxPersonality=[" + _maxPersonality + "]" );
-        
         // Get the decay calculator
         String decayCalcStr = props.getProperty( _PERSONALITY_DECAY_CALCULATOR_KEY );
         Validate.notEmpty( decayCalcStr,
                 "Decay calculator value (key="
                 + _PERSONALITY_DECAY_CALCULATOR_KEY
                 + ") may not be empty" );
-        
+
         // Load and instantiate the decay calculator
         _decayCalc = (PersonalityDecayCalculator) MiscUtils.loadAndInstantiate( decayCalcStr, "Calculator" );
-        
+
         // Initialize decay calculator
         _decayCalc.initialize( simState );
 
@@ -219,77 +82,28 @@ public class StandardUpdateRuleWithDecayPersonalityCalculator implements
     public float calculatePersonality( SpatialIndividual individual,
             PersonalityUpdateType updateType, int followers )
     {
-        float result = 0.0f;
-        float discount = 0.0f;
-        
-        // The new personality
-        float newPersonality = individual.getPersonality();
+        // Get the superclass implementation's calculation for new personality
+        float newPersonality = super.calculatePersonality( individual,
+                updateType,
+                followers );
 
-        // What type was the update?
-        boolean valid = false;
-        if( PersonalityUpdateType.TRUE_WINNER.equals( updateType ) )
+        // Check to see if the personality should decay
+        if( !PersonalityUpdateType.TRUE_WINNER.equals( updateType )
+                && !PersonalityUpdateType.TRUE_LOSER.equals( updateType ) )
         {
-            // True winner
-            if( _trueWinnerEffectActive )
-            {
-                result = _winnerReward;
-                discount = _trueWinnerDiscount;
-                valid = true;
-            }
-        }
-        else if( PersonalityUpdateType.TRUE_LOSER.equals( updateType ) )
-        {
-            // True loser
-            if( _trueLoserEffectActive )
-            {
-                result = _loserPenalty;
-                discount = _trueLoserDiscount;
-                valid = true;
-            }
-        }
-        else
-        {
-            // If the individual is decaying
+            // It isn't a winner or loser, so it might be decaying
+            // Check and see
             if( _decayCalc.isDecaying( individual ) )
             {
-                // Calculate decayed personality
-                newPersonality = _decayCalc.calculateDecayedPersonality( individual );
-                
-                _LOG.debug( "Personality decay: ind=["
-                        + individual.getID()
-                        + "] old=["
-                        + individual.getPersonality()
-                        + "] new=["
-                        + newPersonality
-                        + "]" );
+                // Yup, calculate the new personality from decaying
+                newPersonality = _decayCalc.calculateDecayedPersonality(
+                        individual );
             }
         }
 
-        // Calculate the new personality using a standard update rule
-        if( valid )
-        {
-            newPersonality = ( (1.0f - discount) * individual.getPersonality() )
-                    + ( discount * result );
-        }
+        // Validate the new personality
+        newPersonality = ensureValidPersonality( newPersonality );
 
-        // Ensure it is within bounds
-        if( _minPersonality > newPersonality )
-        {
-            newPersonality = _minPersonality;
-        }
-        else if( _maxPersonality < newPersonality )
-        {
-            newPersonality = _maxPersonality;
-        }
-
-//      _LOG.info( "oldPersonality=["
-//              + String.format( "%06.4f", currentPersonality )
-//              + "] newPersonality=["
-//              + String.format( "%06.4f", newPersonality )
-//              + "] udpateType=["
-//              + updateType
-//              + "]" );
-        
         return newPersonality;
     }
 }

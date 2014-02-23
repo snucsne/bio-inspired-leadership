@@ -8,14 +8,14 @@ do
 
     FORMATTED_DECAY=$(printf "%04d" $DECAY_TIME_MULT)
 
-    for CALC in edu.snu.leader.hidden.personality.ConstantDecay edu.snu.leader.hidden.personality.LinearDecay edu.snu.leader.hidden.personality.ExponentialDecay
+    for PERSONALITY in 0.2 0.5 0.8
     do
 
+
+        for CALC in edu.snu.leader.hidden.personality.ConstantDecay edu.snu.leader.hidden.personality.LinearDecay edu.snu.leader.hidden.personality.ExponentialDecay edu.snu.leader.hidden.personality.MomentumDecay
+        do
         CALC_DIR=`echo $CALC | sed 's/.*\.//' | sed 's/Decay//' | tr '[A-Z]' '[a-z]'`
         CALC_LETTER=`echo $CALC_DIR | sed -E 's/([a-z]).*/\1/'`
-
-        for PERSONALITY in 0.2 0.5 0.8
-        do
 
 #            echo decay=[$DECAY_TIME_MULT]  calc=[$CALC]
             echo ./submit-job.sh \
@@ -32,10 +32,10 @@ do
 
         done
 
-#        echo ""
+        echo ""
 
     done
 
-#    echo ""
+    echo ""
 
 done

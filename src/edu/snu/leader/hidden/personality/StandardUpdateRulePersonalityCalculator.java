@@ -6,10 +6,8 @@ package edu.snu.leader.hidden.personality;
 // Imports
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
-
 import java.util.Properties;
 
 

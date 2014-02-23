@@ -1,4 +1,4 @@
-/* 
+/*
  * COPYRIGHT
  */
 package edu.snu.leader.hidden.personality;
@@ -12,7 +12,7 @@ import edu.snu.leader.hidden.SpatialIndividual;
 
 /**
  * AbstractPersonalityDecayCalculator
- * 
+ *
  * @author Jeremy Acre
  * @version $Revision$ ($Author$)
  */
@@ -39,7 +39,7 @@ public abstract class AbstractPersonalityDecayCalculator implements
 
     /**
      * Initialize the decay calculator
-     * 
+     *
      * @param simState The simulation's state
      */
     @Override
@@ -73,7 +73,7 @@ public abstract class AbstractPersonalityDecayCalculator implements
     /**
      * Determines if the delay calculations will result in any decaying of
      * the specified individual's personality.
-     * 
+     *
      * @param ind The individual
      * @return <code>true</code> if the personality will decay, otherwise,
      *         <code>false</code>
@@ -86,7 +86,7 @@ public abstract class AbstractPersonalityDecayCalculator implements
 
         // If the current personality is within the difference threshold
         if( Math.abs( ind.getPersonality() - ind.getInitialPersonality() ) > _differenceThreshold )
-            ;
+//            ;
         {
 
             // Then true
