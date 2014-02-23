@@ -18,14 +18,13 @@ public class Cancel extends Decision
     @Override
     public void choose()
     {
-        _agent.setLeader( _agent );
         _agent.getGroup().dissolve();
+        _agent.setLeader( _agent );
         _agent.setCurrentDestination( _agent.getInitialLocation() );
         if(! _agent.getCurrentDestination().subtract( _agent.getCurrentLocation() ).equals( Vector2D.ZERO )){
             _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract( _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
                     _agent.getSpeed() ) );
         }
         Group.NONE.addAgent( _agent, _agent.getTime() );
-        // TODO add to NONE group set new currentVelocity
     }
 }

@@ -5,7 +5,7 @@
 
 	<!-- Create a rolling appender -->
 	<appender name="FileAppender" class="org.apache.log4j.FileAppender">
-		<param name="File" value="log/${logname}-${hostname}.log" />
+		<param name="File" value="log/normal-${hostname}.log" />
 		<param name="Append" value="false" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{HH:mm:ss.SSS} %-18.18c{1} [%-5p] - %m%n" />
@@ -13,7 +13,7 @@
 	</appender>
 
 	<root>
-		<priority value="info" />
+		<priority value="warn" />
 		<appender-ref ref="FileAppender" />
 	</root>
 

@@ -3,7 +3,8 @@ package edu.snu.leader.discrete.utils;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -24,6 +25,8 @@ public class Utils
     private Utils()
     {
     };
+    
+    
 
     /**
      * Reads a locations file and creates an array of points
@@ -104,11 +107,33 @@ public class Utils
             double rand )
     {
         // a list of probability ranges for each Decision [min, max]
-        List<ProbabilityRange> forTheMath = new LinkedList<ProbabilityRange>();
+        List<ProbabilityRange> forTheMath = new ArrayList<ProbabilityRange>();
         Decision decision = null;
         double sum = 0.0;
-
+        //TODO this solution may have a bug
         // calculate the probability ranges for each decision
+//        boolean found = false;
+//        int count = 0;
+//        while(!found){
+//            Decision temp = possibleDecisions.get( count );
+//            forTheMath.add( new ProbabilityRange( sum, sum
+//                    + temp.getProbability() ) );
+//            // if the random number falls within the probability range the its
+//            // the decision we want
+//            if( forTheMath.get( count ).isThisTheOne( rand ) )
+//            {
+//                decision = possibleDecisions.get( count );
+//                if(decision == null){
+//                    System.out.println("CRAP");
+//                }
+//                found = true;
+//            }
+//            sum += temp.getProbability();
+//            count++;
+//        }
+        
+        // calculate the probability ranges for each decision  
+        // OLD CODE but it works
         for( int i = 0; i < possibleDecisions.size(); i++ )
         {
             Decision temp = possibleDecisions.get( i );
@@ -119,9 +144,20 @@ public class Utils
             if( forTheMath.get( i ).isThisTheOne( rand ) )
             {
                 decision = possibleDecisions.get( i );
+                if(decision == null){
+                    System.out.println("CRAP");
+                }
                 break;
             }
             sum += temp.getProbability();
+        }
+        if(decision == null){
+            System.out.println("ERROR Num decisions = " + possibleDecisions.size());
+            System.out.println("ERROR Rand = " + rand);
+            for(int i = 0; i < possibleDecisions.size();i++){
+                System.out.println(possibleDecisions.get( i ).getConflict());
+            }
+            System.out.println(Arrays.toString( possibleDecisions.toArray() ));
         }
         return decision;
     }

@@ -2,8 +2,8 @@ package edu.snu.leader.discrete.simulator;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
     @Override
     public List<Agent> build()
     {
-        List<Agent> agents = new LinkedList<Agent>();
+        List<Agent> agents = new ArrayList<Agent>();
         // build them
         DecisionProbabilityCalculator temp = (DecisionProbabilityCalculator) MiscUtils.loadAndInstantiate(
                 _simState.getProperties().getProperty( "decision-calculator" ),
@@ -71,7 +71,12 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
         {
             agents.add( new Agent( temp ) );
         }
-
+/*
+ * new Color( 0x114477 ), new Color( 0x777711 ),
+            new Color( 0x771155 ), new Color( 0x117744 ),
+            new Color( 0x771122 ), new Color( 0x117777 ),
+            new Color( 0x774411 ),
+ */
         // supports up to 10 destinations currently
         /** Array of 70 unique colors to use for destinations */
         Color[] colors = { new Color( 0x000000 ),
@@ -112,36 +117,50 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
         
         
         Map<Vector2D, Color> destinationColors = new HashMap<Vector2D, Color>();
+        Map<Color, Integer> destinationIds = new HashMap<Color, Integer>();
         int colorCount = 0;
         // initialize them
         for( int i = 0; i < _numAgents; i++ )
         {
+            Agent tempAgent = agents.get( i );
             MovementBehavior mb = new SimpleAngularMovement();
-            agents.get( i ).initialize( _simState, _locations[i] );
+            tempAgent.initialize( _simState, _locations[i] );
             // set their destination
-            agents.get( i ).setPreferredDestination(
+            tempAgent.setPreferredDestination(
                     new Vector2D( _destinations[i].getX(),
                             _destinations[i].getY() ) );
+            Color destinationColor = null;
             // set their color for their destination
             // if new destination then give it new color
-            if( destinationColors.containsKey( agents.get( i ).getPreferredDestination() ) )
+            if( destinationColors.containsKey( tempAgent.getPreferredDestination() ) )
             {
-                agents.get( i ).setDestinationColor(
-                        destinationColors.get( agents.get( i ).getPreferredDestination() ) );
+                destinationColor = destinationColors.get( tempAgent.getPreferredDestination() );
+                tempAgent.setDestinationColor( destinationColor );
             }
             // not a new destination, give it the color other's have been
             // assigned
             else
             {
-                destinationColors.put(
-                        agents.get( i ).getPreferredDestination(),
-                        colors[colorCount] );
-                agents.get( i ).setDestinationColor( colors[colorCount] );
+                destinationColor = colors[colorCount];
+                destinationColors.put( tempAgent.getPreferredDestination(), destinationColor );
+                destinationIds.put( destinationColor, colorCount );
+                tempAgent.setDestinationColor( destinationColor );
                 colorCount++;
             }
+            tempAgent.setPreferredDestinationId( "D-" + destinationIds.get( destinationColor ) );
+            
+            String agentName = tempAgent.getId().toString();
+            agentName =  agentName.replaceAll( "Agent", "");
+            agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
+            
+            tempAgent.setPositionReportHeader( "world-object-name=" + agentName + "\n" 
+                                                    + "team-name=" + tempAgent.getPreferredDestinationId() + "\n" 
+                                                    + "collision-bounding-radius=" + (Agent.AGENT_DIAMETER / 2) + "\n\n"
+                                                    + "position=" + tempAgent.getInitialLocation().getX() + "," + tempAgent.getInitialLocation().getY() + ",0\n");
+            
             // set and initialize movement behavior
-            agents.get( i ).setMovementBehavior( mb );
-            mb.initialize( agents.get( i ) );
+            tempAgent.setMovementBehavior( mb );
+            mb.initialize( tempAgent );
         }
         return agents;
     }

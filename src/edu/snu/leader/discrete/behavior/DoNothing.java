@@ -1,5 +1,7 @@
 package edu.snu.leader.discrete.behavior;
 
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+
 import edu.snu.leader.discrete.simulator.Agent;
 
 
@@ -14,6 +16,10 @@ public class DoNothing extends Decision
     @Override
     public void choose()
     {
-        // _agent.setCurrentVelocity( _leader.getCurrentVelocity() );
+        //set velocity to move towards leader's current position 
+        if(!_agent.getCurrentDestination().subtract( _agent.getCurrentLocation()).equals( Vector2D.ZERO )){
+            _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract( _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
+                    _agent.getSpeed() ) );
+        }
     }
 }

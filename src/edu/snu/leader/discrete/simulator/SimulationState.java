@@ -16,6 +16,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import ec.util.MersenneTwisterFast;
+import edu.snu.leader.discrete.behavior.Decision;
+import edu.snu.leader.discrete.simulator.Agent.ConflictHistoryEvent;
 import edu.snu.leader.discrete.simulator.Agent.InitiationHistoryEvent;
 import edu.snu.leader.discrete.utils.Reporter;
 
@@ -27,6 +29,10 @@ import edu.snu.leader.discrete.utils.Reporter;
  */
 public class SimulationState
 {
+    final boolean SHOULD_REPORT_ESKRIDGE = false;
+    final boolean SHOULD_REPORT_CONFLICT = false;
+    final boolean SHOULD_REPORT_POSITIONS = true;
+    
     /** Used for the Eskridge reporter */
     private final String SPACER = "=========================================================";
     
@@ -65,7 +71,12 @@ public class SimulationState
 
     /** Reporter for reporting the results in a way that Dr. Eskridge's files can analyze */
     private Reporter _eskridgeResultsReporter = null;
+    /** Reporter for reporting the results from the multi initiator conflict tests */
+    private Reporter _conflictResultsReporter = null;
+    public List<ConflictHistoryEvent> conflictEvents = null;
 
+    private static int _destinationSizeRadius = 0;
+    
     /**
      * Initialize the simulation state
      * 
@@ -78,12 +89,20 @@ public class SimulationState
         // Save the properties
         _props = props;
 
+        String useRandomRandomSeedStr = _props.getProperty( "use-random-random-seed" );
+        Validate.notEmpty( useRandomRandomSeedStr, "use-random-random-seed required" );
+        boolean useRandomRandomSeed = Boolean.parseBoolean( useRandomRandomSeedStr );
+        
         // Get the random number generator seed
         String randomSeedStr = props.getProperty( _RANDOM_SEED_KEY );
         Validate.notEmpty( randomSeedStr, "Random seed is required" );
         long seed = Long.parseLong( randomSeedStr );
-        if(Simulator.getRandomSeedOverride() != -1){
+        if(Simulator.getRandomSeedOverride() != -1 && !useRandomRandomSeed){
             seed = Simulator.getRandomSeedOverride();
+            _props.put( "random-seed", String.valueOf(seed) );
+        }
+        else if(useRandomRandomSeed){
+            seed = System.currentTimeMillis();
             _props.put( "random-seed", String.valueOf(seed) );
         }
         _random = new MersenneTwisterFast( seed );
@@ -96,6 +115,11 @@ public class SimulationState
         Validate.notEmpty( maxSimulationTimeSteps,
                 "Max simulation time steps required" );
         _maxSimulationTimeSteps = Integer.parseInt( maxSimulationTimeSteps );
+        
+        String destinationSizeRadius = _props.getProperty( "destination-size-radius" );
+        Validate.notEmpty( destinationSizeRadius,
+                "destination-size-radius required" );
+        _destinationSizeRadius = Integer.parseInt( destinationSizeRadius );
 
         _communicationType = getProperties().getProperty( "communication-type" );
         Validate.notEmpty( _communicationType,
@@ -110,8 +134,11 @@ public class SimulationState
 
         _groups.add( Group.NONE );
         
-        _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false);
-        addPropertiesOutputToEskridgeResultsReporter();
+        conflictEvents = new LinkedList<ConflictHistoryEvent>();
+        _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
+        _conflictResultsReporter = new Reporter( "conflict-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
+        addPropertiesOutputToResultsReporter(_eskridgeResultsReporter);
+        addPropertiesOutputToResultsReporter( _conflictResultsReporter );
         _LOG.trace( "Leaving initialize( props )" );
     }
     
@@ -136,12 +163,13 @@ public class SimulationState
             while( agentIter.hasNext() )
             {
                 Agent temp = agentIter.next();
+                temp.reportPositions( SHOULD_REPORT_POSITIONS );
                 // reset Agents
                 temp.reset();
             }
             Agent.numInitiating = 0;
-            Agent.numStopped = 0;
-
+            Agent.numReachedDestination = 0;
+            
             // report the all run information and clear it for next run
             System.out.println( "Finished sim run " + _currentSimulationRun );
             System.out.println( "==========================================" );
@@ -162,7 +190,12 @@ public class SimulationState
                 addIndividualInititationStatsToEskridgeResultsReporter();
                 addIndividualDataToEskridgeResultsReporter();
                 addAggregateDataToEskridgeResultsReporter();
-                _eskridgeResultsReporter.report( true );
+                _eskridgeResultsReporter.report( SHOULD_REPORT_ESKRIDGE );
+
+                //do stuff for conflict events reporter
+                addConflictEventsToConflictResultsReporter();
+                _conflictResultsReporter.report( SHOULD_REPORT_CONFLICT );
+                
                 System.out.println( "Done" );
             }
         }
@@ -276,14 +309,18 @@ public class SimulationState
         return _agents.size();
     }
     
+    public static int getDestinationRadius(){
+        return _destinationSizeRadius;
+    }
     
-    private void addPropertiesOutputToEskridgeResultsReporter(){
+    
+    private void addPropertiesOutputToResultsReporter(Reporter reporter){
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
-        _eskridgeResultsReporter.appendLine( "# Started: " + dateFormat.format( date ) );
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
-        _eskridgeResultsReporter.appendLine( "# Simulation properties" );
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+        reporter.appendLine( "# Started: " + dateFormat.format( date ) );
+        reporter.appendLine( "# " + SPACER);
+        reporter.appendLine( "# Simulation properties" );
+        reporter.appendLine( "# " + SPACER);
         
         Enumeration<Object> keys = _props.keys();
         String[] keysArray = new String[_props.size()];
@@ -295,11 +332,11 @@ public class SimulationState
         }
         Arrays.sort( keysArray );
         for(int i = 0; i < keysArray.length; i++){
-            _eskridgeResultsReporter.appendLine( "# " + keysArray[i] + " = " + _props.getProperty( keysArray[i] ));
+            reporter.appendLine( "# " + keysArray[i] + " = " + _props.getProperty( keysArray[i] ));
         }
         
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
-        _eskridgeResultsReporter.appendLine("");
+        reporter.appendLine( "# " + SPACER);
+        reporter.appendLine("");
     }
     
     private void addInitiationStatsToEskridgeResultsReporter(){
@@ -412,7 +449,7 @@ public class SimulationState
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".location = " + String.format("%1.4f", temp.getCurrentLocation().getX()) + " " + String.format("%1.4f", temp.getCurrentLocation().getY()));
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".personality = " + temp.getPersonalityTrait().getPersonality() );
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".assertiveness = " + temp.getPersonalityTrait().getPersonality() );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".preferred-direction = 0.0" );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".preferred-direction = 0.0");
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".conflict = 0.0" );
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".nearest-neighbors = " + neighborBuilder.toString() );
             _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".eigenvector-centrality = %%%" + agentId + "-EIGENVECTOR-CENTRALITY%%%" );
@@ -453,4 +490,66 @@ public class SimulationState
         _eskridgeResultsReporter.appendLine("");
     }
     
+    private void addConflictEventsToConflictResultsReporter(){
+        _conflictResultsReporter.appendLine( "# " + SPACER);
+        _conflictResultsReporter.appendLine( "# Conflict Events");
+        _conflictResultsReporter.appendLine( "# Run  Time  Agent    Dest  Dec Type     Leader    Event(Type:Leader:Prob:Conflict)" );
+        
+        StringBuilder b = new StringBuilder();
+        
+        Iterator<ConflictHistoryEvent> iterC = conflictEvents.iterator();
+        while(iterC.hasNext()){
+            ConflictHistoryEvent tempC = iterC.next();
+            
+            String agentName = tempC.agentId;
+            agentName =  agentName.replaceAll( "Agent", "");
+            agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
+            
+            b.append( String.format( "%03d", tempC.currentRun) + "  ");
+            b.append( String.format("%06d", tempC.timeStep) + "  ");
+            b.append( agentName + "  ");
+            b.append( tempC.destinationId + "  ");
+            
+            String leaderName = null;
+            if(tempC.decisionMade.getLeader().getId().equals( tempC.agentId )){
+                leaderName = "-       ";
+            }
+            else{
+                leaderName = tempC.decisionMade.getLeader().getId().toString();
+                leaderName =  leaderName.replaceAll( "Agent", "");
+                leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
+            }
+            b.append( String.format("%-12s", tempC.decisionMade.getDecisionType()) + " " + leaderName + "  ");
+            if(tempC.possibleDecisions != null){
+                Iterator<Decision> iterD = tempC.possibleDecisions.iterator();
+                while(iterD.hasNext()){
+                    Decision tempD = iterD.next();
+                    
+                    if(tempD.getLeader().getId().equals( tempD.getAgent().getId() )){
+                        leaderName = "-        ";
+                    }
+                    else{
+                        leaderName = tempD.getLeader().getId().toString();
+                        leaderName =  leaderName.replaceAll( "Agent", "");
+                        leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
+                    }
+                    
+                    b.append( (String.format("%-12s", tempD.getDecisionType()) + ":").replaceAll( " ", "" ) );
+                    b.append( (leaderName + ":").replaceAll( " ", "" ) );
+                    b.append( (String.format("%1.7f", tempD.getProbability()) + ":").replaceAll( " ", "" ) );
+                    b.append( (String.format("%1.5f", tempD.getConflict()) + ",").replaceAll( " ", "" ) );
+                }
+                //delete extra comma
+                b.deleteCharAt( b.length() - 1);
+            }
+            else{
+                b.append( "-" );
+            }
+            
+            b.append( "\n");
+        }
+        _conflictResultsReporter.appendLine( b.toString() );
+        
+        _conflictResultsReporter.appendLine("");
+    }
 }

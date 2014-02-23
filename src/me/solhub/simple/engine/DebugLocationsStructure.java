@@ -34,23 +34,25 @@ import edu.snu.leader.util.MiscUtils;
 public class DebugLocationsStructure extends AbstractGameStructure
 {
     /** The delay for the live animations */
-    private int LIVE_DELAY = 100;
+    private int LIVE_DELAY = 30;
+    private int inputDelay = 10;
+    private int inputDelayCount = 0;
 
     /** Whether pngs should be made for every time step or not */
     private final boolean SHOULD_VIDEO = false;
 
     /** Zoom factor */
-    private final double _zoom = 6;
+    private final double _zoom = 2;
     /** the x offset for moving the agents and destinations on screen so they can be seen when zooming */
-    private int _xOffset = _windowWidth / 9;
+    private int _xOffset = _windowWidth / 3;
     /** the y offset for moving the agents and destinations on screen so they can be seen when zooming */
-    private int _yOffset = _windowHeight / 7;
+    private int _yOffset = _windowHeight / 3;
     /** The diameter of the agent circles */
-    private final int _agentSize = 3;
+    private final int _agentSize = Agent.AGENT_DIAMETER;
     /** The diameter of the destination circles */
     private final int _destinationSize = 4;
     /** The x offset for the font */
-    private final int _fontXOffset = 1;
+    private final int _fontXOffset = 30;
     /** The y offset for the font */
     private final int _fontYOffset = 12;
     /** The font size */
@@ -65,6 +67,9 @@ public class DebugLocationsStructure extends AbstractGameStructure
     private int _numberFollowing = 0;
     
     private Map<Vector2D, Color> _destinationColors = new HashMap<Vector2D, Color>();
+    
+    /** The number of occurrences of each group size at the end of a simulation */
+    private static int[] _groupSizeCounts = null;
 
     /**  */
     private static final long serialVersionUID = 1L;
@@ -165,7 +170,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         _LOG.trace( "Setting up next simulation run" );
         // setup next simulation run
         _simState.setupNextSimulationRun();
-        Agent.numStopped = 0;
+        Agent.numReachedDestination = 0;
         _LOG.trace( "Finished setting up next simulation run" );
 
         _lastJoinedAgentTime = 0;
@@ -210,6 +215,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         return _successCount;
     }
 
+    private Agent initiationAgent = null;
     /**
      * Returns a flag denoting whether or not the simulation run is still active
      * 
@@ -219,14 +225,14 @@ public class DebugLocationsStructure extends AbstractGameStructure
     {
         boolean isActive = false;
 
-     // if global and only one can initiate then use adhesion time limit
+        // if global and only one can initiate then use adhesion time limit
         if( _simState.getCommunicationType().equals( "global" )
                 && !Agent.canMultipleInitiate() )
         {
             isActive = true;
             int groupCount = 0;
             Iterator<Agent> agentIterator = _simState.getAgentIterator();
-            Agent initiationAgent = null;
+
             while( agentIterator.hasNext() )
             {
                 Agent temp = agentIterator.next();
@@ -241,44 +247,62 @@ public class DebugLocationsStructure extends AbstractGameStructure
                 {
                     groupCount++;
                     initiationAgent = temp;
-                    _initiatingAgent = temp;
                 }
                 // if an agent is canceling then this simulation is finished
                 if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
                         DecisionType.CANCELLATION ) )
                 {
-                    isActive = false;
-                    break;
+                    // temp.endOfInitiation( false, groupCount );
+                    // isActive = false;
+                    // break;
+                    groupCount++;
                 }
             }
-            _numberFollowing = groupCount - 1;
-            if(_numberFollowing < 0 ){
-                _numberFollowing = 0;
+            // if we have an initiator
+            if( initiationAgent != null )
+            {
+                // if last joined time is greater than the adhesion time limit
+                // then
+                // this run is done
+                if( _lastJoinedAgentTime > _adhesionTimeLimit )
+                {
+                    initiationAgent.endOfInitiation( false, groupCount );
+                    isActive = false;
+                }
+                if( initiationAgent.getCurrentDecision().getDecision().getDecisionType().equals(
+                        DecisionType.CANCELLATION ) )
+                {
+                    initiationAgent.endOfInitiation( false, groupCount );
+                    isActive = false;
+                }
+                if( groupCount / (float) _simState.getAgentCount() >= initiationAgent.getCancelThreshold() )
+                {
+                    _successCount++;
+                    initiationAgent.endOfInitiation( true, groupCount );
+                    isActive = false;
+                }
+                _lastJoinedAgentTime++;
             }
-            // if last joined time is greater than the adhesion time limit then
-            // this run is done
-            if( _lastJoinedAgentTime > _adhesionTimeLimit )
+            if( groupCount >= _simState.getAgentCount() )
             {
                 isActive = false;
             }
-            if( initiationAgent != null
-                    && groupCount / _simState.getAgentCount() >= initiationAgent.getCancelThreshold() )
-            {
-                _successCount++;
 
-            }
-            if( groupCount == _simState.getAgentCount() )
+            if( !isActive )
             {
-                isActive = false;
+                _groupSizeCounts[groupCount]++;
             }
-            _lastJoinedAgentTime++;
         }
         // do the simulation for as many time steps as there are
-        /** else */
         else if( _simState.getSimulationTime() < _simState.getMaxSimulationTimeSteps() )
         {
             isActive = true;
+            if(Agent.numReachedDestination >= _simState.getAgentCount()){
+                _successCount++;
+                isActive = false;
+            }
         }
+
         return isActive;
     }
 
@@ -331,6 +355,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
 
         // Build the agents
         buildAgents();
+        
+        _groupSizeCounts = new int[_simState.getAgentCount() + 1];
 
         _LOG.trace( "Exiting initialize()" );
     }
@@ -353,10 +379,11 @@ public class DebugLocationsStructure extends AbstractGameStructure
     @Override
     protected void draw()
     {
-
         Graphics2D g = (Graphics2D) getGraphics();
         Graphics2D bbg = (Graphics2D) _backBuffer.getGraphics();
 
+        
+        
         //anti-aliasing code
 //        bbg.setRenderingHint(
 //                RenderingHints.KEY_TEXT_ANTIALIASING,
@@ -366,14 +393,20 @@ public class DebugLocationsStructure extends AbstractGameStructure
         bbg.setColor( Color.WHITE );
         bbg.fillRect( 0, 0, _windowWidth, _windowHeight );
 
+        bbg.translate( _xOffset, _yOffset );
+        
         // draw destinations
         Iterator<Entry<Vector2D, Color>> blah = _destinationColors.entrySet().iterator();
+        double destinationRadius = SimulationState.getDestinationRadius();
         while( blah.hasNext() )
         {
             Entry<Vector2D, Color> temp = blah.next();
             bbg.setColor( temp.getValue() );
-            bbg.drawOval( (int) temp.getKey().getX() + _xOffset - _destinationSize / 2,
-                    (int) temp.getKey().getY() + _yOffset - _destinationSize / 2, _destinationSize, _destinationSize );
+            //calculate center coordinate
+            int x = (int) ( temp.getKey().getX() - (destinationRadius) );
+            int y = (int) ( temp.getKey().getY() - (destinationRadius) );
+            //drawOval draws a circle inside a rectangle
+            bbg.drawOval( x, y, SimulationState.getDestinationRadius() * 2, SimulationState.getDestinationRadius() * 2);
         }
 
         // draw each of the agents
@@ -385,8 +418,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
             if( isDestinationColors )
             {
                 // if stopped then blink white and destination color
-                if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
-                        DecisionType.STOP ) )
+                if( temp.hasReachedDestination() )
                 {
                     if( pulseWhite % 20 == 0 )
                     {
@@ -405,8 +437,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
             else
             {
                 // if stopped then blink black and white
-                if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
-                        DecisionType.STOP ) )
+                if( temp.hasReachedDestination() )
                 {
                     if( pulseWhite % 20 == 0 )
                     {
@@ -414,7 +445,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
                     }
                     else
                     {
-                        bbg.setColor( Color.BLACK );
+                        bbg.setColor( temp.getGroup().getGroupColor() );
                     }
                 }
                 //set color to red if cancelled and global and not multiple initiators
@@ -431,10 +462,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
                     bbg.setColor( temp.getGroup().getGroupColor() );
                 }
             }
-//            bbg.drawOval( (int) temp.getCurrentLocation().getX() + xOffset,
-//                    (int) temp.getCurrentLocation().getY() + yOffset, 1, 1 );
-            bbg.fillOval( (int) temp.getCurrentLocation().getX() + _xOffset - _agentSize / 2,
-                    (int) temp.getCurrentLocation().getY() + _yOffset - _agentSize / 2, _agentSize, _agentSize );
+            bbg.fillOval( (int) temp.getCurrentLocation().getX() - _agentSize,
+                    (int) temp.getCurrentLocation().getY() - _agentSize , _agentSize * 2, _agentSize * 2 );
         }
         pulseWhite++;
         bbg.setColor( Color.BLACK );
@@ -457,9 +486,11 @@ public class DebugLocationsStructure extends AbstractGameStructure
         }
         else{
             bbg.drawString( "Groups: " + Group.getNumberGroups(), _fontXOffset, _fontYOffset + _fontSize * 3);
-            bbg.drawString( "Stopped: " + Agent.numStopped, _fontXOffset, _fontYOffset + _fontSize * 4 );
+            bbg.drawString( "Reached: " + Agent.numReachedDestination, _fontXOffset, _fontYOffset + _fontSize * 4 );
             bbg.drawString( "Inits: " + Agent.numInitiating, _fontXOffset, _fontYOffset + _fontSize * 5 );
         }
+        
+        
         
         g.scale( _zoom, _zoom );
         g.drawImage( _backBuffer, 0, 0, this );
@@ -504,22 +535,44 @@ public class DebugLocationsStructure extends AbstractGameStructure
      */
     private void handleColorSwitchingInput()
     {
-        if( _input.isKeyDown( KeyEvent.VK_SPACE ) )
+        if( _input.isKeyDown( KeyEvent.VK_SPACE ) && inputDelayCount > inputDelay)
         {
             isDestinationColors = !isDestinationColors;
+            inputDelayCount = 0;
         }
-        if( _input.isKeyDown( KeyEvent.VK_UP )){
-            LIVE_DELAY += 5;
+        if( _input.isKeyDown( KeyEvent.VK_PERIOD )){
+            LIVE_DELAY += 1;
             if(LIVE_DELAY < 0){
                 LIVE_DELAY = 0;
             }
         }
-        if( _input.isKeyDown( KeyEvent.VK_DOWN )){
-            LIVE_DELAY -= 5;
+        if( _input.isKeyDown( KeyEvent.VK_COMMA )){
+            LIVE_DELAY -= 1;
             if(LIVE_DELAY < 0){
                 LIVE_DELAY = 0;
             }
         }
+        if(_input.isKeyDown( KeyEvent.VK_UP )){
+            _yOffset += 1;
+        }
+        if(_input.isKeyDown( KeyEvent.VK_DOWN )){
+            _yOffset -= 1;
+        }
+        if(_input.isKeyDown( KeyEvent.VK_RIGHT )){
+            _xOffset -= 1;
+        }
+        if(_input.isKeyDown( KeyEvent.VK_LEFT )){
+            _xOffset += 1;
+        }
+        if( _input.isKeyDown( KeyEvent.VK_ENTER )){
+            while( !_input.isKeyDown( KeyEvent.VK_SHIFT )){
+                //this makes it work, without this line it will not work as desired
+//                System.out.println(_input.isKeyDown( KeyEvent.VK_ENTER ));
+                draw();
+                handleColorSwitchingInput();
+            }
+        }
+        inputDelayCount++;
     }
     
     private void waitForEnterKey()

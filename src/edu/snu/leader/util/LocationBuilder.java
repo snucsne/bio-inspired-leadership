@@ -200,23 +200,30 @@ public class LocationBuilder
      */
     public static void main( String[] args )
     {
-        // Get the number of locations to build
-        int locationCount = Integer.parseInt( args[0] );
+//        // Get the number of locations to build
+//        int locationCount = Integer.parseInt( args[0] );
+//
+//        // Get the minimum neighbor distance
+//        float minNeighborDistance = Float.parseFloat( args[1] );
+//
+//        // Get the maximum neighbor distance
+//        float maxNeighborDistance = Float.parseFloat( args[2] );
+//
+//        // Get the random seed
+//        long randomSeed = Long.parseLong( args[3] );
+//
+//        // Get the number of files to build
+//        int fileCount = Integer.parseInt( args[4] );
+        
+        int locationCount = 30;
+        float minNeighborDistance = 1.0f;
+        float maxNeighborDistance = 4.0f;
+        long randomSeed = 1;
+        int fileCount = 1;
 
-        // Get the minimum neighbor distance
-        float minNeighborDistance = Float.parseFloat( args[1] );
-
-        // Get the maximum neighbor distance
-        float maxNeighborDistance = Float.parseFloat( args[2] );
-
-        // Get the random seed
-        long randomSeed = Long.parseLong( args[3] );
-
-        // Get the number of files to build
-        int fileCount = Integer.parseInt( args[4] );
-
-        // Get the file prefix
-        String filePrefix = args[5];
+//        // Get the file prefix
+//        String filePrefix = args[5];
+        String filePrefix = "valid-metric-loc-";
 
         // Create the builder
         LocationBuilder builder = new LocationBuilder( locationCount,

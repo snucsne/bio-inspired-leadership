@@ -3,10 +3,11 @@ package edu.snu.leader.discrete.simulator;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import edu.snu.leader.discrete.behavior.Decision;
-import edu.snu.leader.discrete.behavior.Decision.DecisionType;
 import edu.snu.leader.discrete.utils.Reporter;
+
 
 public class GautraisConflictDecisionCalculator implements
 DecisionProbabilityCalculator
@@ -25,6 +26,9 @@ DecisionProbabilityCalculator
     private double _alphaF = 0;
 
     private double _betaF = 0;
+    
+    /** The conflict value for agents that have zero velocity */
+    private double _defaultConflictValue = .1;
     
     private double[] _followProbabilities = null;
     private double[] _cancelProbabilities = null;
@@ -58,6 +62,10 @@ DecisionProbabilityCalculator
         Validate.notEmpty( betaF, "beta-f may not be empty" );
         _betaF = Double.parseDouble( betaF );
         
+        String defConflictValue = _simState.getProperties().getProperty( "default-conflict-value" );
+        Validate.notEmpty( defConflictValue, "default-conflict-value may not be empty" );
+        _defaultConflictValue = Double.parseDouble( defConflictValue );
+        
         // add gautrais info to root directory path
         _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "GautraisValues" );
     }
@@ -83,9 +91,16 @@ DecisionProbabilityCalculator
     @Override
     public void calcInitiateProb( Decision decision )
     {
-        double conflict = calculateConflict( decision );
-        //just conflict for initiate
-        decision.setProbability(( 1 / kValue( conflict ) ) *( 1 / _tauO ));
+        double tauI = _tauO;
+        double conflict = _defaultConflictValue;
+        //calculate conflict
+        conflict = calculateConflict( decision );
+        //calculate k value
+        double k = kValue(conflict);
+        //calculate tauI
+        tauI /= k;
+        //set probability
+        decision.setProbability( 1 / tauI );
     }
 
     @Override
@@ -122,7 +137,8 @@ DecisionProbabilityCalculator
     @Override
     public void calcCancelProb( Decision decision )
     {
-        double conflict = calculateConflict( decision );
+        //conflict is not used for cancellation rates
+//        double conflict = calculateConflict( decision );
         double Cr = 0;
         // followers
         int r = 1;
@@ -141,8 +157,9 @@ DecisionProbabilityCalculator
 
         // calculate Cr
         Cr = _alphaC / ( 1 + ( Math.pow( r / _gammaC, _epsilonC ) ) );
+
         //1-conflict for cancel
-        Cr *= kValue( 1 - conflict );
+//        Cr *= kValue( 1 - conflict );//conflict does not affect canceling rates
         decision.setProbability( Cr );
 
     }
@@ -160,22 +177,81 @@ DecisionProbabilityCalculator
         return k;
     }
     
+    //TODO make sure this is working well :D
     private double calculateConflict(Decision decision){
-        // Ci = p^.5 * |di - dI|^.5
-        float p = decision.getAgent().getPersonalityTrait().getPersonality();
-        // agent's preferred direction
-        double di = decision.getAgent().getPreferredDirection();
-        // leader's preferred direction
-        double dI = decision.getLeader().getPreferredDirection();
-        // difference in preferred directions
-        double dir_diff = 0;
-        // if decision is to follow calculate, otherwise dir_diff = 0
-        if( decision.getDecisionType().equals( DecisionType.FOLLOW ) )
-        {
-            dir_diff = Math.abs( di - dI );
+        Agent agent = decision.getAgent();
+        Agent leader = decision.getLeader();
+        double Ci = 0.1;
+
+        //calculate the leader's next location
+        Vector2D leaderNextLocation = leader.getCurrentDestination().add( leader.getCurrentVelocity() );
+        //calculate the sides of a triangle
+        //calculate side from agent's preferred destination to leader's next
+        double A = Vector2D.distance( agent.getPreferredDestination(), leaderNextLocation );
+        //calculate side from agent's preferred destination to leader's current
+        double B = Vector2D.distance( agent.getPreferredDestination(), leader.getCurrentLocation() );
+        //calculate side from leader's current to leader's next
+        double C = Vector2D.distance( leader.getCurrentLocation(), leaderNextLocation );
+        
+        //check if the leader is in the agent's preferred destination
+        if(leader.getCurrentLocation().distance1(
+                agent.getPreferredDestination() ) < SimulationState.getDestinationRadius()){
+            Ci = 0.1;
         }
-        // the formula
-        double Ci = Math.pow( p, .5 ) * Math.pow( dir_diff, .5 );
+        //check if the leader is not moving
+        else if(leader.getCurrentVelocity().equals( Vector2D.ZERO )){
+            Ci = .9;
+        }
+        else{
+            double angle = 0.0;
+            
+            if(A <= 0 || B <= 0 || C <= 0){
+                //if a side is 0 then there is no triangle it is a line
+                //if segment B is longer than C then the degree should be 180
+                if(B > C){
+                    angle = 180;
+                }
+                //if the segment B is shorter than C then the degree should be 0
+                else{
+                    angle = 0.0;
+                }
+            }
+            //have three sides so use law of cosines
+            else{
+                //calculate angle between leader's current position and agent's preferred destination by law of cosines
+                double lawOfCosines = (Math.pow( A, 2 ) - Math.pow( B, 2 ) - Math.pow( C, 2 ) ) / (-2 * B * C);
+                //because of rounding error there can be lawOfCosines values that are oh so slightly larger or smaller than 1 or -1
+                //this augments them to their correct values
+                if(lawOfCosines < -1){
+                    lawOfCosines = -1;
+                }
+                else if(lawOfCosines > 1){
+                    lawOfCosines = 1;
+                }
+                angle = Math.acos( lawOfCosines );
+            }
+            
+            //if angle is greater than 180 than it becomes 360 - angle
+            if(angle > 180){
+                angle = 360 - angle;
+            }
+            //make it into degrees
+            angle = angle * 180 / Math.PI;
+            //calculate conflict
+            Ci = angle / 180;
+        }
+        
+        //prevent K value from becoming 0
+        if(Ci < .1){
+            Ci = .1;
+        }
+        else if (Ci > .9){
+            Ci = .9;
+        }
+        
+        //set the conflict for the decision
+        decision.setConflict( Ci );
+        //return the conflict value for whatever needs to use it
         return Ci;
     }
 }

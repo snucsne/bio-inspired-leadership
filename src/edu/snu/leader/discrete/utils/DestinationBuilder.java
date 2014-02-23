@@ -5,8 +5,11 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 import ec.util.MersenneTwisterFast;
+
 
 public class DestinationBuilder
 {
@@ -26,18 +29,22 @@ public class DestinationBuilder
 
     public static void main( String[] args )
     {
-        int count = 10;
-        DestinationBuilder db = new DestinationBuilder( count, 1 );
-        db.generatePoles( 50, 100, .50 );
-        db.generateSplitNorth( 20, 50, 50, 75, .50 );
-        db.generateSides( 25, 50, .50 );
+        // int count = 10;
+        for( int count = 10; count <= 70; count += 10 )
+        {
+            DestinationBuilder db = new DestinationBuilder( count, 1 );
+            db.generatePoles( 50, 100, .50 );
+            db.generateSplitNorth( 150, 72, .50 );
+            db.generateSides( 25, 50, .50 );
 
-        double[] horizontalPercentages = { 1 };
-        db.generateHorizontalNorth( 60, 25, 1, horizontalPercentages );
-        
-        db.generateCircle( 55, count );
-        
-        db.generateOneNorth( 70 );
+            double[] horizontalPercentages = { 1 };
+            db.generateHorizontalNorth( 60, 25, 1, horizontalPercentages );
+
+            db.generateCircle( 55, count );
+
+            db.generateOneNorth( 70 );
+            db.generateDifferentDistance(.5, 200, 100, 75);
+        }
     }
 
     DestinationBuilder( int destinationCount, long seed )
@@ -45,6 +52,36 @@ public class DestinationBuilder
         _destinationCount = destinationCount;
         _randomSeed = seed;
         _rng = new MersenneTwisterFast( _randomSeed );
+    }
+    
+    public void generateDifferentDistance( double percentNorth, double northY, double eastX, double eastY ){
+        _destinations = new Point2D[_destinationCount];
+        // The number of north destinations
+        int numberNorth = (int) Math.round( _destinationCount * percentNorth );
+        
+        Point2D north = new Point2D.Double( 0, -northY );
+        
+        Point2D east = new Point2D.Double( eastX, -eastY );
+        
+        // fill destinations array
+        for( int i = 0; i < _destinationCount; i++ )
+        {
+            // add north destinations until we don't need anymore
+            if( numberNorth > 0 )
+            {
+                _destinations[i] = north;
+                numberNorth--;
+            }
+            else
+            {
+                _destinations[i] = east;
+            }
+        }
+        
+        
+        String filename = directory + "destinations-diffdis-" + _destinationCount
+                + "-per-" + percentNorth + "-seed-" + _randomSeed + ".dat";
+        saveToFile( filename );
     }
 
     /**
@@ -153,18 +190,16 @@ public class DestinationBuilder
      * @param yMaxOrigin Maximum distance away from the x-axis
      * @param percentLeft Percent going to the left group
      */
-    public void generateSplitNorth( int xMinOrigin,
-            int xMaxOrigin,
-            int yMinOrigin,
-            int yMaxOrigin,
+    public void generateSplitNorth( double distance,
+            double angle,
             double percentLeft )
     {
         _destinations = new Point2D[_destinationCount];
         int numberLeft = (int) Math.round( _destinationCount * percentLeft );
 
         // get the x and y coords
-        double xCoord = Utils.getRandomNumber( _rng, xMinOrigin, xMaxOrigin );
-        double yCoord = Utils.getRandomNumber( _rng, yMinOrigin, yMaxOrigin );
+        double xCoord = distance * Math.cos( Math.toRadians( angle ) );
+        double yCoord = distance * Math.sin( Math.toRadians( angle ) );
 
         // create the left and right points
         Point2D left = new Point2D.Double( -xCoord, -yCoord );
@@ -185,7 +220,10 @@ public class DestinationBuilder
         }
 
         String filename = directory + "destinations-split-" + _destinationCount
-                + "-per-" + percentLeft + "-seed-" + _randomSeed + ".dat";
+                + "-dis-" + String.format( "%03.1f", distance ) + "-ang-"
+                + String.format( "%03.2f", angle ) + "-per-"
+                + String.format( "%01.3f", percentLeft ) + "-seed-"
+                + _randomSeed + ".dat";
         saveToFile( filename );
     }
 
@@ -270,34 +308,42 @@ public class DestinationBuilder
         // save the file
         saveToFile( filename );
     }
-    
-    public void generateCircle(int distOrigin, int count){
+
+    public void generateCircle( int distOrigin, int count )
+    {
         _destinations = new Point2D[_destinationCount];
         double angleBetweenEach = 360.0 / count;
-        
-        for(int i = 0; i < count; i++){
-            double x = distOrigin * Math.cos( Math.toRadians( angleBetweenEach * i ));
-            double y = distOrigin * Math.sin(Math.toRadians( angleBetweenEach * i ));
-            _destinations[i] = new Point2D.Double(x,y);
+
+        for( int i = 0; i < count; i++ )
+        {
+            double x = distOrigin
+                    * Math.cos( Math.toRadians( angleBetweenEach * i ) );
+            double y = distOrigin
+                    * Math.sin( Math.toRadians( angleBetweenEach * i ) );
+            _destinations[i] = new Point2D.Double( x, y );
         }
-        
-        String filename = directory +"destinations-circle-count-" + count + "-seed-" + _randomSeed + ".dat";
-        
+
+        String filename = directory + "destinations-circle-count-" + count
+                + "-seed-" + _randomSeed + ".dat";
+
         saveToFile( filename );
     }
-    
-    public void generateOneNorth(int distOrigin){
+
+    public void generateOneNorth( int distOrigin )
+    {
         _destinations = new Point2D[_destinationCount];
-        
+
         double x = 0;
         double y = -distOrigin;
-        
-        for(int i = 0; i < _destinationCount; i++){
-            _destinations[i] = new Point2D.Double(x,y);
+
+        for( int i = 0; i < _destinationCount; i++ )
+        {
+            _destinations[i] = new Point2D.Double( x, y );
         }
-        
-        String filename = directory + "destinations-one-" + _destinationCount + "-seed-" + _randomSeed + ".dat";
-        
+
+        String filename = directory + "destinations-one-" + _destinationCount
+                + "-seed-" + _randomSeed + ".dat";
+
         saveToFile( filename );
     }
 
@@ -325,6 +371,8 @@ public class DestinationBuilder
         writer.println( "# Random seed [" + _randomSeed + "]" );
         writer.println();
 
+        // randomize the array before writing it out to a file
+        destinationPointsArrayRandomizer( _destinations );
         for( int i = 0; i < _destinations.length; i++ )
         {
             writer.println( String.format( "%+08.4f", _destinations[i].getX() )
@@ -334,6 +382,38 @@ public class DestinationBuilder
 
         // Close the writer
         writer.close();
+    }
+
+    /**
+     * Randomizes an array of points
+     * 
+     * @param destinations
+     */
+    private void destinationPointsArrayRandomizer( Point2D[] destinations )
+    {
+        // uses a Fisher-Yates shuffle
+        List<Point2D> struckNumbers = new LinkedList<Point2D>();
+        // put all elements in a list
+        for( int i = 0; i < destinations.length; i++ )
+        {
+            struckNumbers.add( destinations[i] );
+        }
+
+        int index = 0;
+        // while we have elements to process
+        while( !struckNumbers.isEmpty() )
+        {
+            // get a random number from 0 to N
+            int roll = (int) Utils.getRandomNumber( _rng, 0,
+                    struckNumbers.size() - 1 );
+            // set the first element in the array to be randomized to the
+            // element in the
+            // struckNumbers list at index roll
+            destinations[index] = struckNumbers.get( roll );
+            // remove the element at index roll
+            struckNumbers.remove( roll );
+            index++;
+        }
     }
 
 }

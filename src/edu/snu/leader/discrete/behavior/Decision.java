@@ -7,6 +7,9 @@ public abstract class Decision
 {
     /** The probability of this decision happening */
     protected double _probability = 0.0;
+    
+    /** The conflict of making this decision */
+    protected double _conflict = 0.0;
 
     /** The Agent that this decision is for */
     protected Agent _agent = null;
@@ -47,6 +50,24 @@ public abstract class Decision
     {
         _probability = prob;
     }
+    
+    /**
+     * Gets the conflict involved with this decision
+     *
+     * @return
+     */
+    public double getConflict(){
+        return _conflict;
+    }
+    
+    /**
+     * Sets the conflict involved with this decision
+     *
+     * @param conflict
+     */
+    public void setConflict( double conflict ){
+        _conflict = conflict;
+    }
 
     /**
      * Returns the Agent that this decision is for
@@ -80,6 +101,6 @@ public abstract class Decision
 
     // ////////Nested enum\\\\\\\\\\
     public enum DecisionType {
-        INITIATION, FOLLOW, CANCELLATION, DO_NOTHING, STOP
+        INITIATION, FOLLOW, CANCELLATION, DO_NOTHING, REACHED
     }
 }
