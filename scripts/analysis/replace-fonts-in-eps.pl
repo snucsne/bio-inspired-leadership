@@ -12,7 +12,7 @@ while( <IN> )
 {
     s/TIMES-BOLD/NimbusSanL-Bold/g;
     s/Times-Roman/NimbusSanL-Regu/g;
-    s/Times/NimbusSanL-Regu/g;
+#    s/Times/NimbusSanL-Regu/g;
     s/Helvetica-BoldOblique/NimbusSanL-BoldItal/g;
     s/Helvetica-Oblique/NimbusSanL-ReguItal/g;
     s/Helvetica-Bold-iso/NimbusSanL-Bold/g;
