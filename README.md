@@ -5,12 +5,12 @@ The Bio-inspired Leadership Toolkit is open-source software for simulating the e
 
 More information about the research project can be found on our website at:
 
-    http://www.csne.snu.edu/research/emergent-leadership/
+http://www.csne.snu.edu/research/emergent-leadership/
 
 
 This material is based upon work supported, in part, by the National Science Foundation under Grant No. BCS-1124837.  Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.  More information about the research grant can be found on the National Science Foundation's website:
 
-    http://www.nsf.gov/awardsearch/showAward?AWD_ID=1124837
+http://www.nsf.gov/awardsearch/showAward?AWD_ID=1124837
 
 
 
