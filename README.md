@@ -68,16 +68,12 @@ Summary of current capabilities
 
 Currently, Bio-LT has the following capabilities:
 
-* blah
-
-* blah
+* *ToDo*
 
 
 Summary of planned future development
 -------------------------------------
 We plan to add the following additional capabilities in future versions of Bio-LT:
 
-* blah
-
-* blah
+* *ToDo*
 
