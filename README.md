@@ -45,7 +45,7 @@ Getting started
 
 * Install the code as in `INSTALL.md`.
 
-* Optional: Run `ant doc` to generate documentation.
+* Optional: Run `ant doc` to generate documentation. *Pending*
 
 
 Repository directory structure
