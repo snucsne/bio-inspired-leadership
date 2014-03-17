@@ -69,7 +69,7 @@ sub readDataFile
 
         # Is it the time to destination?
         my $timeToDestKey = "time-to-destination";
-        if( $key =~ /$timeToDestKey\.(.+)/ )
+        if( $key =~ /^$timeToDestKey\.(.+)/ )
         {
             # Yup, get the specific type
             my $type = $1;

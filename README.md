@@ -47,6 +47,8 @@ Getting started
 
 * Optional: Run `ant doc` to generate documentation. *Pending*
 
+* We are currently working on developing scripts that will enable users to run simulations that will produce the results described in our publications.  Stay tuned.
+
 
 Repository directory structure
 ------------------------------

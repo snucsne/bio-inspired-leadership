@@ -59,7 +59,7 @@ dumpAggregatedData( $outputFile, $dataDir, \%data );
 # ===================================================================
 sub loadResults
 {
-    my ($resultsFile, $dataRef) = @_;
+    my ($resultsFile, $dataRef ) = @_;
 
     # Find out the file run id
     $resultsFile =~ /conflict-spatial-hidden-var-(\d+)-seed/;
@@ -70,10 +70,19 @@ sub loadResults
     $simsPerFile =~ s/^.*\s+=\s+(\d+).*\R/\1/;
     my $fileOffset = ($fileRunID - 1) * $simsPerFile;
 
+    # Grab the time limit
+    my $timeLimit = `grep 'time-limit' $resultsFile`;
+    $timeLimit =~ s/^.*\s+=\s+(\d+).*\R/\1/;
+
+    # Grab the number of individuals
+    my $indCount = `grep 'individual-count' $resultsFile`;
+    $indCount =~ s/^.*\s+=\s+(\d+).*\R/\1/;
+
     # Open the file
     open( INPUT, $resultsFile ) or die "Unable to open results file [$resultsFile]: $!\n";
 
     # Read the file
+    my %currentRunIDs;
     while( <INPUT> )
     {
         # Remove any comments or whitespace
@@ -94,6 +103,7 @@ sub loadResults
         # Calculate the runID to be unique across files
         my $runID = "run-".sprintf( "%04d", ($simID + $fileOffset) );
         $dataRef->{"runs"}{$runID} = 1;
+        $currentRunIDs{$runID} = 1;
 
         # Fix the leader if it is empty
         $leader =~ s/^-$//;
@@ -118,8 +128,9 @@ sub loadResults
         if( $decisionType =~ /REACHED/i )
         {
             # Yup
+            $dataRef->{"reached-raw"}{$runID}{$indID} = { "time" => $time, "dest" => $dest };
             $dataRef->{"reached"}{$runID}{$indID} = { "time" => $time, "dest" => $dest };
-            $dataRef->{"reached-count"} += 1;
+            $dataRef->{"reached-count"}{$runID}{$dest} += 1;
         }
 
         # Store the decision in the individual's history
@@ -136,6 +147,22 @@ sub loadResults
     }
 
     close( INPUT );
+
+    # Truncate the data
+    foreach my $runID (sort( keys %currentRunIDs ) )
+    {
+        # Yup, find the individuals that didn't reach their destination
+        foreach my $indID (sort( keys %{$dataRef->{"dest"}{$runID}} ) )
+        {
+            # Did they reach their destination?
+            unless( exists( $dataRef->{"reached"}{$runID}{$indID} ) )
+            {
+                    # Use the time limit
+                    my $dest = $dataRef->{"dest"}{$runID}{$indID};
+                    $dataRef->{"reached"}{$runID}{$indID} = { "time" => $timeLimit, "dest" => $dest };
+            }
+        }
+    }
 }
 
 
@@ -370,12 +397,21 @@ sub processDestinationReachedTimes
     foreach my $runID ( sort( keys %{$dataRef->{"reached"}} ) )
     {
         my %timeToDestByDest;
+        my %timeToDestByDestRaw;
         foreach my $indID ( sort( keys %{$dataRef->{"reached"}{$runID}} ) )
         {
             my $time = $dataRef->{"reached"}{$runID}{$indID}{"time"};
             my $destID = $dataRef->{"reached"}{$runID}{$indID}{"dest"};
             push( @{$dataRef->{"all-time-to-dest"}}, $time );
             push( @{$timeToDestByDest{$destID}}, $time );
+
+            if( exists( $dataRef->{"reached-raw"}{$runID}{$indID} ) )
+            {
+                $time = $dataRef->{"reached-raw"}{$runID}{$indID}{"time"};
+                $destID = $dataRef->{"reached-raw"}{$runID}{$indID}{"dest"};
+                push( @{$dataRef->{"all-time-to-dest-raw"}}, $time );
+                push( @{$timeToDestByDestRaw{$destID}}, $time );
+            }
         }
 
         my @sortedDestIDs = sort
@@ -386,6 +422,12 @@ sub processDestinationReachedTimes
         for( my $i = 0; $i <= $#sortedDestIDs; $i++ )
         {
             push( @{$dataRef->{"time-to-dest-by-time"}{$i}}, @{$timeToDestByDest{$sortedDestIDs[$i]}} );
+            $dataRef->{"reached-count-by-dest-rank"}{$i} += $dataRef->{"reached-count"}{$runID}{$sortedDestIDs[$i]};
+
+            if( exists( $timeToDestByDestRaw{$sortedDestIDs[$i]} ) )
+            {
+                push( @{$dataRef->{"time-to-dest-by-time-raw"}{$i}}, @{$timeToDestByDestRaw{$sortedDestIDs[$i]}} );
+            }
         }
     }
 }
@@ -456,7 +498,28 @@ sub dumpAggregatedData
         print OUTPUT "time-to-destination.rank-",
                 sprintf("%02d", $destRank),
                 " = ",
-                join( " ", @{$dataRef->{"time-to-dest-by-time"}{$destRank}} ),
+                join( " ", sort( {$a <=> $b} @{$dataRef->{"time-to-dest-by-time"}{$destRank}} ) ),
+                "\n";
+    }
+
+    print OUTPUT "\n# Time to destination ordered by mean time to destination (not truncated)\n";
+    foreach my $destRank ( sort( keys %{$dataRef->{"time-to-dest-by-time"}} ) )
+    {
+        print OUTPUT "raw-time-to-destination.rank-",
+                sprintf("%02d", $destRank),
+                " = ",
+                join( " ", sort( {$a <=> $b} @{$dataRef->{"time-to-dest-by-time-raw"}{$destRank}} ) ),
+                "\n";
+    }
+
+
+    print OUTPUT "\n# Number that reached destination ordered by mean time to destination\n";
+    foreach my $destRank ( sort( keys %{$dataRef->{"reached-count-by-dest-rank"}} ) )
+    {
+        print OUTPUT "reached-count.rank-",
+                sprintf("%02d", $destRank),
+                " = ",
+                $dataRef->{"reached-count-by-dest-rank"}{$destRank},
                 "\n";
     }
 
