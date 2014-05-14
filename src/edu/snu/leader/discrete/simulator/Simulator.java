@@ -123,6 +123,11 @@ public class Simulator
 
         // Build the agents
         buildAgents();
+        
+        // create the predator
+        Predator predator = new Predator("PredDebug");
+        predator.initialize( _simState );
+        _simState.setPredator( predator );
 
         _groupSizeCounts = new int[_simState.getAgentCount() + 1];
 
@@ -156,7 +161,10 @@ public class Simulator
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
             {
-                agentIterator.next().makeDecision();
+                Agent temp = agentIterator.next();
+                if(temp.isAlive()){
+                    temp.makeDecision();
+                }
             }
             // _LOG.trace("Finished making decisions");
 
@@ -165,7 +173,10 @@ public class Simulator
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
             {
-                agentIterator.next().execute();
+                Agent temp = agentIterator.next();
+                if(temp.isAlive()){
+                    temp.execute();
+                }
             }
             // _LOG.trace("Finished executing decisions");
 
@@ -173,7 +184,14 @@ public class Simulator
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
             {
-                agentIterator.next().update();
+                Agent temp = agentIterator.next();
+                if(temp.isAlive()){
+                    temp.update();
+                }
+            }
+            
+            if(_simState.isPredatorEnabled()){
+                _simState.getPredator().hunt();
             }
 
             // _LOG.trace("Setting up next simulation run step");
@@ -311,7 +329,7 @@ public class Simulator
         else if( _simState.getSimulationTime() < _simState.getMaxSimulationTimeSteps() )
         {
             isActive = true;
-            if(Agent.numReachedDestination >= _simState.getAgentCount()){
+            if(Agent.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
                 _successCount++;
                 isActive = false;
             }

@@ -34,7 +34,7 @@ public class SimpleAngularMovement implements MovementBehavior
     {
         // if agent is initiating and is with 3 units of their destination stop
         if( _agent.getCurrentLocation().distance1(
-                        _agent.getPreferredDestination() ) < SimulationState.getDestinationRadius() )
+                        _agent.getPreferredDestination().getVector() ) < SimulationState.getDestinationRadius() )
         {
             _agent.reachedDestination();
         }

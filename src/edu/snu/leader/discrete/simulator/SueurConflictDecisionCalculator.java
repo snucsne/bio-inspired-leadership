@@ -28,159 +28,158 @@ import edu.snu.leader.discrete.behavior.Decision;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
-public class GautraisConflictDecisionCalculator implements
-DecisionProbabilityCalculator
+/**
+ * SueurDefaultDecisionProbablityCalculator Default Sueur Probability Calculator
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
+public class SueurConflictDecisionCalculator implements
+        DecisionProbabilityCalculator
 {
+
     /** The simulation state */
     private SimulationState _simState = null;
 
-    private double _tauO = 0;
+    /** The intrinsic probability to initiate */
+    private double _alpha = 0;
 
+    /** The intrinsic probability to cancel */
     private double _alphaC = 0;
 
-    private double _gammaC = 0;
+    /** Mimetic coefficient */
+    private double _beta = 0;
 
-    private double _epsilonC = 0;
+    /** Inverse mimetic coefficient */
+    private double _betaC = 0;
 
-    private double _alphaF = 0;
+    /** Agents sensitivity to the system */
+    private double _q = 0;
 
-    private double _betaF = 0;
-    
-    /** The conflict value for agents that have zero velocity */
+    /** A threshold */
+    private int _S = 0;
+
     private double _defaultConflictValue = .1;
     
-    private double[] _followProbabilities = null;
-    private double[] _cancelProbabilities = null;
-
     @Override
     public void initialize( SimulationState simState )
     {
         _simState = simState;
 
-        String tauO = _simState.getProperties().getProperty( "tau-o" );
-        Validate.notEmpty( tauO, "tau-o may not be empty" );
-        _tauO = Double.parseDouble( tauO );
-
-        String alphaF = _simState.getProperties().getProperty( "alpha-f" );
-        Validate.notEmpty( alphaF, "alpha-f may not be empty" );
-        _alphaF = Double.parseDouble( alphaF );
-
-        String gammaC = _simState.getProperties().getProperty( "gamma-c" );
-        Validate.notEmpty( gammaC, "gamma-c may not be empty" );
-        _gammaC = Double.parseDouble( gammaC );
-
-        String epsilonC = _simState.getProperties().getProperty( "epsilon-c" );
-        Validate.notEmpty( epsilonC, "epsilon-c may not be empty" );
-        _epsilonC = Double.parseDouble( epsilonC );
+        String alpha = _simState.getProperties().getProperty( "alpha" );
+        Validate.notEmpty( alpha, "Alpha may not be empty" );
+        _alpha = Double.parseDouble( alpha );
 
         String alphaC = _simState.getProperties().getProperty( "alpha-c" );
-        Validate.notEmpty( alphaC, "alpha-c may not be empty" );
+        Validate.notEmpty( alphaC, "Alpha-c may not be empty" );
         _alphaC = Double.parseDouble( alphaC );
 
-        String betaF = _simState.getProperties().getProperty( "beta-f" );
-        Validate.notEmpty( betaF, "beta-f may not be empty" );
-        _betaF = Double.parseDouble( betaF );
-        
+        String beta = _simState.getProperties().getProperty( "beta" );
+        Validate.notEmpty( beta, "Beta may not be empty" );
+        _beta = Double.parseDouble( beta );
+
+        String betaC = _simState.getProperties().getProperty( "beta-c" );
+        Validate.notEmpty( betaC, "Beta-c may not be empty" );
+        _betaC = Double.parseDouble( betaC );
+
+        String q = _simState.getProperties().getProperty( "q" );
+        Validate.notEmpty( q, "q may not be empty" );
+        _q = Double.parseDouble( q );
+
+        String S = _simState.getProperties().getProperty( "S" );
+        Validate.notEmpty( S, "S may not be empty" );
+        _S = Integer.parseInt( S );
+
+        String cancellationThreshold = _simState.getProperties().getProperty(
+                "cancellation-threshold" );
+        Validate.notEmpty( cancellationThreshold,
+                "Use cancellation threshold may not be empty" );
+
         String defConflictValue = _simState.getProperties().getProperty( "default-conflict-value" );
         Validate.notEmpty( defConflictValue, "default-conflict-value may not be empty" );
         _defaultConflictValue = Double.parseDouble( defConflictValue );
         
-        // add gautrais info to root directory path
-        _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "GautraisValues" );
-    }
-    
-    /**
-     * Returns an array of all the possible follow probabilities. Will be null if pre-generation was not specified in properties file. 
-     *
-     * @return
-     */
-    public double[] getPreCalculatedFollowProbabilities(){
-        return _followProbabilities;
-    }
-    
-    /**
-     * Returns an array of all the possible cancel probabilities. Will be null if pre-generation was not specified in properties file. 
-     *
-     * @return
-     */
-    public double[] getPreCalculatedCancelProbabilities(){
-        return _cancelProbabilities;
+        // add sueur info to root directory path
+        _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "SueurValues");
+
     }
 
     @Override
     public void calcInitiateProb( Decision decision )
     {
-        double tauI = _tauO;
         double conflict = _defaultConflictValue;
-        //calculate conflict
         conflict = calculateConflict( decision );
-        //calculate k value
-        double k = kValue(conflict);
-        //calculate tauI
-        tauI /= k;
-        //set probability
-        decision.setProbability( 1 / tauI );
+        double k = 1 / kValue(conflict);
+        decision.setProbability( _alpha / k );
     }
 
     @Override
     public void calcFollowProb( Decision decision )
     {
-        double conflict = calculateConflict( decision );
-        double tauR = 0;
-        // total number neighbors
-        int N = 0;
-        // followers
-        int r = 0;
-
         Agent agent = decision.getAgent();
+        Group group = decision.getLeader().getGroup();
+        // probability to join this group
+        double lambda = 0.0;
+        double conflict = calculateConflict( decision );
 
-        // calculate r followers and N total
+        // the number of agents currently in this group
+        int X = 0;
+
+        // calculate observed X value
         List<Agent> neighbors = agent.getNearestNeighbors();
-        N = neighbors.size();
         for( int i = 0; i < neighbors.size(); i++ )
         {
-            // N++;
-            if( agent.getObservedGroupHistory().get( neighbors.get( i ).getId() ).groupId == ( decision.getLeader().getGroup().getId() ) )
+            if( agent.getObservedGroupHistory().get( neighbors.get( i ).getId() ).groupId == group.getId() )
             {
-                r++;
+                X++;
             }
         }
 
-        // calculate tauR
-        tauR = _alphaF + ( ( _betaF * ( N - r ) ) / r );
-        //1-conflict for follow
-        tauR *= 1 / kValue( 1 - conflict );
-        decision.setProbability( 1 / tauR );
+        // calculate lambda
+        lambda = _alpha
+                + ( ( _beta * Math.pow( X, _q ) ) / ( Math.pow( _S, _q ) + Math.pow(
+                        X, _q ) ) );
+        
+        double k = 1/ kValue( 1 - conflict );
+        lambda *= 1 / k;
+        
+        decision.setProbability( lambda );
     }
 
     @Override
     public void calcCancelProb( Decision decision )
     {
-        //conflict is not used for cancellation rates
-//        double conflict = calculateConflict( decision );
-        double Cr = 0;
-        // followers
-        int r = 1;
-
         Agent agent = decision.getAgent();
+        // probability to cancel
+        double psiC = 0.0;
 
-        // calculate r followers
+        // the number of agents currently in this group
+        int X = 1;
+
+        // calculate observed X value
         List<Agent> neighbors = agent.getNearestNeighbors();
         for( int i = 0; i < neighbors.size(); i++ )
         {
-            if( agent.getObservedGroupHistory().get( neighbors.get( i ).getId() ).groupId.equals( agent.getGroup().getId() ) )
+            if( agent.getObservedGroupHistory().get( neighbors.get( i ).getId() ).groupId == agent.getGroup().getId() )
             {
-                r++;
+                X++;
             }
         }
 
-        // calculate Cr
-        Cr = _alphaC / ( 1 + ( Math.pow( r / _gammaC, _epsilonC ) ) );
+        // calculate psiC
+        if( ( (double) X / neighbors.size() ) >= ( agent.getCancelThreshold() ) )
+        {
+            // if threshold is reached then will not cancel
+            psiC = 0;
+        }
+        else
+        {
+            psiC = _alphaC
+                    + ( ( _betaC * Math.pow( X, _q ) ) / ( Math.pow( _S, _q ) + Math.pow(
+                            X, _q ) ) );
+        }
 
-        //1-conflict for cancel
-//        Cr *= kValue( 1 - conflict );//conflict does not affect canceling rates
-        decision.setProbability( Cr );
-
+        decision.setProbability( psiC );
     }
     
     /**
@@ -191,12 +190,11 @@ DecisionProbabilityCalculator
      */
     private double kValue( double conflict )
     {
-        // k = 2 * conflict
-        double k = 2 * conflict ;
+        double k = 2 * conflict;
         return k;
     }
     
-    //TODO make sure this is working well :D
+  //TODO make sure this is working well :D
     private double calculateConflict(Decision decision){
         Agent agent = decision.getAgent();
         Agent leader = decision.getLeader();
@@ -272,5 +270,20 @@ DecisionProbabilityCalculator
         decision.setConflict( Ci );
         //return the conflict value for whatever needs to use it
         return Ci;
+    }
+    
+
+    @Override
+    public double[] getPreCalculatedFollowProbabilities()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public double[] getPreCalculatedCancelProbabilities()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

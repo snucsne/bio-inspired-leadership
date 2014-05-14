@@ -41,7 +41,7 @@ public class Initiate extends Decision
         // set group to a new group
         _agent.setGroup( new Group( _agent, _agent.getTime() ) );
         // set destination to preferred destination
-        _agent.setCurrentDestination( _agent.getPreferredDestination() );
+        _agent.setCurrentDestination( _agent.getPreferredDestination().getVector() );
         // set current velocity to that of going towards the preferred
         // destination
         if(!_agent.getCurrentDestination().subtract( _agent.getCurrentLocation()).equals( Vector2D.ZERO )){

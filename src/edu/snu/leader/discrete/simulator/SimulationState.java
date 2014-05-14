@@ -48,9 +48,9 @@ import edu.snu.leader.discrete.utils.Reporter;
  */
 public class SimulationState
 {
-    final boolean SHOULD_REPORT_ESKRIDGE = false;
-    final boolean SHOULD_REPORT_CONFLICT = true;
-    final boolean SHOULD_REPORT_POSITIONS = false;
+    private boolean _shouldReportEskridge = false;//only for nongraphical
+    private boolean _shouldReportConflict = false;
+    private boolean _shouldReportPosition = false;
     
     /** Used for the Eskridge reporter */
     private final String SPACER = "=========================================================";
@@ -81,6 +81,12 @@ public class SimulationState
 
     /** All the agents in the simulation */
     private List<Agent> _agents = new LinkedList<Agent>();
+    
+    /** The predator in the simulation */
+    private Predator _predator = null;
+    
+    /** Whether the predator is enabled or not */
+    private boolean _predatorEnabled = false;
 
     /** All the groups in the simulation */
     private Set<Group> _groups = new HashSet<Group>();
@@ -95,6 +101,7 @@ public class SimulationState
     public List<ConflictHistoryEvent> conflictEvents = null;
 
     private static int _destinationSizeRadius = 0;
+    private boolean _isGraphical = false;
     
     /**
      * Initialize the simulation state
@@ -143,7 +150,27 @@ public class SimulationState
         _communicationType = getProperties().getProperty( "communication-type" );
         Validate.notEmpty( _communicationType,
                 "Communication type may not be empty" );
+        
+        String stringShouldRunGraphical = _props.getProperty( "run-graphical" );
+        Validate.notEmpty( stringShouldRunGraphical, "Run graphical option required" );
+        _isGraphical = Boolean.parseBoolean( stringShouldRunGraphical );
+        
+        String stringShouldReportEskridge = _props.getProperty( "eskridge-results" );
+        Validate.notEmpty( stringShouldReportEskridge, "Eskridge results required" );
+        _shouldReportEskridge = Boolean.parseBoolean( stringShouldReportEskridge );
+        
+        String stringShouldReportConflict = _props.getProperty( "conflict-results" );
+        Validate.notEmpty( stringShouldReportConflict, "Conflict results required" );
+        _shouldReportConflict = Boolean.parseBoolean( stringShouldReportConflict );
+        
+        String stringShouldReportPosition = _props.getProperty( "position-results" );
+        Validate.notEmpty( stringShouldReportPosition, "Position results required" );
+        _shouldReportPosition = Boolean.parseBoolean( stringShouldReportPosition );
 
+        String stringPredatorEnabled = _props.getProperty( "enable-predator" );
+        Validate.notEmpty( stringPredatorEnabled, "Enable predator required" );
+        _predatorEnabled = Boolean.parseBoolean( stringPredatorEnabled );
+        
         // Reporter.ROOT_DIRECTORY = getProperties().getProperty( "results-dir"
         // );
         // Validate.notEmpty( Reporter.ROOT_DIRECTORY, "results dir required" );
@@ -182,12 +209,15 @@ public class SimulationState
             while( agentIter.hasNext() )
             {
                 Agent temp = agentIter.next();
-                temp.reportPositions( SHOULD_REPORT_POSITIONS );
+                temp.reportPositions( _shouldReportPosition );
                 // reset Agents
                 temp.reset();
             }
             Agent.numInitiating = 0;
             Agent.numReachedDestination = 0;
+            
+            //reset predator
+            _predator.setupNextRun();
             
             // report the all run information and clear it for next run
             System.out.println( "Finished sim run " + _currentSimulationRun );
@@ -201,19 +231,22 @@ public class SimulationState
                 // report all of the group sizes before exiting
                 System.out.println( Simulator.getSuccessCount() );
                 
-                //do stuff for the eskridge reporter
-                addInitiationStatsToEskridgeResultsReporter();
-                addMovementCountsToEskridgeResultsReporter();
-                addFinalInitiatorCountsToEskridgeResultsReporter();
-                addMaxInitiatorCountsToEskridgeResultsReporter();
-                addIndividualInititationStatsToEskridgeResultsReporter();
-                addIndividualDataToEskridgeResultsReporter();
-                addAggregateDataToEskridgeResultsReporter();
-                _eskridgeResultsReporter.report( SHOULD_REPORT_ESKRIDGE );
-
+                
+                if(!_isGraphical){
+                    //do stuff for the eskridge reporter
+                    addInitiationStatsToEskridgeResultsReporter();
+                    addMovementCountsToEskridgeResultsReporter();
+                    addFinalInitiatorCountsToEskridgeResultsReporter();
+                    addMaxInitiatorCountsToEskridgeResultsReporter();
+                    addIndividualInititationStatsToEskridgeResultsReporter();
+                    addIndividualDataToEskridgeResultsReporter();
+                    addAggregateDataToEskridgeResultsReporter();
+                    _eskridgeResultsReporter.report( _shouldReportEskridge );
+                }
+                
                 //do stuff for conflict events reporter
                 addConflictEventsToConflictResultsReporter();
-                _conflictResultsReporter.report( SHOULD_REPORT_CONFLICT );
+                _conflictResultsReporter.report( _shouldReportConflict );
                 
                 System.out.println( "Done" );
             }
@@ -225,6 +258,7 @@ public class SimulationState
      */
     public void setupNextSimulationRunStep()
     {
+        _predator.setupNextTimeStep();
         _simulationTime++;
     }
 
@@ -287,6 +321,14 @@ public class SimulationState
     {
         return _random;
     }
+    
+    public void setPredator( Predator predator ){
+        _predator = predator;
+    }
+    
+    public Predator getPredator(){
+        return _predator;
+    }
 
     /**
      * Adds the specified agent to the simulation
@@ -330,6 +372,10 @@ public class SimulationState
     
     public static int getDestinationRadius(){
         return _destinationSizeRadius;
+    }
+    
+    public boolean isPredatorEnabled(){
+        return _predatorEnabled;
     }
     
     

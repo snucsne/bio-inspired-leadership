@@ -108,10 +108,10 @@ public class Agent
 
     // ////////2D movement variables\\\\\\\\\\
     /** Preferred destination of this agent */
-    private Vector2D _preferredDestination = Vector2D.ZERO;
+    private Destination _preferredDestination = null;
     
     /** The id of the preferred destination */
-    private String _destinationId = null;
+//    private String _destinationId = null;
 
     /** Current destination of this agent */
     private Vector2D _currentDestination = Vector2D.ZERO;
@@ -127,7 +127,7 @@ public class Agent
 
     private double _speed = .1;
 
-    private Color _destinationColor = null;
+//    private Color _destinationColor = null;
 
     // ////////Agent interaction variables\\\\\\\\\
     /** A list of all of the current Agents following this Agent */
@@ -158,6 +158,8 @@ public class Agent
 
     /** Whether or not we should pre calculate the decision probabilities */
     private boolean _preCalcProbs = false;
+    
+    private boolean _isAlive = false;
     
     /**
      * Builds an Agent disregarding Personality and Conflict
@@ -278,6 +280,7 @@ public class Agent
         _hasReachedDestination = false;
 
         _uniqueIdCount = 0;
+        _isAlive = true;
     }
 
     /**
@@ -292,7 +295,7 @@ public class Agent
             // place holder of the do nothing decision of where it was in the
             // list
             // of decisions if there was one
-            int doNothingIndex = 0;
+//            int doNothingIndex = 0;
     
             // get nearest neighbors
             List<Agent> neighbors = getNearestNeighbors();
@@ -354,7 +357,7 @@ public class Agent
                     else if( decision.getDecisionType() == DecisionType.DO_NOTHING )
                     {
                         isAbleToDoNothing = true;
-                        doNothingIndex = i;
+//                        doNothingIndex = i;
                     }
                 }
                 else{
@@ -383,7 +386,7 @@ public class Agent
                     else if( decision.getDecisionType() == DecisionType.DO_NOTHING )
                     {
                         isAbleToDoNothing = true;
-                        doNothingIndex = i;
+//                        doNothingIndex = i;
                     }
                 }
                 // add probabilities to the sum
@@ -603,6 +606,15 @@ public class Agent
     {
         return _decisionCalc;
     }
+    
+    public boolean isAlive(){
+        return _isAlive;
+    }
+    
+    public void kill(){
+        _group = Group.NONE;
+        _isAlive = false;
+    }
 
     /**
      * Returns a list of the nearest neighbors. Can be used topologically or
@@ -730,23 +742,23 @@ public class Agent
         _movementBehavior = mb;
     }
 
-    public Vector2D getPreferredDestination()
+    public Destination getPreferredDestination()
     {
         return _preferredDestination;
     }
     
     public String getPreferredDestinationId(){
-        return _destinationId;
+        return _preferredDestination.getID();
     }
 
-    public void setPreferredDestination( Vector2D newDestination )
+    public void setPreferredDestination( Destination newDestination )
     {
         _preferredDestination = newDestination;
     }
     
-    public void setPreferredDestinationId( String destinationId ){
-        _destinationId = destinationId;
-    }
+//    public void setPreferredDestinationId( String destinationId ){
+//        _destinationId = destinationId;
+//    }
 
     public Vector2D getCurrentDestination()
     {
@@ -775,7 +787,7 @@ public class Agent
 
     public double getPreferredDirection()
     {
-        Vector2D heading = getPreferredDestination().subtract(
+        Vector2D heading = getPreferredDestination().getVector().subtract(
                 getCurrentLocation() ).normalize();
         return Math.cos( heading.getX() );
     }
@@ -795,14 +807,14 @@ public class Agent
         return _speed;
     }
 
-    public void setDestinationColor( Color color )
-    {
-        _destinationColor = color;
-    }
+//    public void setDestinationColor( Color color )
+//    {
+//        _destinationColor = color;
+//    }
 
     public Color getDestinationColor()
     {
-        return _destinationColor;
+        return _preferredDestination.getColor();
     }
 
     public int getTime()
@@ -866,8 +878,7 @@ public class Agent
         // group member near us, also make sure we are not off on our own
         
         if( _leader == this
-                || _group.getId().equals(
-                        _observedGroupHistory.get( _leader.getId() ).groupId ) )
+                || (_group.getId().equals( _observedGroupHistory.get( _leader.getId() ).groupId ) && _leader.isAlive() ) )
         {
             possibleDecisions.add( new DoNothing( this, _leader ) );
         }

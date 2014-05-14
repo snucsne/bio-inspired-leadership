@@ -19,6 +19,9 @@
 
 package edu.snu.leader.discrete.utils;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,6 +49,24 @@ public class Utils
     };
     
     
+    public static void drawDirectionalTriangle(Graphics2D bbg, double heading, double x, double y, double sideLength, Color fillColor, Color borderColor){
+        Polygon triangle = new Polygon();
+        
+        triangle.addPoint( 0, (int)( 1.5*sideLength) );
+        triangle.addPoint( (int)(sideLength / 2), 0 );
+        triangle.addPoint( (int)( - sideLength / 2), 0 );
+        
+        bbg.translate( x, y );
+        bbg.rotate( heading );
+        
+        bbg.setColor( fillColor );
+        bbg.fill( triangle );
+        bbg.setColor( borderColor );
+        bbg.draw( triangle );
+        
+        bbg.rotate( -heading );
+        bbg.translate( -x, -y );
+    }
 
     /**
      * Reads a locations file and creates an array of points

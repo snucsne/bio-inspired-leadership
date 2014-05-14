@@ -1,3 +1,22 @@
+/*
+ *  The Bio-inspired Leadership Toolkit is a set of tools used to
+ *  simulate the emergence of leaders in multi-agent systems.
+ *  Copyright (C) 2014 Southern Nazarene University
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package me.solhub.simple.engine;
 
 import java.awt.Color;
@@ -24,10 +43,13 @@ import org.apache.log4j.Logger;
 import edu.snu.leader.discrete.behavior.Decision.DecisionType;
 import edu.snu.leader.discrete.simulator.Agent;
 import edu.snu.leader.discrete.simulator.AgentBuilder;
+import edu.snu.leader.discrete.simulator.Destination;
 import edu.snu.leader.discrete.simulator.Group;
+import edu.snu.leader.discrete.simulator.Predator;
 import edu.snu.leader.discrete.simulator.SimulationState;
 import edu.snu.leader.discrete.simulator.Simulator;
 import edu.snu.leader.discrete.utils.Reporter;
+import edu.snu.leader.discrete.utils.Utils;
 import edu.snu.leader.util.MiscUtils;
 
 //TODO anti-aliasing
@@ -50,7 +72,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
     /** The diameter of the agent circles */
     private final int _agentSize = Agent.AGENT_DIAMETER;
     /** The diameter of the destination circles */
-    private final int _destinationSize = 4;
+    private final int _destinationSize = 3;
     /** The x offset for the font */
     private final int _fontXOffset = 30;
     /** The y offset for the font */
@@ -126,12 +148,16 @@ public class DebugLocationsStructure extends AbstractGameStructure
         while( isSimActive() )
         {
             handleColorSwitchingInput();
+            
             // _LOG.trace("Making decisions");
             // make decisions
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
             {
-                agentIterator.next().makeDecision();
+                Agent temp = agentIterator.next();
+                if(temp.isAlive()){
+                    temp.makeDecision();
+                }
             }
             // _LOG.trace("Finished making decisions");
 
@@ -140,7 +166,10 @@ public class DebugLocationsStructure extends AbstractGameStructure
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
             {
-                agentIterator.next().execute();
+                Agent temp = agentIterator.next();
+                if(temp.isAlive()){
+                    temp.execute();
+                }
             }
             // _LOG.trace("Finished executing decisions");
 
@@ -148,7 +177,14 @@ public class DebugLocationsStructure extends AbstractGameStructure
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
             {
-                agentIterator.next().update();
+                Agent temp = agentIterator.next();
+                if(temp.isAlive()){
+                    temp.update();
+                }
+            }
+            
+            if(_simState.isPredatorEnabled()){
+                _simState.getPredator().hunt();
             }
 
             // _LOG.trace("Setting up next simulation run step");
@@ -186,7 +222,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         for( int i = 0; i < agents.size(); i++ )
         {
             _simState.addAgent( agents.get( i ) );
-            _destinationColors.put( agents.get( i ).getPreferredDestination(),
+            _destinationColors.put( agents.get( i ).getPreferredDestination().getVector(),
                     agents.get( i ).getDestinationColor() );
         }
 
@@ -297,7 +333,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         else if( _simState.getSimulationTime() < _simState.getMaxSimulationTimeSteps() )
         {
             isActive = true;
-            if(Agent.numReachedDestination >= _simState.getAgentCount()){
+            if(Agent.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
                 _successCount++;
                 isActive = false;
             }
@@ -356,6 +392,11 @@ public class DebugLocationsStructure extends AbstractGameStructure
         // Build the agents
         buildAgents();
         
+        // create the predator
+        Predator predator = new Predator("PredDebug");
+        predator.initialize( _simState );
+        _simState.setPredator( predator );
+        
         _groupSizeCounts = new int[_simState.getAgentCount() + 1];
 
         _LOG.trace( "Exiting initialize()" );
@@ -381,9 +422,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
     {
         Graphics2D g = (Graphics2D) getGraphics();
         Graphics2D bbg = (Graphics2D) _backBuffer.getGraphics();
-
-        
-        
+          
         //anti-aliasing code
 //        bbg.setRenderingHint(
 //                RenderingHints.KEY_TEXT_ANTIALIASING,
@@ -396,6 +435,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
         bbg.translate( _xOffset, _yOffset );
         
         // draw destinations
+        bbg.setColor( Destination.startingDestination.getColor() );
+        bbg.drawOval( -(int)Destination.startingDestination.getRadius(), -(int)Destination.startingDestination.getRadius(), (int)Destination.startingDestination.getRadius() * 2, (int)Destination.startingDestination.getRadius() * 2 );
         Iterator<Entry<Vector2D, Color>> blah = _destinationColors.entrySet().iterator();
         double destinationRadius = SimulationState.getDestinationRadius();
         while( blah.hasNext() )
@@ -414,56 +455,64 @@ public class DebugLocationsStructure extends AbstractGameStructure
         while( agentIter.hasNext() )
         {
             Agent temp = agentIter.next();
-            // decide whether to color for destination or group
-            if( isDestinationColors )
-            {
-                // if stopped then blink white and destination color
-                if( temp.hasReachedDestination() )
-                {
-                    if( pulseWhite % 20 == 0 )
-                    {
-                        bbg.setColor( Color.WHITE );
-                    }
-                    else
-                    {
-                        bbg.setColor( temp.getDestinationColor() );
-                    }
-                }
-                else
-                {
-                    bbg.setColor( temp.getDestinationColor() );
-                }
+            if(temp.isAlive()){
+                // decide whether to color for destination or group
+//                if( isDestinationColors )
+//                {
+//                    // if stopped then blink white and destination color
+//                    if( temp.hasReachedDestination() )
+//                    {
+//                        if( pulseWhite % 20 == 0 )
+//                        {
+//                            bbg.setColor( Color.WHITE );
+//                        }
+//                        else
+//                        {
+//                            bbg.setColor( temp.getDestinationColor() );
+//                        }
+//                    }
+//                    else
+//                    {
+//                        bbg.setColor( temp.getDestinationColor() );
+//                    }
+//                }
+//                else
+//                {
+//                    // if stopped then blink black and white
+//                    if( temp.hasReachedDestination() )
+//                    {
+//                        if( pulseWhite % 20 == 0 )
+//                        {
+//                            bbg.setColor( Color.WHITE );
+//                        }
+//                        else
+//                        {
+//                            bbg.setColor( temp.getGroup().getGroupColor() );
+//                        }
+//                    }
+//                    //set color to red if cancelled and global and not multiple initiators
+//                    else if(temp.getCurrentDecision().getDecision().getDecisionType().equals(
+//                            DecisionType.CANCELLATION ) 
+//                            && _simState.getCommunicationType().equals( "global" )
+//                            && !Agent.canMultipleInitiate()
+//                            )
+//                    {
+//                        bbg.setColor( Color.RED );
+//                    }
+//                    else
+//                    {
+//                        bbg.setColor( temp.getGroup().getGroupColor() );
+//                    }
+//                }
+                
+                double dx = temp.getCurrentDestination().getX() - temp.getCurrentLocation().getX();
+                double dy = temp.getCurrentDestination().getY() - temp.getCurrentLocation().getY();
+                double heading = Math.atan2( dy,  dx );
+                Utils.drawDirectionalTriangle( bbg, heading - Math.PI /2, temp.getCurrentLocation().getX(), temp.getCurrentLocation().getY(), 7, temp.getPreferredDestination().getColor(), temp.getGroup().getGroupColor() );
+                
+//                bbg.fillOval( (int) temp.getCurrentLocation().getX() - _agentSize,
+//                        (int) temp.getCurrentLocation().getY() - _agentSize , _agentSize * 2, _agentSize * 2 );
             }
-            else
-            {
-                // if stopped then blink black and white
-                if( temp.hasReachedDestination() )
-                {
-                    if( pulseWhite % 20 == 0 )
-                    {
-                        bbg.setColor( Color.WHITE );
-                    }
-                    else
-                    {
-                        bbg.setColor( temp.getGroup().getGroupColor() );
-                    }
-                }
-                //set color to red if cancelled and global and not multiple initiators
-                else if(temp.getCurrentDecision().getDecision().getDecisionType().equals(
-                        DecisionType.CANCELLATION ) 
-                        && _simState.getCommunicationType().equals( "global" )
-                        && !Agent.canMultipleInitiate()
-                        )
-                {
-                    bbg.setColor( Color.RED );
-                }
-                else
-                {
-                    bbg.setColor( temp.getGroup().getGroupColor() );
-                }
-            }
-            bbg.fillOval( (int) temp.getCurrentLocation().getX() - _agentSize,
-                    (int) temp.getCurrentLocation().getY() - _agentSize , _agentSize * 2, _agentSize * 2 );
         }
         pulseWhite++;
         bbg.setColor( Color.BLACK );
@@ -488,8 +537,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
             bbg.drawString( "Groups: " + Group.getNumberGroups(), _fontXOffset, _fontYOffset + _fontSize * 3);
             bbg.drawString( "Reached: " + Agent.numReachedDestination, _fontXOffset, _fontYOffset + _fontSize * 4 );
             bbg.drawString( "Inits: " + Agent.numInitiating, _fontXOffset, _fontYOffset + _fontSize * 5 );
+            bbg.drawString( "Eaten: " + _simState.getPredator().getTotalAgentsEaten(), _fontXOffset, _fontYOffset + _fontSize * 6 );
         }
-        
         
         
         g.scale( _zoom, _zoom );

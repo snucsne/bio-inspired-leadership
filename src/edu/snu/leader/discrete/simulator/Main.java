@@ -19,6 +19,10 @@
 
 package edu.snu.leader.discrete.simulator;
 
+import org.apache.commons.lang.Validate;
+
+import edu.snu.leader.util.MiscUtils;
+
 import me.solhub.simple.engine.DebugLocationsStructure;
 
 
@@ -27,12 +31,12 @@ import me.solhub.simple.engine.DebugLocationsStructure;
 public class Main
 {
     static boolean debug = false;
-    static boolean shouldRunGraphical = false;
+    static boolean shouldRunGraphical = true;
     /** The current run of the simulator */
     public static int run = 0;
 
     /** How many runs there will be */
-    public static final int totalRuns = 50;
+    public static final int totalRuns = 1;
 
     public static void main( String[] args )
     {
@@ -41,28 +45,32 @@ public class Main
         // "Must specify a sim-properties file to use at runtime" );
         System.setProperty( "sim-properties",
                 "cfg/sim/discrete/sim-properties.parameters" );
+        
+        String stringShouldRunGraphical = MiscUtils.loadProperties("sim-properties").getProperty( "run-graphical" );
+        Validate.notEmpty( stringShouldRunGraphical, "Run graphical option required" );
+        shouldRunGraphical = Boolean.parseBoolean( stringShouldRunGraphical );
+        
         if(debug){
             debug();
         }
         else{
             if(!shouldRunGraphical){
-             // run just text
-              for( run = 1; run <= totalRuns; run++ )
-              {
-                  System.out.println( "Run " + run );
-                  System.out.println();
-                  Simulator simulator = new Simulator( run );
-                  simulator.initialize();
-                  simulator.execute();
-              }
+                // run just text
+                for( run = 1; run <= totalRuns; run++ )
+                {
+                    System.out.println( "Run " + run );
+                    System.out.println();
+                    Simulator simulator = new Simulator( run );
+                    simulator.initialize();
+                    simulator.execute();
+                }
             }
             // System.setProperty( "sim-properties", args[0] );
             else{
-            // run graphical
-                 DebugLocationsStructure db = new DebugLocationsStructure(
-                 "Conflict Simulation",
-                 800, 600, 30 );
-                 db.run();
+                // run graphical
+                DebugLocationsStructure db = new DebugLocationsStructure(
+                        "Conflict Simulation", 800, 600, 60 );
+                db.run();
             }
         }
     }
