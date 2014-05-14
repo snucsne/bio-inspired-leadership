@@ -38,6 +38,7 @@ import ec.util.MersenneTwisterFast;
 import edu.snu.leader.discrete.behavior.Decision;
 import edu.snu.leader.discrete.simulator.Agent.ConflictHistoryEvent;
 import edu.snu.leader.discrete.simulator.Agent.InitiationHistoryEvent;
+import edu.snu.leader.discrete.simulator.Predator.PredationEvent;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
@@ -51,6 +52,7 @@ public class SimulationState
     private boolean _shouldReportEskridge = false;//only for nongraphical
     private boolean _shouldReportConflict = false;
     private boolean _shouldReportPosition = false;
+    private boolean _shouldReportPredation = true;
     
     /** Used for the Eskridge reporter */
     private final String SPACER = "=========================================================";
@@ -87,6 +89,9 @@ public class SimulationState
     
     /** Whether the predator is enabled or not */
     private boolean _predatorEnabled = false;
+    
+    /** The predation probability modifier */
+    private double _predationConstant = 0.0;
 
     /** All the groups in the simulation */
     private Set<Group> _groups = new HashSet<Group>();
@@ -98,6 +103,9 @@ public class SimulationState
     private Reporter _eskridgeResultsReporter = null;
     /** Reporter for reporting the results from the multi initiator conflict tests */
     private Reporter _conflictResultsReporter = null;
+    /** Reporter for reporting the events for predation */
+    private Reporter _predationEventsReporter = null;
+    
     public List<ConflictHistoryEvent> conflictEvents = null;
 
     private static int _destinationSizeRadius = 0;
@@ -171,6 +179,10 @@ public class SimulationState
         Validate.notEmpty( stringPredatorEnabled, "Enable predator required" );
         _predatorEnabled = Boolean.parseBoolean( stringPredatorEnabled );
         
+        String stringPredatorMultiplier = _props.getProperty( "predation-multiplier" );
+        Validate.notEmpty( stringPredatorMultiplier, "Predation multiplier required" );
+        _predationConstant = Double.parseDouble( stringPredatorMultiplier );
+        
         // Reporter.ROOT_DIRECTORY = getProperties().getProperty( "results-dir"
         // );
         // Validate.notEmpty( Reporter.ROOT_DIRECTORY, "results dir required" );
@@ -183,8 +195,10 @@ public class SimulationState
         conflictEvents = new LinkedList<ConflictHistoryEvent>();
         _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
         _conflictResultsReporter = new Reporter( "conflict-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
+        _predationEventsReporter = new Reporter( "predation-spacial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + "-pred_const-" + String.format( "%2.5f", _predationConstant ) + ".dat" , "", false );
         addPropertiesOutputToResultsReporter(_eskridgeResultsReporter);
         addPropertiesOutputToResultsReporter( _conflictResultsReporter );
+        addPropertiesOutputToResultsReporter( _predationEventsReporter );
         _LOG.trace( "Leaving initialize( props )" );
     }
     
@@ -247,6 +261,10 @@ public class SimulationState
                 //do stuff for conflict events reporter
                 addConflictEventsToConflictResultsReporter();
                 _conflictResultsReporter.report( _shouldReportConflict );
+                
+                //do stuff for predation reporter
+                addPredationResultsToPredationReporter();
+                _predationEventsReporter.report( _shouldReportPredation );
                 
                 System.out.println( "Done" );
             }
@@ -616,5 +634,46 @@ public class SimulationState
         _conflictResultsReporter.appendLine( b.toString() );
         
         _conflictResultsReporter.appendLine("");
+    }
+    
+    private void addPredationResultsToPredationReporter(){
+        StringBuilder b = new StringBuilder();
+        
+        _predationEventsReporter.appendLine( "# Predation Constant");
+        _predationEventsReporter.appendLine( "predation-constant=" + _predationConstant);
+        _predationEventsReporter.appendLine( "run-count=" + _simulationRunCount);
+        _predationEventsReporter.appendLine( "# " + SPACER);
+        _predationEventsReporter.appendLine( "# Predation Events");
+        
+        _predationEventsReporter.append( "# " + String.format( "%-5s", "Run") );
+        _predationEventsReporter.append( String.format( "%-6s", "Time") );
+        _predationEventsReporter.append( String.format( "%-6s", "Pred") );
+        _predationEventsReporter.append( String.format( "%-10s", "Agent") );
+        _predationEventsReporter.append( String.format( "%-5s", "n") );
+        _predationEventsReporter.append( String.format( "%-10s", "GrId") );
+        _predationEventsReporter.append( String.format( "%-22s", "Location") );
+        _predationEventsReporter.append( String.format( "%-21s", "Destination") + "\n");
+        
+        Iterator<PredationEvent> iter = _predator.predationEventIterator();
+        while(iter.hasNext()){
+            PredationEvent event = iter.next();
+            b.append( String.format( "%03d", event.run) + "  ");
+            b.append( String.format("%06d", event.timeStep) + "  ");
+            b.append( String.format("%-4s", event.predatorId) + "  ");
+            
+            String agentName = event.agentId.toString();
+            agentName =  agentName.replaceAll( "Agent", "");
+            agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
+            
+            b.append( String.format("%-5s", agentName) + "  ");
+            b.append( String.format("%03d", event.groupSize) + "  ");
+            b.append( String.format("%-8s", event.groupId.toString()) + "  ");
+            b.append( String.format("% 9.5f,% 9.5f", event.location.getX(), event.location.getY()) + "  ");
+            b.append( String.format("% 9.5f.% 9.5f", event.destinationId.getX(), event.destinationId.getY()) + "  ");
+            
+            b.append( "\n" );
+        }
+        _predationEventsReporter.appendLine( b.toString() );
+        _predationEventsReporter.appendLine( "" );
     }
 }

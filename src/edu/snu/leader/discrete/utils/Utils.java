@@ -27,11 +27,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
 import ec.util.MersenneTwisterFast;
 import edu.snu.leader.discrete.behavior.Decision;
+import edu.snu.leader.discrete.simulator.Agent;
 
 
 /**
@@ -48,6 +50,17 @@ public class Utils
     {
     };
     
+    
+    public static List<Agent> shuffleAgents(List<Agent> agents, MersenneTwisterFast random){
+        List<Agent> unshuffled = new LinkedList<Agent>();
+        List<Agent> shuffled = new ArrayList<Agent>(agents.size());
+        unshuffled.addAll( agents );
+        while(!unshuffled.isEmpty()){
+            int rand = random.nextInt(unshuffled.size());
+            shuffled.add( unshuffled.remove( rand ) );
+        }
+        return shuffled;
+    }
     
     public static void drawDirectionalTriangle(Graphics2D bbg, double heading, double x, double y, double sideLength, Color fillColor, Color borderColor){
         Polygon triangle = new Polygon();

@@ -927,6 +927,7 @@ public class Agent
             Agent temp = iter.next().getValue();
             if( temp.getGroup().getId() != Group.NONE.getId()
                     && temp.getGroup().getId() != _group.getId()
+                    && temp.isAlive()
 //                    && !temp.getCurrentVelocity().equals( Vector2D.ZERO) //temporary to prevent following of non-moving agents
                     )
             {

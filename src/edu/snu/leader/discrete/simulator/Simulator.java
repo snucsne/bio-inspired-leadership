@@ -125,7 +125,7 @@ public class Simulator
         buildAgents();
         
         // create the predator
-        Predator predator = new Predator("PredDebug");
+        Predator predator = new Predator("P-D");
         predator.initialize( _simState );
         _simState.setPredator( predator );
 
