@@ -94,7 +94,7 @@ public class Predator
                 }
                 else{
                     random = Utils.getRandomNumber( _simState.getRandomGenerator(), 0, 1 );
-                    System.out.println("P: " + P + " >? " + "R: " + random);//debug
+//                    System.out.println("P: " + P + " >? " + "R: " + random);//debug
                     //if we have fewer eaten this time step than allowed, eat it
                     if( P > random && _agentsEatenThisTimeStep < _maxAgentsEatenPerStep ){
                         PredationEvent predEvent = new PredationEvent(_simState.getCurrentSimulationRun(), temp.getTime(), _id,

@@ -21,6 +21,11 @@ package edu.snu.leader.discrete.utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +43,8 @@ public class PredationResultsAnalyzer
         
         File folder = new File("results_global_agent-count=10_SueurValues");
         File[] listOfFiles = folder.listFiles();
+        
+        Map<Double, PredationContainer> predationEvents = new HashMap<Double, PredationContainer>();
         
         for(int i = 0; i < listOfFiles.length; i++){
             if(listOfFiles[i].getName().contains( "pred_const" )){
@@ -93,10 +100,25 @@ public class PredationResultsAnalyzer
                 }
                 System.out.println("Mean eaten: " + temp.getMeanEaten() + "\n");//debug
                 
-                xrange.append( temp.predationConstant + ", " );
-                yrange.append( temp.getMeanEaten() + ", " );
+                if(predationEvents.containsKey( temp.predationConstant )){
+                    predationEvents.get( temp.predationConstant ).totalEaten += temp.totalEaten;
+                    predationEvents.get( temp.predationConstant ).totalRuns += temp.totalRuns;
+                }
+                else{
+                    predationEvents.put( temp.predationConstant, temp );
+                }
             }
         }
+        
+        List<Double> constants = new ArrayList<Double>();
+        constants.addAll( predationEvents.keySet() );
+        Collections.sort( constants );
+        for(int i = 0; i < constants.size(); i++){
+            
+            xrange.append( constants.get( i ) + ", " );
+            yrange.append( predationEvents.get( constants.get( i ) ).getMeanEaten() + ", " );
+        }
+        
         xrange.deleteCharAt( xrange.length() - 1 );
         xrange.deleteCharAt( xrange.length() - 1 );
         xrange.append( ")\n" );
@@ -108,11 +130,11 @@ public class PredationResultsAnalyzer
         rfile.append( xrange.toString() );
         rfile.append( yrange.toString() );
         rfile.append( "plot(meanEaten, type=\"o\", col=\"blue\", axes=FALSE, ann=FALSE)\n" );
-        rfile.append( "axis(1, at=1:" + listOfFiles.length + ", constants)\n" );
-        rfile.append( "axis(2, las=0.5, at=0:10)\n" );
+        rfile.append( "axis(1, at=1:" + constants.size() + ", constants, las=2)\n" );
+        rfile.append( "axis(2, las=1.0, at=0:10)\n" );
         rfile.append( "title(main=\"Predation Constants\", col.main=\"red\", fon.main=4)\n" );
-        rfile.append( "title(xlab= \"Predation Constant\", col.lab=rgb(0,0.5,0))\n" );
-        rfile.append( "title(ylab= \"Mean Number Eaten\", col.lab=rgb(0,0.5,0))\n" );
+        rfile.append( "title(xlab=\"Predation Constant\", col.lab=rgb(0,0.5,0))\n" );
+        rfile.append( "title(ylab=\"Mean Number Eaten\", col.lab=rgb(0,0.5,0))\n" );
         System.out.println(rfile.toString());
     }
     
@@ -132,16 +154,3 @@ public class PredationResultsAnalyzer
         }
     }
 }
-
-/*
-
-# Define the cars vector with 5 values
-cars <- c(1, 3, 6, 4, 9)
-
-# Graph cars using blue points overlayed by a line 
-plot(cars, type="o", col="blue")
-
-# Create a title with a red, bold/italic font
-title(main="Autos", col.main="red", font.main=4)
-
-*/

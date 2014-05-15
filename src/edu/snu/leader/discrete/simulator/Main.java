@@ -31,12 +31,12 @@ import me.solhub.simple.engine.DebugLocationsStructure;
 public class Main
 {
     static boolean debug = false;
-    static boolean shouldRunGraphical = true;
+    static boolean shouldRunGraphical = false;
     /** The current run of the simulator */
     public static int run = 0;
 
     /** How many runs there will be */
-    public static final int totalRuns = 1;
+    public static int totalRuns = 50;
 
     public static void main( String[] args )
     {
@@ -49,6 +49,10 @@ public class Main
         String stringShouldRunGraphical = MiscUtils.loadProperties("sim-properties").getProperty( "run-graphical" );
         Validate.notEmpty( stringShouldRunGraphical, "Run graphical option required" );
         shouldRunGraphical = Boolean.parseBoolean( stringShouldRunGraphical );
+        
+        String stringTotalRuns = MiscUtils.loadProperties("sim-properties").getProperty( "run-count" );
+        Validate.notEmpty( stringTotalRuns, "Run count required" );
+        totalRuns = Integer.parseInt( stringTotalRuns );
         
         if(debug){
             debug();

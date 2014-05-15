@@ -1,6 +1,7 @@
 #Author: Tim Solum
 #general information about the simulator
-simulation-count = 10
+run-count = 1
+simulation-count = 20
 max-simulation-time-steps = 20000
 random-seed = 1
 individual-count = 10
@@ -14,6 +15,7 @@ can-multiple-initiate = true
 eskridge-results = false
 conflict-results = false
 position-results = false
+predation-results = false
 
 #communication types
 communication-type = global
@@ -29,7 +31,7 @@ destination-size-radius = 10
 #predation
 max-agents-eaten-per-step = 10
 enable-predator = true
-predation-multiplier = 0.005
+predation-multiplier = 0.001
 
 #adhesion time limit is used when both global and only one initiator allowed
 adhesion-time-limit = 20000

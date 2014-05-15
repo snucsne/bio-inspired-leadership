@@ -174,6 +174,10 @@ public class SimulationState
         String stringShouldReportPosition = _props.getProperty( "position-results" );
         Validate.notEmpty( stringShouldReportPosition, "Position results required" );
         _shouldReportPosition = Boolean.parseBoolean( stringShouldReportPosition );
+        
+        String stringShouldReportPredation = _props.getProperty( "predation-results" );
+        Validate.notEmpty( stringShouldReportPredation, "Predation results required" );
+        _shouldReportPredation = Boolean.parseBoolean( stringShouldReportPredation );
 
         String stringPredatorEnabled = _props.getProperty( "enable-predator" );
         Validate.notEmpty( stringPredatorEnabled, "Enable predator required" );
