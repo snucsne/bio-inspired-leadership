@@ -655,8 +655,9 @@ public class SimulationState
         _predationEventsReporter.append( String.format( "%-10s", "Agent") );
         _predationEventsReporter.append( String.format( "%-5s", "n") );
         _predationEventsReporter.append( String.format( "%-10s", "GrId") );
-        _predationEventsReporter.append( String.format( "%-22s", "Location") );
-        _predationEventsReporter.append( String.format( "%-21s", "Destination") + "\n");
+        _predationEventsReporter.append( String.format( "%-23s", "Location") );
+        _predationEventsReporter.append( String.format( "%-11s", "Pref Dest" ) );
+        _predationEventsReporter.append( String.format( "%-11s", "Lead Dest" ) + "\n" );
         
         Iterator<PredationEvent> iter = _predator.predationEventIterator();
         while(iter.hasNext()){
@@ -672,8 +673,9 @@ public class SimulationState
             b.append( String.format("%-5s", agentName) + "  ");
             b.append( String.format("%03d", event.groupSize) + "  ");
             b.append( String.format("%-8s", event.groupId.toString()) + "  ");
-            b.append( String.format("% 9.5f,% 9.5f", event.location.getX(), event.location.getY()) + "  ");
-            b.append( String.format("% 9.5f.% 9.5f", event.destinationId.getX(), event.destinationId.getY()) + "  ");
+            b.append( String.format("% -10.5f,% -10.5f", event.location.getX(), event.location.getY()) + "  ");
+            b.append( String.format("%-9s", event.destinationId) + "  ");
+            b.append( String.format("%-9s", event.leaderDestinationId) + "  ");
             
             b.append( "\n" );
         }

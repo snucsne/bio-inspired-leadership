@@ -99,7 +99,7 @@ public class Predator
                     if( P > random && _agentsEatenThisTimeStep < _maxAgentsEatenPerStep ){
                         PredationEvent predEvent = new PredationEvent(_simState.getCurrentSimulationRun(), temp.getTime(), _id,
                                 temp.getId(), temp.getGroup().getSize(), temp.getGroup().getId(),
-                                temp.getCurrentLocation(), temp.getCurrentDestination());
+                                temp.getCurrentLocation(), temp.getPreferredDestinationId(), temp.getLeader().getPreferredDestinationId());
                         _predationEvents.add( predEvent );
                         temp.kill();
                         _totalAgentsEaten++;
@@ -143,9 +143,10 @@ public class Predator
         public int groupSize = 0;
         public Object groupId = null;
         public Vector2D location = null;
-        public Vector2D destinationId = null;
+        public String destinationId = null;
+        public String leaderDestinationId = null;
         
-        public PredationEvent(int run, int timeStep, String predatorId, Object agentId, int groupSize, Object groupId, Vector2D location, Vector2D destinationId){
+        public PredationEvent(int run, int timeStep, String predatorId, Object agentId, int groupSize, Object groupId, Vector2D location, String destinationId, String leaderDestinationId){
             this.run = run;
             this.timeStep = timeStep;
             this.predatorId = predatorId;
@@ -154,6 +155,7 @@ public class Predator
             this.groupId = groupId;
             this.location = location;
             this.destinationId = destinationId;
+            this.leaderDestinationId = leaderDestinationId;
         }
     }
 }
