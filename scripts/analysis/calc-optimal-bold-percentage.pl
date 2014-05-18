@@ -2,6 +2,7 @@
 use strict;
 use List::Util qw(sum);
 use POSIX;
+use Statistics::Descriptive;
 
 
 # -------------------------------------------------------------------
@@ -13,10 +14,15 @@ unless( $rootDataDir =~ m/\/$/ )
 {
     $rootDataDir .= "/";
 }
+print "# --------------------------\n";
+print "# rootDataDir=[$rootDataDir]\n";
 
 # Get the number of individuals in the group
 $rootDataDir =~ m/indcount-(\d+)/;
 my $groupSize = $1;
+print "# indCount=[$groupSize]\n";
+print "# --------------------------\n";
+
 
 # -------------------------------------------------------------------
 # Get all the data directories in the data directory
@@ -27,7 +33,8 @@ closedir( DIR );
 # -------------------------------------------------------------------
 # Calculate the mean success percentage for each directory
 my %successPercentages;
-print "# indCount=[$groupSize]\n";
+my %successData;
+#print "# indCount=[$groupSize]\n";
 foreach my $dataDir (@dataDirs)
 {
     # Get the number of bold individuals
@@ -35,11 +42,20 @@ foreach my $dataDir (@dataDirs)
     my $boldCount = $1;
 
     # Get the mean success percentage
-    my $successPercentage = findMeanSuccessPercentage( $rootDataDir.$dataDir );
+#    my $successPercentage = findMeanSuccessPercentage( $rootDataDir.$dataDir );
+    my $successStatsRef = findMeanSuccessPercentage( $rootDataDir.$dataDir );
 
     # Store it
-    $successPercentages{$boldCount} = $successPercentage;
-    print "# boldCount=[$boldCount]  success=[$successPercentage]\n";
+#    $successPercentages{$boldCount} = $successPercentage;
+#    print "# boldCount=[$boldCount]  success=[$successPercentage]\n";
+    $successPercentages{$boldCount} = $successStatsRef->{"mean"};
+    $successData{$boldCount} = $successStatsRef->{"data"};
+    print "# boldCount=[$boldCount]  success=[",
+            sprintf( "%0.6f", $successStatsRef->{"mean"} ),
+            "]  sd=[",
+            sprintf( "%0.6f", $successStatsRef->{"sd"} ),
+            "]  count=[",
+            $successStatsRef->{"count"},"]\n";
 }
 
 # -------------------------------------------------------------------
@@ -59,7 +75,8 @@ $trimmedBoldCount =~ s/^0*//;
 print "group-size-$groupSize.optimal-bold-count = $trimmedBoldCount\n";
 print "group-size-$groupSize.optimal-bold-percentage = ",($optimalBoldCount / $groupSize),"\n";
 print "group-size-$groupSize.optimal-bold-success-percentage = ",($successPercentages{$optimalBoldCount}),"\n";
-
+print "group-size-$groupSize.optimal-bold-data = ",($successData{$optimalBoldCount}),"\n";
+print "\n\n";
 
 # ===================================================================
 sub findMeanSuccessPercentage
@@ -80,16 +97,25 @@ sub findMeanSuccessPercentage
     }
 
     # Calculate the mean
-    my $mean = 0;
-    if( @successPercentages > 0 )
-    {
-        $mean = sum(@successPercentages)/@successPercentages;
-    }
-    else
-    {
-        `echo $dir > error.out`;
-    }
-    return $mean;
+    my $stats = Statistics::Descriptive::Full->new();
+    $stats->add_data( @successPercentages );
+
+    my %statResults = ( "mean" => $stats->mean(),
+            "sd" => $stats->standard_deviation(),
+            "count" => $stats->count(),
+            "data" => join( " ", @successPercentages ) );
+    return \%statResults
+#    my $mean = 0;
+#    if( @successPercentages > 0 )
+#    {
+#        $mean = sum(@successPercentages)/@successPercentages;
+#    }
+#    else
+#    {
+#        `echo $dir > error.out`;
+#    }
+#    return $mean;
+
 }
 
 

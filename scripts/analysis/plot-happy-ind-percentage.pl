@@ -153,11 +153,11 @@ sub plotResults
     print INPUT "tmplabels <- percentagepositions * 100\n";
     print INPUT "percentagelabels <- paste( tmplabels, \"%\", sep=\"\" )\n";
 
-    print INPUT "postscript( file=\"$epsFile\", height=4.5, width=5.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\", colormodel=\"rgb\" )\n";
+    print INPUT "postscript( file=\"$epsFile\", height=3.75, width=4.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\", colormodel=\"rgb\" )\n";
     print INPUT "par(mar=c(4,5.5,4,4))\n";
     print INPUT "plot(conflicthappyinds, type=\"l\", ylim=c(0,1), ",
             " col=\"".$colors{"conflict"}."\", lwd=2, ",
-            " ylab=\"\", xlab=\"Timesteps\", yaxt='n' )\n";
+            " ylab=\"\", xlab=\"Timesteps\", yaxt='n', xaxt='n' )\n";
     print INPUT "lines(noconflicthappyinds, lty=2, lwd=2, col=\"".$colors{"no-conflict"}."\" )\n";
     print INPUT "lines(singlenoconflicthappyinds, lty=4, lwd=2, col=\"".$colors{"single-no-conflict"}."\" )\n";
     print INPUT "title(ylab=\"Percentage moving towards\ndesired destination\", mgp = c(3.5, 1, 0) )\n";
@@ -167,6 +167,7 @@ sub plotResults
             " col=c( \"#882255\", \"#117733\", \"#999933\" ), lwd=2,",
             " lty=c(1, 2, 4), bty='n' )\n";
 
+    print INPUT "axis( 1, las=1, at=c(0,2500,5000,7500,10000) )\n";
     print INPUT "axis( 2, las=2, at=percentagepositions, labels=percentagelabels )\n";
     print INPUT "axis( 4, las=2, at=percentagepositions, labels=percentagelabels )\n";
 

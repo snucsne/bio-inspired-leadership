@@ -7,7 +7,7 @@ use-nearest-neighbor-group-size = false
 max-location-radius = 10
 results-file = data/spatial-hidden-variables-leadership-personality.dat
 
-event-time-calculator-class = edu.snu.leader.hidden.PersonalityEventTimeCalculator
+event-time-calculator-class = edu.snu.leader.hidden.SigmoidPersonalityEventTimeCalculator
 modify-initiation-rate = true
 modify-following-rate = true
 modify-cancellation-rate = true

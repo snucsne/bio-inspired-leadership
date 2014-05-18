@@ -151,7 +151,7 @@ sub plotResults
     my $scatterAttr = " method=\"jitter\", jitter=0.3, vertical=TRUE, yaxt='n', cex=0.8, pch=21, col=\"black\", ";
     my $boxAttr = " outline=FALSE, boxwex=1.5, border=(c(\"black\")), yaxt='n', staplewex=0.75, lwd=1, ";
 
-    print INPUT "postscript( file=\"$epsFile\", height=5, width=5.5, onefile=FALSE, pointsize=11, horizontal=FALSE, paper=\"special\", colormodel=\"rgb\" )\n";
+    print INPUT "postscript( file=\"$epsFile\", height=5, width=5.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\", colormodel=\"rgb\" )\n";
 #    print INPUT "pdf( file=\"$pdfFile\", height=5, width=5.5, onefile=FALSE, pointsize=10, paper=\"special\" )\n";
 
     print INPUT "par(mar=c(8.5,5,4,4)+0.1)\n";
@@ -160,7 +160,7 @@ sub plotResults
 
     print INPUT "boxplot( ",$ids{"conflict"}{"times"}{"rank"}{"00"},", at=(0.3),",
             $boxAttr,
-            " col=\"",$colors{"conflict"},"\", xlim=c(-0.15, 5.15), ylim=c( 0, maxvalue*1.15) )\n";
+            " col=\"",$colors{"conflict"},"\", xlim=c(-0.15, 5.15), ylim=c( 0, maxvalue*1.2) )\n";
     print INPUT "boxplot( ",$ids{"conflict"}{"times"}{"rank"}{"01"},", at=(1.7),",
             $boxAttr,
             " col=\"",$colors{"conflict"},"\", add=TRUE )\n";
@@ -172,7 +172,7 @@ sub plotResults
             $boxAttr,
             " col=\"",$colors{"no-conflict"},"\", add=TRUE )\n";
 
-    print INPUT "ranklabels <- c( \"First goal\", \"Second goal\", \"First goal\", \"Second goal\" )\n";
+    print INPUT "ranklabels <- c( \"1st dest.\", \"2nd dest.\", \"1st dest.\", \"2nd dest.\" )\n";
     print INPUT "rankpositions <- c( 0.3, 1.7, 3.3, 4.7 )\n";
 
     print INPUT "axis( 1, at=c(rankpositions), labels=c(ranklabels) )\n";
@@ -191,14 +191,15 @@ sub plotResults
             ", ",$ids{"no-conflict"}{"reached-count"}{"rank"}{"00"},
             ", ",$ids{"no-conflict"}{"reached-count"}{"rank"}{"01"},
             ")\n";
-    print INPUT "arrivals <- c( \"\nArrivals\", \"\nArrivals\", \"\nArrivals\", \"\nArrivals\" )\n";
-    print INPUT "counts <- paste( lengths, arrivals )\n";
+    print INPUT "percents <- sprintf( \"%3d%%\", lengths * 100 / ",$ids{"conflict"}{"reached-count"}{"rank"}{"00"},")\n";
+#    print INPUT "arrivals <- c( \"\nArrivals\", \"\nArrivals\", \"\nArrivals\", \"\nArrivals\" )\n";
+#    print INPUT "counts <- paste( percents, arrivals )\n";
 
-    print INPUT "text( rankpositions, (maxvalue*1.1), labels=counts )\n";
+    print INPUT "text( rankpositions, (maxvalue*1.15), labels=percents, cex=1.3 )\n";
 
-    print INPUT "counts <- paste( lengths, arrivals )\n";
+#    print INPUT "counts <- paste( lengths, arrivals )\n";
 
-    print INPUT "text( rankpositions, (maxvalue*1.1), labels=counts )\n";
+#    print INPUT "text( rankpositions, (maxvalue*1.1), labels=counts )\n";
 
 
 

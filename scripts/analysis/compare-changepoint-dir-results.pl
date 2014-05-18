@@ -44,6 +44,8 @@ unless( -d $outputDataDir )
     mkdir $outputDataDir or die "Unable to make output data dir [$outputDataDir]: $!\n";
 }
 
+my $runDesc = "# Primary directory = [$primaryDataDir]\\n# Secondary directory = [$secondaryDataDir]\n";
+
 # ===================================================================
 # Load the data
 my %data;
@@ -65,7 +67,8 @@ createRInput( $rInputFile,
         $primaryDataID,
         $secondaryDataID,
         $primaryDataDesc,
-        $secondaryDataDesc );
+        $secondaryDataDesc,
+        $runDesc );
 
 # ===================================================================
 # Run it
@@ -161,7 +164,7 @@ sub loadDataResults
 # ===================================================================
 sub createRInput
 {
-    my ($rInputFile, $resultsFile, $dataRef, $primaryDataID, $secondaryDataID, $primaryDataDesc, $secondaryDataDesc) = @_;
+    my ($rInputFile, $resultsFile, $dataRef, $primaryDataID, $secondaryDataID, $primaryDataDesc, $secondaryDataDesc, $runDesc) = @_;
 
     # ---------------------------------------------------------------
     # Handy variables
@@ -172,11 +175,30 @@ sub createRInput
     open( INPUT, "> $rInputFile" ) or die "Unable to open input file [$rInputFile]: $!\n";
     print INPUT "library('Matching')\n";
 
+    # Build a relative difference function
     print INPUT "reldiff <- function(x,y)\n";
     print INPUT "{\n";
     print INPUT "    return( abs( (x-y) / (max( abs(x), abs(y) ) ) ) )\n";
     print INPUT "}\n";
     print INPUT "\n";
+
+    # Build a function to handle the t-test error in case the data is constant
+    print INPUT "try_default <- function (expr, default = NA) {\n";
+    print INPUT "  result <- default\n";
+    print INPUT "  tryCatch(result <- expr, error = function(e) {})\n";
+    print INPUT "  result\n";
+    print INPUT "}\n";
+
+    print INPUT "failwith <- function(default = NULL, f, ...) {\n";
+    print INPUT "  function(...) try_default(f(...), default)\n";
+    print INPUT "}\n";
+
+    print INPUT "tryttest <- function(...) failwith(NA, t.test(...))\n";
+    print INPUT "tryttestpvalue <- function(...) {\n";
+    print INPUT "    obj<-try(t.test(...), silent=TRUE)\n";
+    print INPUT "    if (is(obj, \"try-error\")) return(NA) else return(obj\$p.value)\n";
+    print INPUT "}\n";
+
 
     # ---------------------------------------------------------------
     # Add the data
@@ -222,6 +244,7 @@ sub createRInput
 
     # Note the descriptions
     print INPUT $rSpacer;
+    print INPUT "cat(\"$runDesc\\n\")\n";
     print INPUT "cat(\"# Data descriptions\\n\")\n";
     print INPUT "cat(\"primary.desc = $primaryDataDesc\\n\")\n";
     print INPUT "cat(\"secondary.desc = $secondaryDataDesc\\n\")\n";
@@ -250,17 +273,19 @@ sub createRInput
                     # Dump summary data
                     print INPUT $rSpacer;
                     print INPUT "cat(\"# Primary:  personality=[$personality]  indCount=[$groupSize] envChangeIDX=[$idx] type=[$type] summary\\n\")\n";
-                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.mean = \", format( mean($primaryRDataID) ), \"\\n\")\n";
-                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.max =  \", format( max($primaryRDataID) ), \"\\n\")\n";
-                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.min =  \", format( min($primaryRDataID) ), \"\\n\")\n";
-                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.sd =   \", format( sd($primaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.mean =   \", format( mean($primaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.median = \", format( median($primaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.max =    \", format( max($primaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.min =    \", format( min($primaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"primary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.sd =     \", format( sd($primaryRDataID) ), \"\\n\")\n";
                     print INPUT "cat(\"\\n\")\n";
 
                     print INPUT "cat(\"# Secondary:  personality=[$personality]  indCount=[$groupSize] envChangeIDX=[$idx] type=[$type] summary\\n\")\n";
-                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.mean = \", format( mean($secondaryRDataID) ), \"\\n\")\n";
-                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.max =  \", format( max($secondaryRDataID) ), \"\\n\")\n";
-                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.min =  \", format( min($secondaryRDataID) ), \"\\n\")\n";
-                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.sd =   \", format( sd($secondaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.mean =   \", format( mean($secondaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.median = \", format( median($secondaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.max =    \", format( max($secondaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.min =    \", format( min($secondaryRDataID) ), \"\\n\")\n";
+                    print INPUT "cat(\"secondary.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.sd =     \", format( sd($secondaryRDataID) ), \"\\n\")\n";
                     print INPUT "cat(\"\\n\")\n";
 
                     # Use the KS test compare them
@@ -269,6 +294,12 @@ sub createRInput
                     print INPUT "cat(\"ks.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.p-value =         \", format( ks\$ks.boot.pvalue), \"\\n\")\n";
                     print INPUT "cat(\"ks.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.naive-p-value =   \", format( ks\$ks\$p.value), \"\\n\")\n";
                     print INPUT "cat(\"ks.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.statistic =       \", format( ks\$ks\$statistic), \"\\n\")\n";
+                    print INPUT "cat(\"\\n\")\n";
+
+                    # Use the T-test compare them
+                    print INPUT "cat(\"# T-test:  personality=[$personality]  indCount=[$groupSize] envChangeIDX=[$idx] type=[$type]\\n\")\n";
+                    print INPUT "ttest.p.value <- tryttestpvalue( $primaryRDataID, $secondaryRDataID )\n";
+                    print INPUT "cat(\"t-test.personality-$personality.indcount-$groupSize.env-change-idx-$idx.$type.p-value =     \", format( ttest.p.value), \"\\n\")\n";
                     print INPUT "cat(\"\\n\")\n";
 
                     # Compute the relative difference

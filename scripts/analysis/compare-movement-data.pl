@@ -362,6 +362,7 @@ sub buildDescriptionString
     my ($dataPrefix, $id) = @_;
 
     my $descStr = "cat(\"$dataPrefix.mean =     \", format( mean($id) ), \"\\n\")\n";
+    $descStr .=   "cat(\"$dataPrefix.median =   \", format( median($id) ), \"\\n\")\n";
     $descStr .=   "cat(\"$dataPrefix.max =      \", format( max($id) ), \"\\n\")\n";
     $descStr .=   "cat(\"$dataPrefix.min =      \", format( min($id) ), \"\\n\")\n";
     $descStr .=   "cat(\"$dataPrefix.sd =       \", format( sd($id) ), \"\\n\")\n";

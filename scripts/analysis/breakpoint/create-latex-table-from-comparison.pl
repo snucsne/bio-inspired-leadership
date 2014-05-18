@@ -70,6 +70,14 @@ while( <INPUT> )
         }
     }
 
+    elsif( $id =~ /t-test/ )
+    {
+        if( $statType =~ /^p-value$/ )
+        {
+            $data{"ttest"}{$personality}{$indCount}{$envChangeIdx}{$dataType} = $value;
+        }
+    }
+
     # It is a primary or secondary data.  Is it a mean or std dev?
     elsif( $statType =~ /mean|sd/ )
     {
@@ -134,11 +142,13 @@ foreach my $personality ( sort( keys %{$data{"mean"}{"primary"}} ) )
                         "secondaryMean" => $data{"mean"}{"secondary"}{$personality}{$indCount}{$envChangeIdx}{$dataType},
                         "secondarySD" => $data{"sd"}{"secondary"}{$personality}{$indCount}{$envChangeIdx}{$dataType},
                         "ksPValue" => $data{"ks"}{$personality}{$indCount}{$envChangeIdx}{$dataType},
+                        "ttestPValue" => $data{"ttest"}{$personality}{$indCount}{$envChangeIdx}{$dataType},
                         );
 
                 # Only proceed if it is statistically significant
                 $significant = 0;
-                if( $onlySignificant || $comparisonData{"ksPValue"} < 0.05 )
+#                if( $onlySignificant || $comparisonData{"ksPValue"} < 0.05 )
+                if( $onlySignificant || $comparisonData{"ttestPValue"} < 0.05 )
                 {
                     $significant = 1;
 
@@ -221,12 +231,14 @@ sub buildComparisonLine
             "\$ & \$ \\pm ".
             sprintf("%7.1f", $dataRef->{"secondarySD"}).
             "\$";
-    if( ($dataRef->{"ksPValue"} < 0.05) && ($dataRef->{"primaryMean"} < $dataRef->{"secondaryMean"}) )
+#    if( ($dataRef->{"ksPValue"} < 0.05) && ($dataRef->{"primaryMean"} < $dataRef->{"secondaryMean"}) )
+    if( ($dataRef->{"ttestPValue"} < 0.05) && ($dataRef->{"primaryMean"} < $dataRef->{"secondaryMean"}) )
     {
         $primaryValue .=   " & {\\bf *}~";
         $secondaryValue .= " &        ";
     }
-    elsif( $dataRef->{"ksPValue"} < 0.05 )
+#    elsif( $dataRef->{"ksPValue"} < 0.05 )
+    elsif( $dataRef->{"ttestPValue"} < 0.05 )
     {
         $primaryValue .=   " &         ";
         $secondaryValue .= " & {\\bf *}";

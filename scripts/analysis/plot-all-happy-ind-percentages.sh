@@ -25,7 +25,6 @@ do
                 $PROCESSED_DIR/$TYPE-conflict-indcount-$FORMATTED_INDCOUNT.dat \
                 $PROCESSED_DIR/$TYPE-single-no-conflict-indcount-$FORMATTED_INDCOUNT.dat \
                 $OUTPUT_DIR/$TYPE-indcount-$FORMATTED_INDCOUNT
-        
 
     done
 

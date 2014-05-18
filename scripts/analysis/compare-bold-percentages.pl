@@ -96,10 +96,14 @@ my $tmpEPSFile = "/tmp/tmp.eps";
 my $fixedTmpEPSFile = "/tmp/fixed-tmp.eps";
 foreach my $epsFile (@epsFiles)
 {
+    my $pdfFile = $epsFile;
+    $pdfFile =~ s/eps$/pdf/;
     `cp $epsFile $tmpEPSFile`;
     `./replace-fonts-in-eps.pl $tmpEPSFile $fixedTmpEPSFile`;
     `/usr/bin/epstool --copy --bbox $fixedTmpEPSFile $epsFile`;
     `epstopdf $epsFile`;
+    my $title = `basename $pdfFile`;
+    `exiftool -Title="$title" -Author="Brent E. Eskridge" $pdfFile`;
 }
 
 
@@ -179,17 +183,17 @@ sub createRInput
 
     # ---------------------------------------------------------------
     # Add the optimal values
-#    my $fullOptimalData;
-#    foreach my $indCount (sort (keys %{$optimalDataRef} ) )
-#    {
-#        my $id = "optimal".$indCount;
-#        print INPUT "$id <- scan()\n";
-#        print INPUT $optimalDataRef->{$indCount},"\n\n";
-#        $fullOptimalData .= $optimalDataRef->{$indCount}." ";
-#    }
-#    
-#    print INPUT "optimal <- scan()\n";
-#    print INPUT $fullOptimalData,"\n\n";
+    my $fullOptimalData;
+    foreach my $indCount (sort (keys %{$optimalDataRef} ) )
+    {
+        my $id = "optimal".$indCount;
+        print INPUT "$id <- scan()\n";
+        print INPUT $optimalDataRef->{$indCount},"\n\n";
+        $fullOptimalData .= $optimalDataRef->{$indCount}." ";
+    }
+    
+    print INPUT "optimal <- scan()\n";
+    print INPUT $fullOptimalData,"\n\n";
 
 
     # ---------------------------------------------------------------
@@ -318,24 +322,24 @@ sub createRInput
     push( @epsFiles, $combinedEpsFile );
     print INPUT "groupsizes = (c($dataPositionsStr) + 1)*5\n";
     print INPUT "groupsizes\n";
-    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "postscript( file=\"$combinedEpsFile\", height=5, width=5.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
     print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
     print INPUT "par(mgp=c(3,1,0))\n";
     my $index = 0;
 #    my @colors = ( "#332288", "#117733", "#999933" );
-    my @colors = ( "#882255", "#332288", "#117733", "#999933" );
+    my @colors = ( "#999933", "#882255", "#332288", "#117733" );
 #    my @colors = ( "#AAAAAA", "#332288", "#117733", "#999933" );
-    my @plotSymbols = ( 1, 2, 5, 6 );
+    my @plotSymbols = ( 6, 1, 2, 5, 6 );
     my $dataSetNames = "";
     my $colorsStr = "";
     my $plotSymbolsStr = "";
-    my @combinedDataSets = ();
-#    my @combinedDataSets = ( "optimal" );
+#    my @combinedDataSets = ();
+    my @combinedDataSets = ( "optimal" );
     push( @combinedDataSets, @dataSets );
-#    unshift( @meansIDStrings, "optimal" );
+    unshift( @meansIDStrings, "optimal" );
     foreach my $dataSet (@combinedDataSets)
     {
-        my $misc = "ylab=\"Bold personality percentage\",  xlab=\"Group size\", \n".
+        my $misc = "ylab=\"Bold Personality Percentage\",  xlab=\"Group Size\", \n".
                     "    ylim=c($yMin,$yMax), xlim=c((min(groupsizes)-5), (max(groupsizes)+5)), ";
         my $cmd = "plot";
         if( $index > 0 )
@@ -376,7 +380,7 @@ sub createRInput
     chop( $colorsStr );
     chop( $plotSymbolsStr );
     chop( $plotSymbolsStr );
-    print INPUT "legend( \"bottom\", c($dataSetNames), col=c($colorsStr), \n",
+    print INPUT "legend( \"bottomright\", c($dataSetNames), col=c($colorsStr), \n",
         "    pch=c($plotSymbolsStr), lty=1, lwd=2, bty=\"n\", ncol=",(ceil($#dataSets / 2))," )\n";
 
 
@@ -516,7 +520,7 @@ sub createRInput
 
     # ---------------------------------------------------------------
     # Start sending output to the results file
-#    print INPUT "sink(\"$resultsFile\")\n";
+    print INPUT "sink(\"$resultsFile\")\n";
 
     # ---------------------------------------------------------------
     # Add the statistics
@@ -625,7 +629,7 @@ sub createRInput
 
     # ---------------------------------------------------------------
     # Stop sending output to the results file
-#    print INPUT "sink()\n";
+    print INPUT "sink()\n";
 
     # ---------------------------------------------------------------
     # Close the input file

@@ -35,7 +35,7 @@ import java.util.Properties;
  * @author Brent Eskridge
  * @version $Revision$ ($Author$)
  */
-public class PersonalityEventTimeCalculator extends AbstractEventTimeCalculator
+public abstract class PersonalityEventTimeCalculator extends AbstractEventTimeCalculator
 {
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
@@ -59,7 +59,7 @@ public class PersonalityEventTimeCalculator extends AbstractEventTimeCalculator
 
 
     /** Description of the algorithm */
-    private String _description = "";
+    protected String _description = "";
 
     /** Flag for modifying the initiation rate */
     private boolean _modifyInitiationRate = false;
@@ -411,17 +411,18 @@ public class PersonalityEventTimeCalculator extends AbstractEventTimeCalculator
      * @param value
      * @return The k coefficient
      */
-    private float calculateK( float value )
-    {
-        return 2.0f * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * 10.0f) ) );
-//        return 2.0f * value;
-    }
+    protected abstract float calculateK( float value );
 
-    {
-        // A description of the algorithm
-        // NOTE:  This is put here to keep it near the calculation itself
-//        _description = "k = 2.0f * value";
-        _description = "k = 2.0f  * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * 10.0f) ) )";
-    }
+//    {
+//        return 2.0f * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * 10.0f) ) );
+////        return 2.0f * value;
+//    }
+//
+//    {
+//        // A description of the algorithm
+//        // NOTE:  This is put here to keep it near the calculation itself
+////        _description = "k = 2.0f * value";
+//        _description = "k = 2.0f  * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * 10.0f) ) )";
+//    }
 
 }

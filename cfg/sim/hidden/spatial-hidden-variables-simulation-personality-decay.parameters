@@ -8,7 +8,7 @@ max-location-radius = 10
 results-file = data/spatial-hidden-variables-leadership-personality.dat
 use-sim-log-file-flag = false
 
-event-time-calculator-class = edu.snu.leader.hidden.event.PersonalityEventTimeCalculator
+event-time-calculator-class = edu.snu.leader.hidden.event.SigmoidPersonalityEventTimeCalculator
 modify-initiation-rate = true
 modify-following-rate = true
 modify-cancellation-rate = true
