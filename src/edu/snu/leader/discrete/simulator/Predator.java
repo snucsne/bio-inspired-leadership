@@ -46,6 +46,14 @@ public class Predator
     
     private List<PredationEvent> _predationEvents = null;
     
+    private boolean _usePredationThreshold = false;
+    
+    private float _predationThreshold = 0.0f;
+    
+    private float _predationProbabilityMinimum = 0.0f;
+    
+    private boolean _usePredationByPopulation = false;
+    
     public Predator(String id){
         _id = id;
     }
@@ -61,6 +69,22 @@ public class Predator
         Validate.notEmpty( stringPredationMultiplier, "predation multiplier required" );
         _predationMultiplier = Double.parseDouble( stringPredationMultiplier );
         
+        String stringUsePredationThreshold = _simState.getProperties().getProperty("use-predation-threshold" );
+        Validate.notEmpty( stringUsePredationThreshold, "use predation threshold required" );
+        _usePredationThreshold = Boolean.parseBoolean( stringUsePredationThreshold );
+        
+        String stringPredationThreshold = _simState.getProperties().getProperty("predation-threshold" );
+        Validate.notEmpty( stringPredationThreshold, "predation threshold required" );
+        _predationThreshold = Float.parseFloat( stringPredationThreshold );
+        
+        String stringPredationByPopulation = _simState.getProperties().getProperty("predation-by-population" );
+        Validate.notEmpty( stringPredationByPopulation, "predation by population required" );
+        _usePredationByPopulation = Boolean.parseBoolean( stringPredationByPopulation );
+        
+        String stringPredationProbabilityMinimum = _simState.getProperties().getProperty("predation-probability-minimum" );
+        Validate.notEmpty( stringPredationProbabilityMinimum, "predation probability minumum required" );
+        _predationProbabilityMinimum = Float.parseFloat( stringPredationProbabilityMinimum );
+        
         _agents = new ArrayList<Agent>(_simState.getAgentCount());
         Iterator<Agent> iter = _simState.getAgentIterator();
         while(iter.hasNext()){
@@ -73,18 +97,40 @@ public class Predator
     public void hunt(){
         double P = 0; //predation probability
         double m = _predationMultiplier; //predation modifier
+        if( _usePredationByPopulation ){
+            m /= 100;
+        }
         double n = 0; //group size
         double random = 0; //random number
+        int agentCount = _simState.getAgentCount();
         
         //randomize the agents for predation
         List<Agent> agents = Utils.shuffleAgents( _agents, _simState.getRandomGenerator() );
         
         for(int i = 0; i < agents.size(); i++){
             Agent temp = agents.get( i );
-            //if its alive
+            //if its alive and hasn't reached their destination
             if(temp.isAlive() && !temp.hasReachedDestination()){
                 n = temp.getGroup().getSize();
+                //predation by population modification
+                if( _usePredationByPopulation ){
+                    n = n / agentCount;
+                }
+                
+                //probability calculation
                 P = m / Math.pow( n, 2 );
+                
+                //predation probability minimum
+                if(P < _predationProbabilityMinimum ){
+                    P = _predationProbabilityMinimum;
+                }
+                
+                //predation threshold
+                if( _usePredationThreshold ){
+                    if( n > agentCount * _predationThreshold ){
+                        P = _predationProbabilityMinimum;
+                    }
+                }
             
                 //if the agent is in the start zone it is safe
                 if( temp.getCurrentLocation().distance1(
@@ -94,7 +140,6 @@ public class Predator
                 }
                 else{
                     random = Utils.getRandomNumber( _simState.getRandomGenerator(), 0, 1 );
-//                    System.out.println("P: " + P + " >? " + "R: " + random);//debug
                     //if we have fewer eaten this time step than allowed, eat it
                     if( P > random && _agentsEatenThisTimeStep < _maxAgentsEatenPerStep ){
                         PredationEvent predEvent = new PredationEvent(_simState.getCurrentSimulationRun(), temp.getTime(), _id,
@@ -126,10 +171,6 @@ public class Predator
     public String getId(){
         return _id;
     }
-    
-//    public double getPredationConstant(){
-//        return _predationMultiplier;
-//    }
     
     public Iterator<PredationEvent> predationEventIterator(){
         return _predationEvents.iterator();
