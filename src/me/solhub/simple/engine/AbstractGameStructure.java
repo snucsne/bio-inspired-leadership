@@ -43,7 +43,7 @@ public abstract class AbstractGameStructure extends JFrame
         setTitle( _title );
         setSize( _windowWidth, _windowHeight );
         setResizable( false );
-        setDefaultCloseOperation( EXIT_ON_CLOSE );
+        setDefaultCloseOperation( DISPOSE_ON_CLOSE );
         setVisible( true );
 
         _insets = getInsets();

@@ -24,14 +24,17 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.log4j.Logger;
 
 import ec.util.MersenneTwisterFast;
@@ -52,7 +55,7 @@ public class SimulationState
     private boolean _shouldReportEskridge = false;//only for nongraphical
     private boolean _shouldReportConflict = false;
     private boolean _shouldReportPosition = false;
-    private boolean _shouldReportPredation = true;
+    private boolean _shouldReportPredation = false;
     
     /** Used for the Eskridge reporter */
     private final String SPACER = "=========================================================";
@@ -108,8 +111,12 @@ public class SimulationState
     
     public List<ConflictHistoryEvent> conflictEvents = null;
 
-    private static int _destinationSizeRadius = 0;
+    private int _destinationSizeRadius = 0;
     private boolean _isGraphical = false;
+    
+    public int successCount = 0;
+    public int[] groupSizeCounts;
+    public long randomSeedOverride = -1;
     
     /**
      * Initialize the simulation state
@@ -131,8 +138,10 @@ public class SimulationState
         String randomSeedStr = props.getProperty( _RANDOM_SEED_KEY );
         Validate.notEmpty( randomSeedStr, "Random seed is required" );
         long seed = Long.parseLong( randomSeedStr );
-        if(Simulator.getRandomSeedOverride() != -1 && !useRandomRandomSeed){
-            seed = Simulator.getRandomSeedOverride();
+        if(Integer.parseInt(_props.getProperty( "random-seed-override" )) != -1 && !useRandomRandomSeed){
+//        if(Simulator.getRandomSeedOverride() != -1 && !useRandomRandomSeed){
+//            seed = Simulator.getRandomSeedOverride();
+            seed = Integer.parseInt(_props.getProperty( "random-seed-override" ));
             _props.put( "random-seed", String.valueOf(seed) );
         }
         else if(useRandomRandomSeed){
@@ -196,6 +205,8 @@ public class SimulationState
 
         _groups.add( Group.NONE );
         
+        groupSizeCounts = new int[getAgentCount() + 1];
+        
         conflictEvents = new LinkedList<ConflictHistoryEvent>();
         _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
         _conflictResultsReporter = new Reporter( "conflict-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
@@ -247,7 +258,7 @@ public class SimulationState
             if( _currentSimulationRun == _simulationRunCount )
             {
                 // report all of the group sizes before exiting
-                System.out.println( Simulator.getSuccessCount() );
+                System.out.println( successCount );
                 
                 
                 if(!_isGraphical){
@@ -392,7 +403,7 @@ public class SimulationState
         return _agents.size();
     }
     
-    public static int getDestinationRadius(){
+    public int getDestinationRadius(){
         return _destinationSizeRadius;
     }
     
@@ -430,17 +441,17 @@ public class SimulationState
         _eskridgeResultsReporter.appendLine( "# " + SPACER);
         _eskridgeResultsReporter.appendLine( "# Initiation stats" );
         _eskridgeResultsReporter.appendLine( "initiations = " + _simulationRunCount);
-        _eskridgeResultsReporter.appendLine( "successes = " + Simulator.getSuccessCount() );
+        _eskridgeResultsReporter.appendLine( "successes = " + successCount );
         _eskridgeResultsReporter.appendLine( "total-simulations = " + _simulationRunCount);
-        _eskridgeResultsReporter.appendLine( "total-successful-simulations = " + Simulator.getSuccessCount());
-        _eskridgeResultsReporter.appendLine( "total-leadership-success = " + (Simulator.getSuccessCount() / (float)_simulationRunCount));
+        _eskridgeResultsReporter.appendLine( "total-successful-simulations = " + successCount);
+        _eskridgeResultsReporter.appendLine( "total-leadership-success = " + (successCount / (float)_simulationRunCount));
         _eskridgeResultsReporter.appendLine("");
     }
     
     private void addMovementCountsToEskridgeResultsReporter(){
         _eskridgeResultsReporter.appendLine( "# " + SPACER);
         _eskridgeResultsReporter.appendLine( "# Movement counts" );
-        int[] groupSizeCounts = Simulator.getGroupSizeCounts();
+//        int[] groupSizeCounts = Simulator.getGroupSizeCounts();
         for(int i = 0; i < groupSizeCounts.length; i++){
             _eskridgeResultsReporter.appendLine( "move." + String.format( "%02d", i ) + " = " + groupSizeCounts[i] );
         }
@@ -646,6 +657,30 @@ public class SimulationState
         _predationEventsReporter.appendLine( "# Predation Constant");
         _predationEventsReporter.appendLine( "predation-constant=" + _predationConstant);
         _predationEventsReporter.appendLine( "run-count=" + _simulationRunCount);
+        
+        Vector2D start = Destination.startingDestination.getVector();
+        _predationEventsReporter.appendLine( "Destination-S=[" + start.getX() + "," + start.getY() + "]" );
+        
+        Map<String, Vector2D> destinationStrings = new HashMap<String, Vector2D>();
+        Iterator<Agent> aIter = _agents.iterator();
+        while(aIter.hasNext()){
+            Agent temp = aIter.next();
+            String destID = temp.getPreferredDestinationId();
+            if(!destinationStrings.containsKey( destID )){
+                destinationStrings.put( destID, temp.getPreferredDestination().getVector() );
+            }
+        }
+        
+        Set<String> destinationKeys = destinationStrings.keySet();
+        Iterator<String> keysIter = destinationKeys.iterator();
+        while(keysIter.hasNext()){
+            String destID = keysIter.next();
+            int dashIndex = destID.indexOf( "-" );
+            String destNum = destID.substring( dashIndex );
+            Vector2D vector = destinationStrings.get( destID );
+            _predationEventsReporter.appendLine( "Destination" + destNum + "=[" + vector.getX() + "," + vector.getY() + "]");
+        }
+        
         _predationEventsReporter.appendLine( "# " + SPACER);
         _predationEventsReporter.appendLine( "# Predation Events");
         

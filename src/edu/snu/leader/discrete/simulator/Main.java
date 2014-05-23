@@ -19,6 +19,8 @@
 
 package edu.snu.leader.discrete.simulator;
 
+import java.util.Properties;
+
 import org.apache.commons.lang.Validate;
 
 import edu.snu.leader.util.MiscUtils;
@@ -37,6 +39,10 @@ public class Main
 
     /** How many runs there will be */
     public static int totalRuns = 50;
+    
+    private static Properties _simulationProperties = null;
+    
+    static SimulatorLauncherGUI frame;
 
     public static void main( String[] args )
     {
@@ -46,11 +52,13 @@ public class Main
         System.setProperty( "sim-properties",
                 "cfg/sim/discrete/sim-properties.parameters" );
         
-        String stringShouldRunGraphical = MiscUtils.loadProperties("sim-properties").getProperty( "run-graphical" );
+        _simulationProperties = MiscUtils.loadProperties("sim-properties");
+        
+        String stringShouldRunGraphical = _simulationProperties.getProperty( "run-graphical" );
         Validate.notEmpty( stringShouldRunGraphical, "Run graphical option required" );
         shouldRunGraphical = Boolean.parseBoolean( stringShouldRunGraphical );
         
-        String stringTotalRuns = MiscUtils.loadProperties("sim-properties").getProperty( "run-count" );
+        String stringTotalRuns = _simulationProperties.getProperty( "run-count" );
         Validate.notEmpty( stringTotalRuns, "Run count required" );
         totalRuns = Integer.parseInt( stringTotalRuns );
         
@@ -65,16 +73,19 @@ public class Main
                     System.out.println( "Run " + run );
                     System.out.println();
                     Simulator simulator = new Simulator( run );
-                    simulator.initialize();
+                    simulator.initialize(_simulationProperties);
                     simulator.execute();
                 }
             }
             // System.setProperty( "sim-properties", args[0] );
             else{
-                // run graphical
-                DebugLocationsStructure db = new DebugLocationsStructure(
-                        "Conflict Simulation", 800, 600, 60 );
-                db.run();
+                for( run = 1; run <= totalRuns; run++){
+                    // run graphical
+                    DebugLocationsStructure db = new DebugLocationsStructure(
+                            "Conflict Simulation", 800, 600, 60 );
+                    db.initialize( _simulationProperties, run );
+                    db.run();
+                }
             }
         }
     }

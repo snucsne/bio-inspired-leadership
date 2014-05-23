@@ -61,22 +61,18 @@ public class Simulator
     /** Adhesion time limit */
     private int _adhesionTimeLimit = 0;
 
-    /** The number of times an initiator reached his cancellation threshold */
-    private static int _successCount = 0;
-
     /** The number of occurrences of each group size at the end of a simulation */
-    private static int[] _groupSizeCounts = null;
+//    private int[] _groupSizeCounts = null;
 
-    private static long _randomSeedOverride = -1;
+    private long _randomSeedOverride = -1;
 
-    public static int[] getGroupSizeCounts()
-    {
-        return _groupSizeCounts;
-    }
+//    public int[] getGroupSizeCounts()
+//    {
+//        return _groupSizeCounts;
+//    }
 
     public Simulator()
     {
-        _successCount = 0;
         _randomSeedOverride = -1;
     }
 
@@ -86,18 +82,22 @@ public class Simulator
         _randomSeedOverride = randomSeedOverride;
     }
 
-    public static long getRandomSeedOverride()
+    public long getRandomSeedOverride()
     {
         return _randomSeedOverride;
     }
 
-    public void initialize()
+    public void initialize(Properties properties)
     {
         _LOG.trace( "Entering initialize()" );
 
         // Load the properties
-        _props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
+//        _props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
+        
+        _props = properties;
 
+        _props.put( "random-seed-override", String.valueOf( _randomSeedOverride ) );
+        
         // Initialize the simulation state
         _simState.initialize( _props );
 
@@ -129,7 +129,7 @@ public class Simulator
         predator.initialize( _simState );
         _simState.setPredator( predator );
 
-        _groupSizeCounts = new int[_simState.getAgentCount() + 1];
+//        _groupSizeCounts = new int[_simState.getAgentCount() + 1];
 
         _LOG.trace( "Exiting initialize()" );
     }
@@ -235,17 +235,6 @@ public class Simulator
         _lastJoinedAgentTime = 0;
     }
 
-    /**
-     * Gets the number of agents that were able to reach their cancellation
-     * threshold after initiating
-     * 
-     * @return The success count
-     */
-    public static int getSuccessCount()
-    {
-        return _successCount;
-    }
-
     private Agent initiationAgent = null;
 
     /**
@@ -309,7 +298,7 @@ public class Simulator
                 }
                 if( groupCount / (float) _simState.getAgentCount() >= initiationAgent.getCancelThreshold() )
                 {
-                    _successCount++;
+                    _simState.successCount++;
                     initiationAgent.endOfInitiation( true, groupCount );
                     isActive = false;
                 }
@@ -322,7 +311,8 @@ public class Simulator
 
             if( !isActive )
             {
-                _groupSizeCounts[groupCount]++;
+                _simState.groupSizeCounts[groupCount]++;
+//                _groupSizeCounts[groupCount]++;
             }
         }
         // do the simulation for as many time steps as there are
@@ -330,7 +320,7 @@ public class Simulator
         {
             isActive = true;
             if(Agent.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
-                _successCount++;
+                _simState.successCount++;
                 isActive = false;
             }
         }

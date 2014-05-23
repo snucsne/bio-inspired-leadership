@@ -50,7 +50,7 @@ public class Predator
     
     private float _predationThreshold = 0.0f;
     
-    private float _predationProbabilityMinimum = 0.0f;
+    private double _predationProbabilityMinimum = 0.0f;
     
     private boolean _usePredationByPopulation = false;
     
@@ -83,7 +83,7 @@ public class Predator
         
         String stringPredationProbabilityMinimum = _simState.getProperties().getProperty("predation-probability-minimum" );
         Validate.notEmpty( stringPredationProbabilityMinimum, "predation probability minumum required" );
-        _predationProbabilityMinimum = Float.parseFloat( stringPredationProbabilityMinimum );
+        _predationProbabilityMinimum = Double.parseDouble( stringPredationProbabilityMinimum );
         
         _agents = new ArrayList<Agent>(_simState.getAgentCount());
         Iterator<Agent> iter = _simState.getAgentIterator();

@@ -61,6 +61,8 @@ public class SueurConflictDecisionCalculator implements
 
     private double _defaultConflictValue = .1;
     
+    private int _destinationSizeRadius = 0;
+    
     @Override
     public void initialize( SimulationState simState )
     {
@@ -98,6 +100,8 @@ public class SueurConflictDecisionCalculator implements
         String defConflictValue = _simState.getProperties().getProperty( "default-conflict-value" );
         Validate.notEmpty( defConflictValue, "default-conflict-value may not be empty" );
         _defaultConflictValue = Double.parseDouble( defConflictValue );
+        
+        _destinationSizeRadius = _simState.getDestinationRadius();
         
         // add sueur info to root directory path
         _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "SueurValues");
@@ -212,7 +216,7 @@ public class SueurConflictDecisionCalculator implements
         
         //check if the leader is in the agent's preferred destination
         if(leader.getCurrentLocation().distance1(
-                agent.getPreferredDestination().getVector() ) < SimulationState.getDestinationRadius()){
+                agent.getPreferredDestination().getVector() ) < _destinationSizeRadius){
             Ci = 0.1;
         }
         //check if the leader is not moving

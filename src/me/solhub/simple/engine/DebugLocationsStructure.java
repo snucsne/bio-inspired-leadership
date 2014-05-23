@@ -91,7 +91,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
     private Map<Vector2D, Color> _destinationColors = new HashMap<Vector2D, Color>();
     
     /** The number of occurrences of each group size at the end of a simulation */
-    private static int[] _groupSizeCounts = null;
+//    private static int[] _groupSizeCounts = null;
 
     /**  */
     private static final long serialVersionUID = 1L;
@@ -124,7 +124,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
     private int _adhesionTimeLimit = 0;
 
     /** The number of times an initiator reached his cancellation threshold */
-    private static int _successCount = 0;
+//    private static int _successCount = 0;
     
     /**
      * Run the simulation after initialization
@@ -240,16 +240,16 @@ public class DebugLocationsStructure extends AbstractGameStructure
         _lastJoinedAgentTime = 0;
     }
 
-    /**
-     * Gets the number of agents that were able to reach their cancellation
-     * threshold after initiating
-     * 
-     * @return The success count
-     */
-    public static int getSuccessCount()
-    {
-        return _successCount;
-    }
+//    /**
+//     * Gets the number of agents that were able to reach their cancellation
+//     * threshold after initiating
+//     * 
+//     * @return The success count
+//     */
+//    public static int getSuccessCount()
+//    {
+//        return _successCount;
+//    }
 
     private Agent initiationAgent = null;
     /**
@@ -313,7 +313,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
                 }
                 if( groupCount / (float) _simState.getAgentCount() >= initiationAgent.getCancelThreshold() )
                 {
-                    _successCount++;
+                    _simState.successCount++;
                     initiationAgent.endOfInitiation( true, groupCount );
                     isActive = false;
                 }
@@ -326,7 +326,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
 
             if( !isActive )
             {
-                _groupSizeCounts[groupCount]++;
+                _simState.groupSizeCounts[groupCount]++;
+//                _groupSizeCounts[groupCount]++;
             }
         }
         // do the simulation for as many time steps as there are
@@ -334,7 +335,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         {
             isActive = true;
             if(Agent.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
-                _successCount++;
+                _simState.successCount++;
                 isActive = false;
             }
         }
@@ -350,6 +351,12 @@ public class DebugLocationsStructure extends AbstractGameStructure
         super( title, windowWidth, windowHeight, fps );
     }
 
+    public void initialize(Properties properties, long randomSeedOverride){
+        _props = properties;
+        
+        _props.put( "random-seed-override", String.valueOf( randomSeedOverride ) );
+    }
+    
     @Override
     protected void initialize()
     {
@@ -358,8 +365,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
         _LOG.trace( "Entering initialize()" );
 
         // Load the properties
-        _props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
-
+//        _props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
+        
         // Initialize the simulation state
         _simState.initialize( _props );
         
@@ -397,7 +404,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
         predator.initialize( _simState );
         _simState.setPredator( predator );
         
-        _groupSizeCounts = new int[_simState.getAgentCount() + 1];
+//        _groupSizeCounts = new int[_simState.getAgentCount() + 1];
+//        _simState.groupSizeCounts = n
 
         _LOG.trace( "Exiting initialize()" );
     }
@@ -438,7 +446,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         bbg.setColor( Destination.startingDestination.getColor() );
         bbg.drawOval( -(int)Destination.startingDestination.getRadius(), -(int)Destination.startingDestination.getRadius(), (int)Destination.startingDestination.getRadius() * 2, (int)Destination.startingDestination.getRadius() * 2 );
         Iterator<Entry<Vector2D, Color>> blah = _destinationColors.entrySet().iterator();
-        double destinationRadius = SimulationState.getDestinationRadius();
+        double destinationRadius = _simState.getDestinationRadius();
         while( blah.hasNext() )
         {
             Entry<Vector2D, Color> temp = blah.next();
@@ -447,7 +455,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
             int x = (int) ( temp.getKey().getX() - (destinationRadius) );
             int y = (int) ( temp.getKey().getY() - (destinationRadius) );
             //drawOval draws a circle inside a rectangle
-            bbg.drawOval( x, y, SimulationState.getDestinationRadius() * 2, SimulationState.getDestinationRadius() * 2);
+            bbg.drawOval( x, y, _simState.getDestinationRadius() * 2, _simState.getDestinationRadius() * 2);
         }
 
         // draw each of the agents
@@ -572,11 +580,14 @@ public class DebugLocationsStructure extends AbstractGameStructure
         }
     }
 
+    
     @Override
     protected boolean isRunning()
     {
         return true;
     }
+    
+    
 
     /**
      * Switches the color of the agent from destination to group or vice versa
