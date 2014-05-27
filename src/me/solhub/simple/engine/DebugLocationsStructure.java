@@ -206,7 +206,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         _LOG.trace( "Setting up next simulation run" );
         // setup next simulation run
         _simState.setupNextSimulationRun();
-        Agent.numReachedDestination = 0;
+        _simState.numReachedDestination = 0;
         _LOG.trace( "Finished setting up next simulation run" );
 
         _lastJoinedAgentTime = 0;
@@ -302,6 +302,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
                 // this run is done
                 if( _lastJoinedAgentTime > _adhesionTimeLimit )
                 {
+                    System.out.println("Adhesion Time Exit");
                     initiationAgent.endOfInitiation( false, groupCount );
                     isActive = false;
                 }
@@ -334,7 +335,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         else if( _simState.getSimulationTime() < _simState.getMaxSimulationTimeSteps() )
         {
             isActive = true;
-            if(Agent.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
+            if(_simState.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
                 _simState.successCount++;
                 isActive = false;
             }
@@ -542,9 +543,9 @@ public class DebugLocationsStructure extends AbstractGameStructure
             bbg.drawString( "Followers: " + _numberFollowing, _fontXOffset, _fontYOffset + _fontSize * 4 );
         }
         else{
-            bbg.drawString( "Groups: " + Group.getNumberGroups(), _fontXOffset, _fontYOffset + _fontSize * 3);
-            bbg.drawString( "Reached: " + Agent.numReachedDestination, _fontXOffset, _fontYOffset + _fontSize * 4 );
-            bbg.drawString( "Inits: " + Agent.numInitiating, _fontXOffset, _fontYOffset + _fontSize * 5 );
+            bbg.drawString( "Groups: " + _simState.getNumberGroups(), _fontXOffset, _fontYOffset + _fontSize * 3);
+            bbg.drawString( "Reached: " + _simState.numReachedDestination, _fontXOffset, _fontYOffset + _fontSize * 4 );
+            bbg.drawString( "Inits: " + _simState.numInitiating, _fontXOffset, _fontYOffset + _fontSize * 5 );
             bbg.drawString( "Eaten: " + _simState.getPredator().getTotalAgentsEaten(), _fontXOffset, _fontYOffset + _fontSize * 6 );
         }
         

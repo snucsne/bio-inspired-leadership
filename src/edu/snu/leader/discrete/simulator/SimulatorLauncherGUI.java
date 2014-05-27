@@ -441,6 +441,7 @@ public class SimulatorLauncherGUI extends JFrame {
         panelPredationBoxes.add(chckbxUsePredationThreshold);
         
         final JCheckBox chckbxPopulationIndependent = new JCheckBox("Population Independent");
+        chckbxPopulationIndependent.setSelected( true );
         panelPredationBoxes.add(chckbxPopulationIndependent);
         chckbxPopulationIndependent.setToolTipText("Select this to allow predation to be independent of population size. Max predation for 10 agents will be the same as for 50 agents. ");
         
@@ -470,7 +471,7 @@ public class SimulatorLauncherGUI extends JFrame {
         spinnerMaxEaten = new JSpinner();
         spinnerMaxEaten.setToolTipText("The max number eaten per time step.");
         panelPredationStuff.add(spinnerMaxEaten);
-        spinnerMaxEaten.setModel(new SpinnerNumberModel(new Integer(1), new Integer(0), new Integer(sliderAgent.getValue()), new Integer(1)));
+        spinnerMaxEaten.setModel(new SpinnerNumberModel(new Integer(10), new Integer(0), new Integer(sliderAgent.getValue()), new Integer(1)));
         JFormattedTextField tfMaxEaten = ((JSpinner.DefaultEditor)spinnerMaxEaten.getEditor()).getTextField();
         tfMaxEaten.setEditable(false);
         
@@ -851,7 +852,7 @@ public class SimulatorLauncherGUI extends JFrame {
                     _simulatorProperties.put("position-results", String.valueOf(chckbxPosition.isSelected()));
                     _simulatorProperties.put("predation-results", String.valueOf(chckbxPredationResults.isSelected()));
                     
-                    _simulatorProperties.put("communication-type", String.valueOf(comboBoxCommType.getSelectedItem()));
+                    _simulatorProperties.put("communication-type", String.valueOf(comboBoxCommType.getSelectedItem()).toLowerCase());
                     
                     _simulatorProperties.put("nearest-neighbor-count", String.valueOf(frmtdtxtfldNearestNeighborCount.getValue()));
                     _simulatorProperties.put("max-location-radius", String.valueOf(frmtdtxtfldMaxLocationRadius.getValue()));
@@ -933,18 +934,18 @@ public class SimulatorLauncherGUI extends JFrame {
                     _simulatorProperties.put("live-delay", String.valueOf(15)); //Doesn't change
                     _simulatorProperties.put("results-dir", "results"); //Doesn't change
                     
-//                    System.out.println(_simulatorProperties.toString());
+                    System.out.println(_simulatorProperties.toString());
                     
                     new Thread(new Runnable() {
-                        public void run()
-                        {
+                        public void run(){
                             try{
                                 runSimulation();
                             }
                             catch(Exception e){
                                 
                             }
-                        }}).start();
+                        }
+                    }).start();
                 }
             }
             
@@ -975,6 +976,7 @@ public class SimulatorLauncherGUI extends JFrame {
                 System.out.println( "Run " + run );
                 System.out.println();
                 Simulator simulator = new Simulator( run );
+                _simulatorProperties.put( "current-run", String.valueOf(run) );
                 simulator.initialize(_simulatorProperties);
                 simulator.execute();
             }
@@ -983,6 +985,7 @@ public class SimulatorLauncherGUI extends JFrame {
             // run graphical
             DebugLocationsStructure db = new DebugLocationsStructure(
                     "Conflict Simulation", 800, 600, 60 );
+            _simulatorProperties.put( "current-run", String.valueOf(1) );
             db.initialize( _simulatorProperties, 1 );
             db.setLocation( this.getX() + this.getWidth() + 10, this.getY() );
             db.run();

@@ -40,7 +40,7 @@ public class Destination
     /**
      * The Starting Destination
      */
-    public static Destination startingDestination = new Destination("D-S", true, Vector2D.ZERO, Color.BLACK, 10);
+    public static final Destination startingDestination = new Destination("D-S", true, Vector2D.ZERO, Color.BLACK, 10);
     
     public Destination(String id, boolean isSafe, Vector2D coordinates, Color color, double radius){
         if(id == "D-S"){

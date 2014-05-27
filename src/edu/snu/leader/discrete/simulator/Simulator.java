@@ -27,6 +27,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import edu.snu.leader.discrete.behavior.Decision.DecisionType;
+import edu.snu.leader.discrete.simulator.SimulatorEvolution.OutputFitness;
 import edu.snu.leader.util.MiscUtils;
 
 
@@ -40,8 +41,8 @@ public class Simulator
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger( Simulator.class.getName() );
 
-    /** Key for simulation properties file */
-    private static final String _PROPS_FILE_KEY = "sim-properties";
+//    /** Key for simulation properties file */
+//    private static final String _PROPS_FILE_KEY = "sim-properties";
 
     /** Key for the agent builder class name */
     private static final String _AGENT_BUILDER_CLASS = "agent-builder";
@@ -55,8 +56,8 @@ public class Simulator
     /** The agent builder */
     private AgentBuilder _agentBuilder = null;
 
-    /** For adhesion time limits */
-    private static int _lastJoinedAgentTime = 0;
+//    /** For adhesion time limits */
+//    private static int _lastJoinedAgentTime = 0;
 
     /** Adhesion time limit */
     private int _adhesionTimeLimit = 0;
@@ -65,6 +66,8 @@ public class Simulator
 //    private int[] _groupSizeCounts = null;
 
     private long _randomSeedOverride = -1;
+    
+//    private OutputFitness _simulationOutputFitness = null;
 
 //    public int[] getGroupSizeCounts()
 //    {
@@ -205,7 +208,7 @@ public class Simulator
         _simState.setupNextSimulationRun();
         _LOG.trace( "Finished setting up next simulation run" );
 
-        _lastJoinedAgentTime = 0;
+        _simState.lastJoinedAgentTime = 0;
 
         _LOG.trace( "Leaving executeRun()" );
     }
@@ -230,9 +233,17 @@ public class Simulator
      * 
      * @param joined Whether an agent joined or not
      */
-    public static void agentMoved()
+    public void agentMoved()
     {
-        _lastJoinedAgentTime = 0;
+        _simState.lastJoinedAgentTime = 0;
+    }
+    
+//    public void setSimulationOutputFitness(OutputFitness of){
+//        _simulationOutputFitness = of;
+//    }
+    
+    public OutputFitness getSimulationOutputFitness(){
+        return _simState.getSimulationOutputFitness();
     }
 
     private Agent initiationAgent = null;
@@ -285,8 +296,9 @@ public class Simulator
                 // if last joined time is greater than the adhesion time limit
                 // then
                 // this run is done
-                if( _lastJoinedAgentTime > _adhesionTimeLimit )
+                if( _simState.lastJoinedAgentTime > _adhesionTimeLimit )
                 {
+                    System.out.println("Adhesion Time Exit");
                     initiationAgent.endOfInitiation( false, groupCount );
                     isActive = false;
                 }
@@ -302,7 +314,7 @@ public class Simulator
                     initiationAgent.endOfInitiation( true, groupCount );
                     isActive = false;
                 }
-                _lastJoinedAgentTime++;
+                _simState.lastJoinedAgentTime++;
             }
             if( groupCount >= _simState.getAgentCount() )
             {
@@ -319,7 +331,7 @@ public class Simulator
         else if( _simState.getSimulationTime() < _simState.getMaxSimulationTimeSteps() )
         {
             isActive = true;
-            if(Agent.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
+            if(_simState.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
                 _simState.successCount++;
                 isActive = false;
             }

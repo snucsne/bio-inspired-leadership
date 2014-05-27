@@ -50,9 +50,11 @@ public class Group
     /** The index of this groups color in the _colors array */
     private int _colorIndex = 0;
 
-    /** Array that keeps track of what colors are in use so they can be recycled */
-    private static boolean[] _colorsInUse = new boolean[70];
+//    /** Array that keeps track of what colors are in use so they can be recycled */
+//    private static boolean[] _colorsInUse = new boolean[70];
 
+    private SimulationState _simState = null;
+    
     /*
      * new Color( 0x114477 ), new Color( 0x777711 ),
             new Color( 0x771155 ), new Color( 0x117744 ),
@@ -60,65 +62,66 @@ public class Group
             new Color( 0x774411 ),
      */
     
-    /** Array of 70 unique colors to use for groups */
-    private static Color[] _colors = { new Color( 0x000000 ),
-            new Color( 0x9ACD32 ), new Color( 0x008080 ),
-            new Color( 0xF5DEB3 ), new Color( 0xEE82EE ),
-            new Color( 0x40E0D0 ), new Color( 0xFF6347 ),
-            new Color( 0xD8BFD8 ), new Color( 0xFFFF00 ),
-            new Color( 0x4682B4 ), new Color( 0x00FF7F ),
-            new Color( 0x708090 ), new Color( 0x6A5ACD ),
-            new Color( 0x87CEEB ), new Color( 0xC0C0C0 ),
-            new Color( 0xA0522D ), new Color( 0x2E8B57 ),
-            new Color( 0xF4A460 ), new Color( 0xFA8072 ),
-            new Color( 0x8B4513 ), new Color( 0x4169E1 ),
-            new Color( 0xBC8F8F ), new Color( 0xFF0000 ),
-            new Color( 0x800080 ), new Color( 0xB0E0E6 ),
-            new Color( 0xDDA0DD ), new Color( 0xFFC0CB ),
-            new Color( 0xCD853F ), new Color( 0xFFDAB9 ),
-            new Color( 0xFFEFD5 ), new Color( 0xDB7093 ),
-            new Color( 0x98FB98 ), new Color( 0xEEE8AA ),
-            new Color( 0xDA70D6 ), new Color( 0xFF4500 ),
-            new Color( 0xFFA500 ), new Color( 0x6B8E23 ),
-            new Color( 0x000080 ), new Color( 0xFFDEAD ),
-            new Color( 0xF0A0AA ), new Color( 0x191970 ),
-            new Color( 0xC71585 ), new Color( 0x48D1CC ),
-            new Color( 0x00FA9A ), new Color( 0x7B68EE ),
-            new Color( 0x3CB371 ), new Color( 0x0000CD ),
-            new Color( 0x66CDAA ), new Color( 0x800000 ),
-            new Color( 0x32CD32 ), new Color( 0x00FF00 ),
-            new Color( 0xFFFFE0 ), new Color( 0xB0C4DE ),
-            new Color( 0x778899 ), new Color( 0x87CEFA ),
-            new Color( 0x20B2AA ), new Color( 0xFFA07A ),
-            new Color( 0xFFB6C1 ), new Color( 0x90EE90 ),
-            new Color( 0xD3D3D3 ), new Color( 0xFAFAD2 ),
-            new Color( 0xE0FFFF ), new Color( 0xF08080 ),
-            new Color( 0xADD8E6 ), new Color( 0x7CFC00 ),
-            new Color( 0x4B0082 ), new Color( 0xFF69B4 ),
-            new Color( 0xFFD700 ), new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
+//    /** Array of 70 unique colors to use for groups */
+//    private static Color[] _colors = { new Color( 0x000000 ),
+//            new Color( 0x9ACD32 ), new Color( 0x008080 ),
+//            new Color( 0xF5DEB3 ), new Color( 0xEE82EE ),
+//            new Color( 0x40E0D0 ), new Color( 0xFF6347 ),
+//            new Color( 0xD8BFD8 ), new Color( 0xFFFF00 ),
+//            new Color( 0x4682B4 ), new Color( 0x00FF7F ),
+//            new Color( 0x708090 ), new Color( 0x6A5ACD ),
+//            new Color( 0x87CEEB ), new Color( 0xC0C0C0 ),
+//            new Color( 0xA0522D ), new Color( 0x2E8B57 ),
+//            new Color( 0xF4A460 ), new Color( 0xFA8072 ),
+//            new Color( 0x8B4513 ), new Color( 0x4169E1 ),
+//            new Color( 0xBC8F8F ), new Color( 0xFF0000 ),
+//            new Color( 0x800080 ), new Color( 0xB0E0E6 ),
+//            new Color( 0xDDA0DD ), new Color( 0xFFC0CB ),
+//            new Color( 0xCD853F ), new Color( 0xFFDAB9 ),
+//            new Color( 0xFFEFD5 ), new Color( 0xDB7093 ),
+//            new Color( 0x98FB98 ), new Color( 0xEEE8AA ),
+//            new Color( 0xDA70D6 ), new Color( 0xFF4500 ),
+//            new Color( 0xFFA500 ), new Color( 0x6B8E23 ),
+//            new Color( 0x000080 ), new Color( 0xFFDEAD ),
+//            new Color( 0xF0A0AA ), new Color( 0x191970 ),
+//            new Color( 0xC71585 ), new Color( 0x48D1CC ),
+//            new Color( 0x00FA9A ), new Color( 0x7B68EE ),
+//            new Color( 0x3CB371 ), new Color( 0x0000CD ),
+//            new Color( 0x66CDAA ), new Color( 0x800000 ),
+//            new Color( 0x32CD32 ), new Color( 0x00FF00 ),
+//            new Color( 0xFFFFE0 ), new Color( 0xB0C4DE ),
+//            new Color( 0x778899 ), new Color( 0x87CEFA ),
+//            new Color( 0x20B2AA ), new Color( 0xFFA07A ),
+//            new Color( 0xFFB6C1 ), new Color( 0x90EE90 ),
+//            new Color( 0xD3D3D3 ), new Color( 0xFAFAD2 ),
+//            new Color( 0xE0FFFF ), new Color( 0xF08080 ),
+//            new Color( 0xADD8E6 ), new Color( 0x7CFC00 ),
+//            new Color( 0x4B0082 ), new Color( 0xFF69B4 ),
+//            new Color( 0xFFD700 ), new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
 
-    /** Total number of groups.  */
-    public static int totalNumGroups = 1;
+//    /** Total number of groups.  */
+//    public static int totalNumGroups = 1;
 
-    /** This is a default group */
-    public static Group NONE = new Group();
+//    /** This is a default group */
+//    public static Group NONE;
 
     /**
      * This constructor is for the NONE group
      */
-    private Group()
+    Group(SimulationState simState)
     {
+        _simState = simState;
         _id = "Group" + uniqueIdCount++;
         _members = new LinkedList<Agent>();
         _membershipEvents = new ArrayList<MembershipEvent>();
-        for( int i = 0; i < Group._colors.length; i++ )
+        for( int i = 0; i < _simState.colors.length; i++ )
         {
-            if( !_colorsInUse[i] )
+            if( !_simState.colorsInUse[i] )
             {
-                _groupColor = Group._colors[i];
+                _groupColor = _simState.colors[i];
                 _colorIndex = i;
-                Group._colorsInUse[i] = true;
-                totalNumGroups++;
+                _simState.colorsInUse[i] = true;
+                simState.totalNumGroups++;
                 break;
             }
         }
@@ -132,8 +135,9 @@ public class Group
      */
     public Group( Agent agent, int time )
     {
-        this();
+        this(agent.getSimState());
         addAgent( agent, time );
+        
     }
 
     /**
@@ -187,10 +191,10 @@ public class Group
         }
         // if group has 0 members and is not the none group then get rid of the
         // group
-        if( _members.size() == 0 && !this.equals( Group.NONE ) )
+        if( _members.size() == 0 && !this.equals( _simState.noneGroup ) )
         {
-            Group._colorsInUse[_colorIndex] = false;
-            totalNumGroups--;
+            _simState.colorsInUse[_colorIndex] = false;
+            _simState.totalNumGroups--;
         }
     }
 
@@ -201,12 +205,12 @@ public class Group
         {
             Agent tempAgent = _members.get( 0 );
             tempAgent.setCurrentVelocity( Vector2D.ZERO );
-            Group.NONE.addAgent( tempAgent, tempAgent.getTime() );
+            _simState.noneGroup.addAgent( tempAgent, tempAgent.getTime() );
             temp--;
         }
-        if( !this.equals( Group.NONE ) )
+        if( !this.equals( _simState.noneGroup ) )
         {
-            Group._colorsInUse[_colorIndex] = false;
+            _simState.colorsInUse[_colorIndex] = false;
         }
     }
 
@@ -215,11 +219,11 @@ public class Group
      */
     public void reset()
     {
-        Arrays.fill( _colorsInUse, false );
+        Arrays.fill( _simState.colorsInUse, false );
         uniqueIdCount = 0;
-        NONE = new Group();
+        _simState.noneGroup = new Group(_simState);
 
-        totalNumGroups = 0;
+        _simState.totalNumGroups = 0;
     }
 
     /**
@@ -237,12 +241,12 @@ public class Group
         return _id;
     }
 
-    public static int getNumberGroups()
+    public int getNumberGroups()
     {
         int temp = -1;
-        for( int i = 0; i < _colorsInUse.length; i++ )
+        for( int i = 0; i < _simState.colorsInUse.length; i++ )
         {
-            if( _colorsInUse[i] )
+            if( _simState.colorsInUse[i] )
             {
                 temp++;
             }

@@ -36,7 +36,7 @@ public class Reporter
     private String _subDirectory = "";
 
     /** Simulation run for additional sub directories */
-    public static int SIMULATION_RUN = 0;
+    public int _simulationRun = 0;
 
     /** The actual file name */
     private String _filename = null;
@@ -134,7 +134,7 @@ public class Reporter
                 // + "Run" + SIMULATION_RUN );
                 // dir.mkdir();
                 temp = ROOT_DIRECTORY + "/" + _subDirectory + "/" + "Run"
-                        + SIMULATION_RUN + _filename;
+                        + _simulationRun + _filename;
             }
             else
             {
@@ -160,6 +160,10 @@ public class Reporter
             out.print( _builder.toString() );
             out.close();
         }
+    }
+    
+    public void incrementSimulationRun(){
+        _simulationRun++;
     }
 
     /**

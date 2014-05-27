@@ -34,16 +34,14 @@ public class Main
 {
     static boolean debug = false;
     static boolean shouldRunGraphical = false;
-    /** The current run of the simulator */
-    public static int run = 0;
+//    /** The current run of the simulator */
+//    public int run = 0;
 
     /** How many runs there will be */
     public static int totalRuns = 50;
     
     private static Properties _simulationProperties = null;
     
-    static SimulatorLauncherGUI frame;
-
     public static void main( String[] args )
     {
         // System.out.println( "sim-properites file used: " + args[0] );
@@ -68,24 +66,28 @@ public class Main
         else{
             if(!shouldRunGraphical){
                 // run just text
-                for( run = 1; run <= totalRuns; run++ )
+                for( int run = 1; run <= totalRuns; run++ )
                 {
                     System.out.println( "Run " + run );
                     System.out.println();
                     Simulator simulator = new Simulator( run );
+                    _simulationProperties.put( "current-run", String.valueOf(run) );
                     simulator.initialize(_simulationProperties);
                     simulator.execute();
+                    
+                    System.out.println("Time: " + simulator.getSimulationOutputFitness().getPercentTime());
+                    System.out.println("Survival: " + simulator.getSimulationOutputFitness().getPercentSurvive());
+                    System.out.println("Success: " + simulator.getSimulationOutputFitness().getPercentSuccess());
                 }
             }
             // System.setProperty( "sim-properties", args[0] );
             else{
-                for( run = 1; run <= totalRuns; run++){
-                    // run graphical
-                    DebugLocationsStructure db = new DebugLocationsStructure(
-                            "Conflict Simulation", 800, 600, 60 );
-                    db.initialize( _simulationProperties, run );
-                    db.run();
-                }
+                // run graphical
+                DebugLocationsStructure db = new DebugLocationsStructure(
+                        "Conflict Simulation", 800, 600, 60 );
+                _simulationProperties.put( "current-run", String.valueOf(1) );
+                db.initialize( _simulationProperties, 1 );
+                db.run();
             }
         }
     }

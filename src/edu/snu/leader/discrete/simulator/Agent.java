@@ -48,17 +48,17 @@ public class Agent
     public static final int AGENT_DIAMETER = 2;
     private String _positionHistoryHeader = null;
     
-    /** The number of agents that have made the stop decision */
-    public static int numReachedDestination = 0;
+//    /** The number of agents that have made the stop decision */
+//    public int numReachedDestination = 0;
 
-    /** The number of agents that have made the initiate decision */
-    public static int numInitiating = 0;
+//    /** The number of agents that have made the initiate decision */
+//    public static int numInitiating = 0;
 
     /** Used to make the unique id for every agent */
     private static int _uniqueIdCount = 0;
 
     private int _numberTimesInitiated = 0;
-
+    
     private int _numberTimesSuccessful = 0;
 
     private List<InitiationHistoryEvent> _initiationHistory = null;
@@ -131,7 +131,7 @@ public class Agent
 
     // ////////Agent interaction variables\\\\\\\\\
     /** A list of all of the current Agents following this Agent */
-    private Group _group = Group.NONE;
+    private Group _group;
 
     /**
      * The history of all groups and their members that have been observed by
@@ -160,6 +160,10 @@ public class Agent
     private boolean _preCalcProbs = false;
     
     private boolean _isAlive = false;
+    private long _timeAlive = 0;
+    private long _timeMovingTowardsDestination = 0;
+    private int _totalInitiations = 0;
+    private int _totalCancellations = 0;
     
     /**
      * Builds an Agent disregarding Personality and Conflict
@@ -210,7 +214,7 @@ public class Agent
     public void initialize( SimulationState simState, Point2D initialLocation )
     {
         _simState = simState;
-
+        
         _initialLocation = new Vector2D( initialLocation.getX(),
                 initialLocation.getY() );
 
@@ -263,14 +267,15 @@ public class Agent
         _currentVelocity = Vector2D.ZERO;
 
         // readd to group NONE
-        _group = Group.NONE;
-        Group.NONE.addAgent( this, 0 );
+        _group = _simState.noneGroup;
+        _simState.noneGroup.addAgent( this, 0 );
 
         // clear histories and reporters
         _observedGroupHistory.clear();
         _decisionHistory.clear();
         _positionHistory.clear();
         _positionHistory.append( _positionHistoryHeader );
+        _positionHistory._simulationRun++;
         
         _currentDecision = new DecisionEvent( new DoNothing( this, this ), 0 );
 
@@ -281,6 +286,10 @@ public class Agent
 
         _uniqueIdCount = 0;
         _isAlive = true;
+        _timeAlive = 0;
+        _timeMovingTowardsDestination = 0;
+        _totalInitiations = 0;
+        _totalCancellations = 0;
     }
 
     /**
@@ -430,7 +439,7 @@ public class Agent
                             && !_currentDecision.getDecision().getDecisionType().equals(
                                     DecisionType.INITIATION ) )
                     {
-                        numInitiating--;
+                        _simState.numInitiating--;
                     }
                     _hasNewDecision = true;
                 }
@@ -454,7 +463,7 @@ public class Agent
                         && !_currentDecision.getDecision().getDecisionType().equals(
                                 DecisionType.INITIATION ) )
                 {
-                    numInitiating--;
+                    _simState.numInitiating--;
                 }
                 _hasNewDecision = true;
             }
@@ -494,16 +503,20 @@ public class Agent
                 if( _currentDecision.getDecision().getDecisionType() == DecisionType.INITIATION )
                 {
                     _numberTimesInitiated++;
+                    _totalInitiations++;
                     _currentInitiationHistoryEvent = new InitiationHistoryEvent();
                     _currentInitiationHistoryEvent.simRun = _simState.getCurrentSimulationRun();
                     _currentInitiationHistoryEvent.beforePersonality = getPersonalityTrait().getPersonality();
                     _simState.addGroup( _group );
-                    Simulator.agentMoved();
-                    numInitiating++;
+                    _simState.lastJoinedAgentTime = 0;
+                    _simState.numInitiating++;
                 }
                 else if( _currentDecision.getDecision().getDecisionType() == DecisionType.FOLLOW )
                 {
-                    Simulator.agentMoved();
+                    _simState.lastJoinedAgentTime = 0;
+                }
+                else if( _currentDecision.getDecision().getDecisionType() == DecisionType.CANCELLATION){
+                    _totalCancellations++;
                 }
             }
             else{
@@ -522,6 +535,9 @@ public class Agent
 //            }
 //            _movementBehavior.move();
 //            _positionHistory.append( "position=" + _currentLocation.getX() + "," + _currentLocation.getY() + ",0\n" );
+        }
+        if(_preferredDestination.getID().equals( _leader.getPreferredDestination().getID() )){
+            _timeMovingTowardsDestination++;
         }
         _movementBehavior.move();
         _positionHistory.append( "position=" + _currentLocation.getX() + "," + _currentLocation.getY() + ",0\n" );
@@ -612,7 +628,7 @@ public class Agent
     }
     
     public void kill(){
-        _group = Group.NONE;
+        _group = _simState.noneGroup;
         _isAlive = false;
     }
 
@@ -806,6 +822,12 @@ public class Agent
     {
         return _speed;
     }
+    
+    public void incrementTimeAlive(){
+        if(isAlive()){
+            _timeAlive++;
+        }
+    }
 
 //    public void setDestinationColor( Color color )
 //    {
@@ -849,9 +871,30 @@ public class Agent
         return _numberTimesSuccessful;
     }
     
+    public long getTimeAlive(){
+        return _timeAlive;
+    }
+    
+    public long getTimeMovingTowardsDestionation(){
+        return _timeMovingTowardsDestination;
+    }
+    
+    /**
+     * This method returns the total number of initiations per simulation (NOT PER RUN)
+     *
+     * @return
+     */
+    public int getTotalInitiations(){
+        return _totalInitiations;
+    }
+    
+    public int getTotalCancellations(){
+        return _totalCancellations;
+    }
+    
     public void reachedDestination(){
         if(!_hasReachedDestination){
-            numReachedDestination++;
+            _simState.numReachedDestination++;
             _currentVelocity = Vector2D.ZERO;
             _simState.conflictEvents.add( new ConflictHistoryEvent(_simState.getCurrentSimulationRun(), getTime(), getId().toString(), getPreferredDestinationId(), new Reached(this), null) );
         }
@@ -861,6 +904,10 @@ public class Agent
     
     public boolean hasReachedDestination(){
         return _hasReachedDestination;
+    }
+    
+    public SimulationState getSimState(){
+        return _simState;
     }
 
     /**
@@ -925,7 +972,7 @@ public class Agent
         while( iter.hasNext() )
         {
             Agent temp = iter.next().getValue();
-            if( temp.getGroup().getId() != Group.NONE.getId()
+            if( temp.getGroup().getId() != _simState.noneGroup.getId()
                     && temp.getGroup().getId() != _group.getId()
                     && temp.isAlive()
 //                    && !temp.getCurrentVelocity().equals( Vector2D.ZERO) //temporary to prevent following of non-moving agents

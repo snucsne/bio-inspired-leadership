@@ -22,8 +22,7 @@ package edu.snu.leader.discrete.behavior;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import edu.snu.leader.discrete.simulator.Agent;
-import edu.snu.leader.discrete.simulator.Group;
-import edu.snu.leader.discrete.simulator.SimulationState;
+import edu.snu.leader.discrete.simulator.Destination;
 
 public class SimpleAngularMovement implements MovementBehavior
 {
@@ -32,15 +31,15 @@ public class SimpleAngularMovement implements MovementBehavior
     @Override
     public void move()
     {
-        // if agent is initiating and is with 3 units of their destination stop
+        // if agent is initiating and is within their destination stop
         if( _agent.getCurrentLocation().distance1(
-                        _agent.getPreferredDestination().getVector() ) < SimulationState.getDestinationRadius() )
+                        _agent.getPreferredDestination().getVector() ) < _agent.getPreferredDestination().getRadius() )
         {
             _agent.reachedDestination();
         }
-        else if(_agent.getGroup().getId().equals( Group.NONE.getId() )
+        else if(_agent.getGroup().getId().equals( _agent.getSimState().noneGroup.getId() )
                 && _agent.getCurrentLocation().distance(
-                        _agent.getInitialLocation() ) < SimulationState.getDestinationRadius() )
+                        _agent.getInitialLocation() ) < Destination.startingDestination.getRadius() )
         {
             _agent.setCurrentVelocity( Vector2D.ZERO );
         }

@@ -23,7 +23,6 @@ package edu.snu.leader.discrete.behavior;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import edu.snu.leader.discrete.simulator.Agent;
-import edu.snu.leader.discrete.simulator.Group;
 
 
 public class Cancel extends Decision
@@ -44,6 +43,6 @@ public class Cancel extends Decision
             _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract( _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
                     _agent.getSpeed() ) );
         }
-        Group.NONE.addAgent( _agent, _agent.getTime() );
+        _agent.getSimState().noneGroup.addAgent( _agent, _agent.getTime() );
     }
 }

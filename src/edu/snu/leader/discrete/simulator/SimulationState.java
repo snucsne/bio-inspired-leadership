@@ -19,6 +19,7 @@
 
 package edu.snu.leader.discrete.simulator;
 
+import java.awt.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import edu.snu.leader.discrete.behavior.Decision;
 import edu.snu.leader.discrete.simulator.Agent.ConflictHistoryEvent;
 import edu.snu.leader.discrete.simulator.Agent.InitiationHistoryEvent;
 import edu.snu.leader.discrete.simulator.Predator.PredationEvent;
+import edu.snu.leader.discrete.simulator.SimulatorEvolution.OutputFitness;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
@@ -110,6 +112,8 @@ public class SimulationState
     private Reporter _predationEventsReporter = null;
     
     public List<ConflictHistoryEvent> conflictEvents = null;
+    
+    private OutputFitness _simulationOutputFitness = null;
 
     private int _destinationSizeRadius = 0;
     private boolean _isGraphical = false;
@@ -117,6 +121,54 @@ public class SimulationState
     public int successCount = 0;
     public int[] groupSizeCounts;
     public long randomSeedOverride = -1;
+    /** The number of agents that have made the stop decision */
+    public int numReachedDestination = 0;
+    public int numInitiating = 0;
+    /** Total number of groups.  */
+    public int totalNumGroups = 1;
+    /** Array that keeps track of what colors are in use so they can be recycled */
+    public boolean[] colorsInUse = new boolean[70];
+    /** Array of 70 unique colors to use for groups */
+    public Color[] colors = { new Color( 0x000000 ),
+            new Color( 0x9ACD32 ), new Color( 0x008080 ),
+            new Color( 0xF5DEB3 ), new Color( 0xEE82EE ),
+            new Color( 0x40E0D0 ), new Color( 0xFF6347 ),
+            new Color( 0xD8BFD8 ), new Color( 0xFFFF00 ),
+            new Color( 0x4682B4 ), new Color( 0x00FF7F ),
+            new Color( 0x708090 ), new Color( 0x6A5ACD ),
+            new Color( 0x87CEEB ), new Color( 0xC0C0C0 ),
+            new Color( 0xA0522D ), new Color( 0x2E8B57 ),
+            new Color( 0xF4A460 ), new Color( 0xFA8072 ),
+            new Color( 0x8B4513 ), new Color( 0x4169E1 ),
+            new Color( 0xBC8F8F ), new Color( 0xFF0000 ),
+            new Color( 0x800080 ), new Color( 0xB0E0E6 ),
+            new Color( 0xDDA0DD ), new Color( 0xFFC0CB ),
+            new Color( 0xCD853F ), new Color( 0xFFDAB9 ),
+            new Color( 0xFFEFD5 ), new Color( 0xDB7093 ),
+            new Color( 0x98FB98 ), new Color( 0xEEE8AA ),
+            new Color( 0xDA70D6 ), new Color( 0xFF4500 ),
+            new Color( 0xFFA500 ), new Color( 0x6B8E23 ),
+            new Color( 0x000080 ), new Color( 0xFFDEAD ),
+            new Color( 0xF0A0AA ), new Color( 0x191970 ),
+            new Color( 0xC71585 ), new Color( 0x48D1CC ),
+            new Color( 0x00FA9A ), new Color( 0x7B68EE ),
+            new Color( 0x3CB371 ), new Color( 0x0000CD ),
+            new Color( 0x66CDAA ), new Color( 0x800000 ),
+            new Color( 0x32CD32 ), new Color( 0x00FF00 ),
+            new Color( 0xFFFFE0 ), new Color( 0xB0C4DE ),
+            new Color( 0x778899 ), new Color( 0x87CEFA ),
+            new Color( 0x20B2AA ), new Color( 0xFFA07A ),
+            new Color( 0xFFB6C1 ), new Color( 0x90EE90 ),
+            new Color( 0xD3D3D3 ), new Color( 0xFAFAD2 ),
+            new Color( 0xE0FFFF ), new Color( 0xF08080 ),
+            new Color( 0xADD8E6 ), new Color( 0x7CFC00 ),
+            new Color( 0x4B0082 ), new Color( 0xFF69B4 ),
+            new Color( 0xFFD700 ), new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
+    /** The current run of the simulator */
+    public int run = 0;
+    public Group noneGroup;
+    /** For adhesion time limits */
+    public int lastJoinedAgentTime = 0;
     
     /**
      * Initialize the simulation state
@@ -196,6 +248,8 @@ public class SimulationState
         Validate.notEmpty( stringPredatorMultiplier, "Predation multiplier required" );
         _predationConstant = Double.parseDouble( stringPredatorMultiplier );
         
+        run = Integer.parseInt(_props.getProperty( "current-run" ));
+        
         // Reporter.ROOT_DIRECTORY = getProperties().getProperty( "results-dir"
         // );
         // Validate.notEmpty( Reporter.ROOT_DIRECTORY, "results dir required" );
@@ -203,14 +257,15 @@ public class SimulationState
         // add communication type to root directory path
         setRootDirectory( "results_" + _communicationType + "_" );
 
-        _groups.add( Group.NONE );
+        noneGroup = new Group(this);
+        _groups.add( noneGroup );
         
         groupSizeCounts = new int[getAgentCount() + 1];
         
         conflictEvents = new LinkedList<ConflictHistoryEvent>();
-        _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
-        _conflictResultsReporter = new Reporter( "conflict-spatial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
-        _predationEventsReporter = new Reporter( "predation-spacial-hidden-var-" + String.format( "%05d", Main.run ) + "-seed-" + String.format("%05d", seed) + "-pred_const-" + String.format( "%2.5f", _predationConstant ) + ".dat" , "", false );
+        _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
+        _conflictResultsReporter = new Reporter( "conflict-spatial-hidden-var-" + String.format( "%05d", run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
+        _predationEventsReporter = new Reporter( "predation-spacial-hidden-var-" + String.format( "%05d", run ) + "-seed-" + String.format("%05d", seed) + "-pred_const-" + String.format( "%2.5f", _predationConstant ) + ".dat" , "", false );
         addPropertiesOutputToResultsReporter(_eskridgeResultsReporter);
         addPropertiesOutputToResultsReporter( _conflictResultsReporter );
         addPropertiesOutputToResultsReporter( _predationEventsReporter );
@@ -230,10 +285,12 @@ public class SimulationState
             _simulationTime = 0;
 
             // reset the NONE group and clear the rest of the groups
-            Group.NONE.reset();
+            noneGroup.reset();
             _groups.clear();
-            _groups.add( Group.NONE );
+            _groups.add( noneGroup );
 
+            _simulationOutputFitness = createSimulationOutputFitness();
+            
             Iterator<Agent> agentIter = getAgentIterator();
             while( agentIter.hasNext() )
             {
@@ -242,8 +299,8 @@ public class SimulationState
                 // reset Agents
                 temp.reset();
             }
-            Agent.numInitiating = 0;
-            Agent.numReachedDestination = 0;
+            numInitiating = 0;
+            numReachedDestination = 0;
             
             //reset predator
             _predator.setupNextRun();
@@ -254,12 +311,15 @@ public class SimulationState
             // increment current simulation run (in reporters too for directory
             // management)
             _currentSimulationRun++;
-            Reporter.SIMULATION_RUN++;
+            _eskridgeResultsReporter.incrementSimulationRun();
+            _predationEventsReporter.incrementSimulationRun();
+            _conflictResultsReporter.incrementSimulationRun();
+            
+            
             if( _currentSimulationRun == _simulationRunCount )
             {
                 // report all of the group sizes before exiting
                 System.out.println( successCount );
-                
                 
                 if(!_isGraphical){
                     //do stuff for the eskridge reporter
@@ -292,6 +352,10 @@ public class SimulationState
     public void setupNextSimulationRunStep()
     {
         _predator.setupNextTimeStep();
+        Iterator<Agent> iter = getAgentIterator();
+        while(iter.hasNext()){
+            iter.next().incrementTimeAlive();
+        }
         _simulationTime++;
     }
 
@@ -409,6 +473,19 @@ public class SimulationState
     
     public boolean isPredatorEnabled(){
         return _predatorEnabled;
+    }
+    
+    public int getNumberGroups()
+    {
+        int temp = -1;
+        for( int i = 0; i < colorsInUse.length; i++ )
+        {
+            if( colorsInUse[i] )
+            {
+                temp++;
+            }
+        }
+        return temp;
     }
     
     
@@ -717,5 +794,35 @@ public class SimulationState
         }
         _predationEventsReporter.appendLine( b.toString() );
         _predationEventsReporter.appendLine( "" );
+    }
+    
+    public OutputFitness getSimulationOutputFitness(){
+        return _simulationOutputFitness;
+    }
+    
+    private OutputFitness createSimulationOutputFitness(){
+        long totalAgentLife = 0;
+        long totalTimeTravelledToPreferred = 0;
+        int agentsAlive = 0;
+        int totalInitiations = 0;
+        int totalCancellations = 0;
+        
+        Iterator<Agent> iter = getAgentIterator();
+        while(iter.hasNext()){
+            Agent temp = iter.next();
+            totalAgentLife += temp.getTimeAlive();
+            totalTimeTravelledToPreferred += temp.getTimeMovingTowardsDestionation();
+            if(temp.isAlive()){
+                agentsAlive++;
+            }
+            totalInitiations += temp.getTotalInitiations();
+            totalCancellations += temp.getTotalCancellations();
+        }
+        
+        double percentTime = (double)totalTimeTravelledToPreferred / totalAgentLife;
+        double percentSurvive = (double)agentsAlive / getAgentCount();
+        double percentSuccess = ( (double)totalInitiations - totalCancellations ) / totalInitiations;
+        
+        return new OutputFitness( percentTime, percentSurvive, percentSuccess );
     }
 }
