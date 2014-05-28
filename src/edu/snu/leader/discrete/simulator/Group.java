@@ -30,7 +30,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 public class Group
 {
-    private static int uniqueIdCount = 0;
+//    private static int uniqueIdCount = 0;
 
     /** The ID of the Agent group */
     private Object _id = null;
@@ -111,7 +111,7 @@ public class Group
     Group(SimulationState simState)
     {
         _simState = simState;
-        _id = "Group" + uniqueIdCount++;
+        _id = "Group" + _simState.uniqueGroupIdCount++;
         _members = new LinkedList<Agent>();
         _membershipEvents = new ArrayList<MembershipEvent>();
         for( int i = 0; i < _simState.colors.length; i++ )
@@ -220,7 +220,7 @@ public class Group
     public void reset()
     {
         Arrays.fill( _simState.colorsInUse, false );
-        uniqueIdCount = 0;
+        _simState.uniqueGroupIdCount = 0;
         _simState.noneGroup = new Group(_simState);
 
         _simState.totalNumGroups = 0;

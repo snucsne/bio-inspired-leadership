@@ -68,8 +68,7 @@ public class Agent
     private Reporter _positionHistory = null;
     
     /**
-     * This is used across agents to make sure only one initiates...only
-     * slightly hacky
+     * This is used across agents to make sure only one initiates
      */
     private static boolean _canInitiate = true;
 

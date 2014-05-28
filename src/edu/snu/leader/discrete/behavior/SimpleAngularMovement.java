@@ -39,7 +39,7 @@ public class SimpleAngularMovement implements MovementBehavior
         }
         else if(_agent.getGroup().getId().equals( _agent.getSimState().noneGroup.getId() )
                 && _agent.getCurrentLocation().distance(
-                        _agent.getInitialLocation() ) < Destination.startingDestination.getRadius() )
+                        _agent.getInitialLocation() ) < _agent.getSimState().startingDestination.getRadius() )
         {
             _agent.setCurrentVelocity( Vector2D.ZERO );
         }

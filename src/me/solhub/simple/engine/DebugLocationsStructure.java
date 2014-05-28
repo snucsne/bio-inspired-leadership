@@ -117,8 +117,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
     /** The agent builder */
     private AgentBuilder _agentBuilder = null;
 
-    /** For adhesion time limits */
-    private static int _lastJoinedAgentTime = 0;
+//    /** For adhesion time limits */
+//    private static int _lastJoinedAgentTime = 0;
 
     /** Adhesion time limit */
     private int _adhesionTimeLimit = 0;
@@ -209,7 +209,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
         _simState.numReachedDestination = 0;
         _LOG.trace( "Finished setting up next simulation run" );
 
-        _lastJoinedAgentTime = 0;
+        _simState.lastJoinedAgentTime = 0;
 
         _LOG.trace( "Leaving executeRun()" );
     }
@@ -235,9 +235,9 @@ public class DebugLocationsStructure extends AbstractGameStructure
      * 
      * @param joined Whether an agent joined or not
      */
-    public static void agentMoved()
+    public void agentMoved()
     {
-        _lastJoinedAgentTime = 0;
+        _simState.lastJoinedAgentTime = 0;
     }
 
 //    /**
@@ -300,7 +300,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
                 // if last joined time is greater than the adhesion time limit
                 // then
                 // this run is done
-                if( _lastJoinedAgentTime > _adhesionTimeLimit )
+                if( _simState.lastJoinedAgentTime > _adhesionTimeLimit )
                 {
                     System.out.println("Adhesion Time Exit");
                     initiationAgent.endOfInitiation( false, groupCount );
@@ -318,7 +318,7 @@ public class DebugLocationsStructure extends AbstractGameStructure
                     initiationAgent.endOfInitiation( true, groupCount );
                     isActive = false;
                 }
-                _lastJoinedAgentTime++;
+                _simState.lastJoinedAgentTime++;
             }
             if( groupCount >= _simState.getAgentCount() )
             {
@@ -444,8 +444,8 @@ public class DebugLocationsStructure extends AbstractGameStructure
         bbg.translate( _xOffset, _yOffset );
         
         // draw destinations
-        bbg.setColor( Destination.startingDestination.getColor() );
-        bbg.drawOval( -(int)Destination.startingDestination.getRadius(), -(int)Destination.startingDestination.getRadius(), (int)Destination.startingDestination.getRadius() * 2, (int)Destination.startingDestination.getRadius() * 2 );
+        bbg.setColor( _simState.startingDestination.getColor() );
+        bbg.drawOval( -(int)_simState.startingDestination.getRadius(), -(int)_simState.startingDestination.getRadius(), (int)_simState.startingDestination.getRadius() * 2, (int)_simState.startingDestination.getRadius() * 2 );
         Iterator<Entry<Vector2D, Color>> blah = _destinationColors.entrySet().iterator();
         double destinationRadius = _simState.getDestinationRadius();
         while( blah.hasNext() )

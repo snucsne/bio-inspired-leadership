@@ -198,7 +198,7 @@ public class Utils
             {
                 decision = possibleDecisions.get( i );
                 if(decision == null){
-                    System.out.println("CRAP");
+                    System.out.println("Shouldn't see this message");
                 }
                 break;
             }

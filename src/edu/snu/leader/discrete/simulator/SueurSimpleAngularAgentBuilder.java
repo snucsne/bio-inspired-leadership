@@ -102,7 +102,6 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
             new Color( 0x771122 ), new Color( 0x117777 ),
             new Color( 0x774411 ),
  */
-        // supports up to 10 destinations currently
         /** Array of 70 unique colors to use for destinations */
         Color[] colors = { new Color( 0xFF0000 ),
                 new Color( 0x9ACD32 ), new Color( 0xFFFF00 ),

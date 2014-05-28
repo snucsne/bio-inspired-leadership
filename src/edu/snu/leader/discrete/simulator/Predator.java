@@ -134,7 +134,7 @@ public class Predator
             
                 //if the agent is in the start zone it is safe
                 if( temp.getCurrentLocation().distance1(
-                        Destination.startingDestination.getVector() ) < Destination.startingDestination.getRadius() )
+                        temp.getSimState().startingDestination.getVector() ) < temp.getSimState().startingDestination.getRadius() )
                 {
                     //agent is in a safe place
                 }

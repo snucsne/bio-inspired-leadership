@@ -118,6 +118,7 @@ public class SimulationState
     private int _destinationSizeRadius = 0;
     private boolean _isGraphical = false;
     
+    //previously static variables are below
     public int successCount = 0;
     public int[] groupSizeCounts;
     public long randomSeedOverride = -1;
@@ -169,6 +170,10 @@ public class SimulationState
     public Group noneGroup;
     /** For adhesion time limits */
     public int lastJoinedAgentTime = 0;
+    /**  The Starting Destination */
+    public final Destination startingDestination = new Destination("D-S", true, Vector2D.ZERO, Color.BLACK, 10);
+    /** Unique id count for groups */
+    public int uniqueGroupIdCount = 0;
     
     /**
      * Initialize the simulation state
@@ -318,9 +323,6 @@ public class SimulationState
             
             if( _currentSimulationRun == _simulationRunCount )
             {
-                // report all of the group sizes before exiting
-                System.out.println( successCount );
-                
                 if(!_isGraphical){
                     //do stuff for the eskridge reporter
                     addInitiationStatsToEskridgeResultsReporter();
@@ -735,7 +737,7 @@ public class SimulationState
         _predationEventsReporter.appendLine( "predation-constant=" + _predationConstant);
         _predationEventsReporter.appendLine( "run-count=" + _simulationRunCount);
         
-        Vector2D start = Destination.startingDestination.getVector();
+        Vector2D start = startingDestination.getVector();
         _predationEventsReporter.appendLine( "Destination-S=[" + start.getX() + "," + start.getY() + "]" );
         
         Map<String, Vector2D> destinationStrings = new HashMap<String, Vector2D>();

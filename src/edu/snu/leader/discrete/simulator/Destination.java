@@ -37,10 +37,10 @@ public class Destination
     
     private double _radius = 0;
     
-    /**
-     * The Starting Destination
-     */
-    public static final Destination startingDestination = new Destination("D-S", true, Vector2D.ZERO, Color.BLACK, 10);
+//    /**
+//     * The Starting Destination
+//     */
+//    public static final Destination startingDestination = new Destination("D-S", true, Vector2D.ZERO, Color.BLACK, 10);
     
     public Destination(String id, boolean isSafe, Vector2D coordinates, Color color, double radius){
         if(id == "D-S"){

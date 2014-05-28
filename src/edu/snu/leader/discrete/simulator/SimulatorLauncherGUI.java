@@ -1,3 +1,22 @@
+/*
+ *  The Bio-inspired Leadership Toolkit is a set of tools used to
+ *  simulate the emergence of leaders in multi-agent systems.
+ *  Copyright (C) 2014 Southern Nazarene University
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package edu.snu.leader.discrete.simulator;
 
 import java.awt.BorderLayout;
@@ -934,15 +953,13 @@ public class SimulatorLauncherGUI extends JFrame {
                     _simulatorProperties.put("live-delay", String.valueOf(15)); //Doesn't change
                     _simulatorProperties.put("results-dir", "results"); //Doesn't change
                     
-                    System.out.println(_simulatorProperties.toString());
-                    
                     new Thread(new Runnable() {
                         public void run(){
                             try{
                                 runSimulation();
                             }
                             catch(Exception e){
-                                
+                                e.printStackTrace();
                             }
                         }
                     }).start();
@@ -976,7 +993,7 @@ public class SimulatorLauncherGUI extends JFrame {
                 System.out.println( "Run " + run );
                 System.out.println();
                 Simulator simulator = new Simulator( run );
-                _simulatorProperties.put( "current-run", String.valueOf(run) );
+                _simulatorProperties.setProperty( "current-run", String.valueOf(run) );
                 simulator.initialize(_simulatorProperties);
                 simulator.execute();
             }
@@ -985,7 +1002,7 @@ public class SimulatorLauncherGUI extends JFrame {
             // run graphical
             DebugLocationsStructure db = new DebugLocationsStructure(
                     "Conflict Simulation", 800, 600, 60 );
-            _simulatorProperties.put( "current-run", String.valueOf(1) );
+            _simulatorProperties.setProperty( "current-run", String.valueOf(1) );
             db.initialize( _simulatorProperties, 1 );
             db.setLocation( this.getX() + this.getWidth() + 10, this.getY() );
             db.run();
