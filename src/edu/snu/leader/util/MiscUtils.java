@@ -1,6 +1,6 @@
 /*
- * COPYRIGHT
- */
+* COPYRIGHT
+*/
 package edu.snu.leader.util;
 
 // Imports
@@ -14,13 +14,13 @@ import java.util.Iterator;
 import java.util.Properties;
 
 /**
- * MiscUtils
- *
- * TODO Class description
- *
- * @author Brent Eskridge
- * @version $Revision$ ($Author$)
- */
+* MiscUtils
+*
+* TODO Class description
+*
+* @author Brent Eskridge
+* @version $Revision$ ($Author$)
+*/
 public class MiscUtils
 {
     /** Our logger */
@@ -28,11 +28,11 @@ public class MiscUtils
 
 
     /**
-     * Generates a random gaussian in the interval [0,1]
-     *
-     * @param random
-     * @return The random value
-     */
+* Generates a random gaussian in the interval [0,1]
+*
+* @param random
+* @return The random value
+*/
     public static double getUnitConstrainedGaussian( MersenneTwisterFast random )
     {
         double value = ( random.nextGaussian() / 8.0 ) + 0.5;
@@ -42,14 +42,14 @@ public class MiscUtils
     }
 
     /**
-     * Generates a random gaussian that is guaranteed to lie in the specified
-     * interval
-     *
-     * @param random
-     * @param min
-     * @param max
-     * @return The random value
-     */
+* Generates a random gaussian that is guaranteed to lie in the specified
+* interval
+*
+* @param random
+* @param min
+* @param max
+* @return The random value
+*/
     public static double getConstrainedGaussian( MersenneTwisterFast random,
             double min,
             double max )
@@ -62,10 +62,50 @@ public class MiscUtils
     }
 
     /**
-     *
-     * @param propsFileKey The property key corresponding to the experiment properties
-     * @return The properties
-     */
+* Decodes an integer from an array of bits (booleans)
+*
+* @param bitArray The array to decode
+* @param startIdx The index of the starting value
+* @param length The length of the sub array to decode
+* @return The decoded integer value
+*/
+    public static int decodeBitArray( boolean[] bitArray,
+            int startIdx,
+            int length )
+    {
+        int decoded = 0;
+        for( int i = 0; i < length; i++ )
+        {
+            int tmp = (bitArray[(i+ startIdx)] ? 1: 0) << (length - i -1);
+            decoded = decoded | tmp;
+        }
+
+        return decoded;
+    }
+
+    /**
+* Converts the gray code value to standard binary
+*
+* @param grayCode The gray code value to convert
+* @return The binary value
+*/
+    public static int convertGrayCodeToBinary( int grayCode )
+    {
+        int binary = 0;
+        while( grayCode != 0 )
+        {
+            binary ^= grayCode;
+            grayCode >>>= 1;
+        }
+
+        return binary;
+    }
+
+    /**
+*
+* @param propsFileKey The property key corresponding to the experiment properties
+* @return The properties
+*/
     public static Properties loadProperties( String propsFileKey)
     {
         _LOG.trace( "Entering loadProperties( propsFileKey )" );
@@ -124,12 +164,12 @@ public class MiscUtils
 
 
     /**
-     * Loads and instantiates the class with the specified filename
-     *
-     * @param className The name of the class to load and instantiate
-     * @param desc Description of the class for error logging
-     * @return The instantiated class
-     */
+* Loads and instantiates the class with the specified filename
+*
+* @param className The name of the class to load and instantiate
+* @param desc Description of the class for error logging
+* @return The instantiated class
+*/
     static public Object loadAndInstantiate( String className, String desc )
     {
         Object instantiated = null;
