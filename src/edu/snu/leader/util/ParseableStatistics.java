@@ -185,7 +185,6 @@ public class ParseableStatistics extends Statistics
         paramBuilder.append( newline );
         paramBuilder.append( "# =========================================================" );
         state.output.println( paramBuilder.toString(),
-                Output.V_NO_GENERAL,
                 _statLog );
 
         // Display the start time
@@ -524,7 +523,6 @@ public class ParseableStatistics extends Statistics
 
         // Display the string
         state.output.println( builder.toString() ,
-                Output.V_NO_GENERAL,
                 _statLog );
     }
 
@@ -539,7 +537,6 @@ public class ParseableStatistics extends Statistics
     {
         // Display the string
         state.output.print( str,
-                Output.V_NO_GENERAL,
                 _statLog );
     }
 

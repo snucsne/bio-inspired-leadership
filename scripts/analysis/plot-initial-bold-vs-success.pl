@@ -117,14 +117,16 @@ print INPUT "par(mgp=c(2.5,0.75,0))\n";
 #        "    ylab=\"Bold Personality Percentage\", names=datalabels, xlab=\"Group Size\",\n",
 #        "    yaxt='n', boxwex=0.5 )\n";
 #print INPUT "text( (datapositions-0.2), -0.05, labels=datalabels, srt=-50, xpd=NA, adj=0 )\n";
-print INPUT "plot( datapositions, meanvalues, type=\"o\", yaxt='n', xaxt='n',\n",
+print INPUT "plot( datapositions, meanvalues, type=\"l\", yaxt='n', xaxt='n',\n",
             "    ylab=\"\", xlab=\"Initial Bold\",\n",
             "    ylim=c($yMin,$yMax), xlim=c(0.05,0.95), col=\"",$colors[0],"\",\n",
             "    lwd=2, pch=",$plotSymbols[0]," )\n";
 print INPUT "par(fg=\"",$colors[0],"\")\n";
-print INPUT "errbar( datapositions, meanvalues, \n",
+print INPUT "par(cex=0.5)\n";
+print INPUT "errbar( datapositions, meanvalues, type=\"o\", \n",
             "    (meanvalues+sdvalues), (meanvalues-sdvalues), add=TRUE,\n",
             "    lwd=1.5, yaxt='n', pch=",$plotSymbols[0],", col=\"",$colors[0],"\")\n";
+print INPUT "par(cex=1)\n";
 print INPUT "par(fg=\"black\")\n";
 
 print INPUT "title(ylab=\"Leadership Success\", mgp = c(3.25, 1, 0), cex=1.5 )\n";

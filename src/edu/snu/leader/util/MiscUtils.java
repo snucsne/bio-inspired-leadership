@@ -62,6 +62,46 @@ public class MiscUtils
     }
 
     /**
+     * Decodes an integer from an array of bits (booleans)
+     *
+     * @param bitArray The array to decode
+     * @param startIdx The index of the starting value
+     * @param length The length of the sub array to decode
+     * @return The decoded integer value
+     */
+    public static int decodeBitArray( boolean[] bitArray,
+            int startIdx,
+            int length )
+    {
+        int decoded = 0;
+        for( int i = 0; i < length; i++ )
+        {
+            int tmp = (bitArray[(i+ startIdx)] ? 1: 0) << (length - i -1);
+            decoded = decoded | tmp;
+        }
+
+        return decoded;
+    }
+
+    /**
+     * Converts the gray code value to standard binary
+     *
+     * @param grayCode The gray code value to convert
+     * @return The binary value
+     */
+    public static int convertGrayCodeToBinary( int grayCode )
+    {
+        int binary = 0;
+        while( grayCode != 0 )
+        {
+            binary ^= grayCode;
+            grayCode >>>= 1;
+        }
+
+        return binary;
+    }
+
+    /**
      *
      * @param propsFileKey The property key corresponding to the experiment properties
      * @return The properties
