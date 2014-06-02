@@ -1,20 +1,15 @@
 /*
- *  The Bio-inspired Leadership Toolkit is a set of tools used to
- *  simulate the emergence of leaders in multi-agent systems.
- *  Copyright (C) 2014 Southern Nazarene University
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
+ * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
+ * Nazarene University This program is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or at your option) any later version. This program is distributed in the hope
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package edu.snu.leader.discrete.utils;
@@ -62,7 +57,7 @@ public class DestinationBuilder
             db.generateCircle( 55, count );
 
             db.generateOneNorth( 70 );
-            db.generateDifferentDistance(0, 200, 100, 75);
+            db.generateDifferentDistance( 0, 200, 100, 75 );
         }
     }
 
@@ -72,16 +67,20 @@ public class DestinationBuilder
         _randomSeed = seed;
         _rng = new MersenneTwisterFast( _randomSeed );
     }
-    
-    public void generateDifferentDistance( double percentNorth, double northY, double eastX, double eastY ){
+
+    public void generateDifferentDistance( double percentNorth,
+            double northY,
+            double eastX,
+            double eastY )
+    {
         _destinations = new Point2D[_destinationCount];
         // The number of north destinations
         int numberNorth = (int) Math.round( _destinationCount * percentNorth );
-        
+
         Point2D north = new Point2D.Double( 0, -northY );
-        
+
         Point2D east = new Point2D.Double( eastX, -eastY );
-        
+
         // fill destinations array
         for( int i = 0; i < _destinationCount; i++ )
         {
@@ -96,10 +95,10 @@ public class DestinationBuilder
                 _destinations[i] = east;
             }
         }
-        
-        
-        String filename = directory + "destinations-diffdis-" + _destinationCount
-                + "-per-" + percentNorth + "-seed-" + _randomSeed + ".dat";
+
+        String filename = directory + "destinations-diffdis-"
+                + _destinationCount + "-per-" + percentNorth + "-seed-"
+                + _randomSeed + ".dat";
         saveToFile( filename );
     }
 

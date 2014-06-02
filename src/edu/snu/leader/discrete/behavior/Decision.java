@@ -1,20 +1,15 @@
 /*
- *  The Bio-inspired Leadership Toolkit is a set of tools used to
- *  simulate the emergence of leaders in multi-agent systems.
- *  Copyright (C) 2014 Southern Nazarene University
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
+ * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
+ * Nazarene University This program is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or at your option) any later version. This program is distributed in the hope
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package edu.snu.leader.discrete.behavior;
@@ -26,7 +21,7 @@ public abstract class Decision
 {
     /** The probability of this decision happening */
     protected double _probability = 0.0;
-    
+
     /** The conflict of making this decision */
     protected double _conflict = 0.0;
 
@@ -69,22 +64,24 @@ public abstract class Decision
     {
         _probability = prob;
     }
-    
+
     /**
      * Gets the conflict involved with this decision
-     *
+     * 
      * @return
      */
-    public double getConflict(){
+    public double getConflict()
+    {
         return _conflict;
     }
-    
+
     /**
      * Sets the conflict involved with this decision
-     *
+     * 
      * @param conflict
      */
-    public void setConflict( double conflict ){
+    public void setConflict( double conflict )
+    {
         _conflict = conflict;
     }
 

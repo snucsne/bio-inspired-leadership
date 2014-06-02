@@ -1,20 +1,15 @@
 /*
- *  The Bio-inspired Leadership Toolkit is a set of tools used to
- *  simulate the emergence of leaders in multi-agent systems.
- *  Copyright (C) 2014 Southern Nazarene University
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
+ * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
+ * Nazarene University This program is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or at your option) any later version. This program is distributed in the hope
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package edu.snu.leader.discrete.simulator;
@@ -41,9 +36,6 @@ public class Simulator
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger( Simulator.class.getName() );
 
-//    /** Key for simulation properties file */
-//    private static final String _PROPS_FILE_KEY = "sim-properties";
-
     /** Key for the agent builder class name */
     private static final String _AGENT_BUILDER_CLASS = "agent-builder";
 
@@ -56,23 +48,10 @@ public class Simulator
     /** The agent builder */
     private AgentBuilder _agentBuilder = null;
 
-//    /** For adhesion time limits */
-//    private static int _lastJoinedAgentTime = 0;
-
     /** Adhesion time limit */
     private int _adhesionTimeLimit = 0;
 
-    /** The number of occurrences of each group size at the end of a simulation */
-//    private int[] _groupSizeCounts = null;
-
     private long _randomSeedOverride = -1;
-    
-//    private OutputFitness _simulationOutputFitness = null;
-
-//    public int[] getGroupSizeCounts()
-//    {
-//        return _groupSizeCounts;
-//    }
 
     public Simulator()
     {
@@ -90,17 +69,16 @@ public class Simulator
         return _randomSeedOverride;
     }
 
-    public void initialize(Properties properties)
+    public void initialize( Properties properties )
     {
         _LOG.trace( "Entering initialize()" );
 
         // Load the properties
-//        _props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
-        
         _props = properties;
 
-        _props.put( "random-seed-override", String.valueOf( _randomSeedOverride ) );
-        
+        _props.put( "random-seed-override",
+                String.valueOf( _randomSeedOverride ) );
+
         // Initialize the simulation state
         _simState.initialize( _props );
 
@@ -109,10 +87,6 @@ public class Simulator
         Validate.notEmpty( adhesionTimeLimit,
                 "Adhesion time limit may not be empty" );
         _adhesionTimeLimit = Integer.parseInt( adhesionTimeLimit );
-
-        // add the adhesion time limit info to root directory
-//        _simState.setRootDirectory( Reporter.ROOT_DIRECTORY
-//                + "adhesion-time-limit=" + _adhesionTimeLimit + "_" );
 
         // Load and instantiate the agent builder
         String agentBuilderClassName = _props.getProperty( _AGENT_BUILDER_CLASS );
@@ -126,13 +100,11 @@ public class Simulator
 
         // Build the agents
         buildAgents();
-        
+
         // create the predator
-        Predator predator = new Predator("P-D");
+        Predator predator = new Predator( "P-D" );
         predator.initialize( _simState );
         _simState.setPredator( predator );
-
-//        _groupSizeCounts = new int[_simState.getAgentCount() + 1];
 
         _LOG.trace( "Exiting initialize()" );
     }
@@ -165,7 +137,8 @@ public class Simulator
             while( agentIterator.hasNext() )
             {
                 Agent temp = agentIterator.next();
-                if(temp.isAlive()){
+                if( temp.isAlive() )
+                {
                     temp.makeDecision();
                 }
             }
@@ -177,7 +150,8 @@ public class Simulator
             while( agentIterator.hasNext() )
             {
                 Agent temp = agentIterator.next();
-                if(temp.isAlive()){
+                if( temp.isAlive() )
+                {
                     temp.execute();
                 }
             }
@@ -188,12 +162,14 @@ public class Simulator
             while( agentIterator.hasNext() )
             {
                 Agent temp = agentIterator.next();
-                if(temp.isAlive()){
+                if( temp.isAlive() )
+                {
                     temp.update();
                 }
             }
-            
-            if(_simState.isPredatorEnabled()){
+
+            if( _simState.isPredatorEnabled() )
+            {
                 _simState.getPredator().hunt();
             }
 
@@ -237,12 +213,9 @@ public class Simulator
     {
         _simState.lastJoinedAgentTime = 0;
     }
-    
-//    public void setSimulationOutputFitness(OutputFitness of){
-//        _simulationOutputFitness = of;
-//    }
-    
-    public EvolutionOutputFitness getSimulationOutputFitness(){
+
+    public EvolutionOutputFitness getSimulationOutputFitness()
+    {
         return _simState.getSimulationOutputFitness();
     }
 
@@ -269,6 +242,7 @@ public class Simulator
             {
                 Agent temp = agentIterator.next();
 
+                // increment group size counts based on decision made
                 if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
                         DecisionType.FOLLOW ) )
                 {
@@ -280,13 +254,9 @@ public class Simulator
                     groupCount++;
                     initiationAgent = temp;
                 }
-                // if an agent is canceling then this simulation is finished
                 else if( temp.getCurrentDecision().getDecision().getDecisionType().equals(
                         DecisionType.CANCELLATION ) )
                 {
-                    // temp.endOfInitiation( false, groupCount );
-                    // isActive = false;
-                    // break;
                     groupCount++;
                 }
             }
@@ -298,40 +268,50 @@ public class Simulator
                 // this run is done
                 if( _simState.lastJoinedAgentTime > _adhesionTimeLimit )
                 {
-                    System.out.println("Adhesion Time Exit");
+                    System.out.println( "Adhesion Time Exit" );
                     initiationAgent.endOfInitiation( false, groupCount );
                     isActive = false;
                 }
+                // if this initiator is cancelling then simulation is over
                 if( initiationAgent.getCurrentDecision().getDecision().getDecisionType().equals(
                         DecisionType.CANCELLATION ) )
                 {
                     initiationAgent.endOfInitiation( false, groupCount );
                     isActive = false;
                 }
+                // if this initiator received enough followers than this run is
+                // over
                 if( groupCount / (float) _simState.getAgentCount() >= initiationAgent.getCancelThreshold() )
                 {
                     _simState.successCount++;
                     initiationAgent.endOfInitiation( true, groupCount );
                     isActive = false;
                 }
+                // increment last joined agent time
                 _simState.lastJoinedAgentTime++;
             }
+            // everyone is group so its over
             if( groupCount >= _simState.getAgentCount() )
             {
                 isActive = false;
             }
 
+            // if its not active, then increment the group count that was
+            // achieved in the array
             if( !isActive )
             {
                 _simState.groupSizeCounts[groupCount]++;
-//                _groupSizeCounts[groupCount]++;
             }
         }
         // do the simulation for as many time steps as there are
         else if( _simState.getSimulationTime() < _simState.getMaxSimulationTimeSteps() )
         {
             isActive = true;
-            if(_simState.numReachedDestination >= _simState.getAgentCount() - _simState.getPredator().getTotalAgentsEaten()){
+            // if all of the alive agents have reached their destination then we
+            // are finished
+            if( _simState.numReachedDestination >= _simState.getAgentCount()
+                    - _simState.getPredator().getTotalAgentsEaten() )
+            {
                 _simState.successCount++;
                 isActive = false;
             }

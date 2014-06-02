@@ -1,20 +1,15 @@
 /*
- *  The Bio-inspired Leadership Toolkit is a set of tools used to
- *  simulate the emergence of leaders in multi-agent systems.
- *  Copyright (C) 2014 Southern Nazarene University
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
+ * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
+ * Nazarene University This program is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or at your option) any later version. This program is distributed in the hope
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package edu.snu.leader.discrete.simulator;
@@ -54,14 +49,17 @@ import edu.snu.leader.discrete.utils.Reporter;
  */
 public class SimulationState
 {
-    private boolean _shouldReportEskridge = false;//only for nongraphical
+    private boolean _shouldReportEskridge = false;// only for nongraphical
+
     private boolean _shouldReportConflict = false;
+
     private boolean _shouldReportPosition = false;
+
     private boolean _shouldReportPredation = false;
-    
+
     /** Used for the Eskridge reporter */
     private final String SPACER = "=========================================================";
-    
+
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger( SimulationState.class.getName() );
 
@@ -88,13 +86,13 @@ public class SimulationState
 
     /** All the agents in the simulation */
     private List<Agent> _agents = new LinkedList<Agent>();
-    
+
     /** The predator in the simulation */
     private Predator _predator = null;
-    
+
     /** Whether the predator is enabled or not */
     private boolean _predatorEnabled = false;
-    
+
     /** The predation probability modifier */
     private double _predationConstant = 0.0;
 
@@ -104,77 +102,99 @@ public class SimulationState
     /** String for communication type */
     private String _communicationType = null;
 
-    /** Reporter for reporting the results in a way that Dr. Eskridge's files can analyze */
+    /**
+     * Reporter for reporting the results in a way that Dr. Eskridge's files can
+     * analyze
+     */
     private Reporter _eskridgeResultsReporter = null;
-    /** Reporter for reporting the results from the multi initiator conflict tests */
+
+    /**
+     * Reporter for reporting the results from the multi initiator conflict
+     * tests
+     */
     private Reporter _conflictResultsReporter = null;
+
     /** Reporter for reporting the events for predation */
     private Reporter _predationEventsReporter = null;
-    
+
     public List<ConflictHistoryEvent> conflictEvents = null;
-    
+
     private EvolutionOutputFitness _simulationOutputFitness = null;
 
     private int _destinationSizeRadius = 0;
+
     private boolean _isGraphical = false;
-    
-    //previously static variables are below
+
+    // previously static variables are below
     public int successCount = 0;
+
     public int[] groupSizeCounts;
+
     public long randomSeedOverride = -1;
+
     /** The number of agents that have made the stop decision */
     public int numReachedDestination = 0;
+
     public int numInitiating = 0;
-    /** Total number of groups.  */
+
+    /** Total number of groups. */
     public int totalNumGroups = 1;
+
     /** Array that keeps track of what colors are in use so they can be recycled */
     public boolean[] colorsInUse = new boolean[70];
+
     /** Array of 70 unique colors to use for groups */
-    public Color[] colors = { new Color( 0x000000 ),
-            new Color( 0x9ACD32 ), new Color( 0x008080 ),
-            new Color( 0xF5DEB3 ), new Color( 0xEE82EE ),
-            new Color( 0x40E0D0 ), new Color( 0xFF6347 ),
-            new Color( 0xD8BFD8 ), new Color( 0xFFFF00 ),
-            new Color( 0x4682B4 ), new Color( 0x00FF7F ),
-            new Color( 0x708090 ), new Color( 0x6A5ACD ),
-            new Color( 0x87CEEB ), new Color( 0xC0C0C0 ),
-            new Color( 0xA0522D ), new Color( 0x2E8B57 ),
-            new Color( 0xF4A460 ), new Color( 0xFA8072 ),
-            new Color( 0x8B4513 ), new Color( 0x4169E1 ),
-            new Color( 0xBC8F8F ), new Color( 0xFF0000 ),
-            new Color( 0x800080 ), new Color( 0xB0E0E6 ),
-            new Color( 0xDDA0DD ), new Color( 0xFFC0CB ),
-            new Color( 0xCD853F ), new Color( 0xFFDAB9 ),
-            new Color( 0xFFEFD5 ), new Color( 0xDB7093 ),
-            new Color( 0x98FB98 ), new Color( 0xEEE8AA ),
-            new Color( 0xDA70D6 ), new Color( 0xFF4500 ),
-            new Color( 0xFFA500 ), new Color( 0x6B8E23 ),
-            new Color( 0x000080 ), new Color( 0xFFDEAD ),
-            new Color( 0xF0A0AA ), new Color( 0x191970 ),
-            new Color( 0xC71585 ), new Color( 0x48D1CC ),
-            new Color( 0x00FA9A ), new Color( 0x7B68EE ),
-            new Color( 0x3CB371 ), new Color( 0x0000CD ),
-            new Color( 0x66CDAA ), new Color( 0x800000 ),
-            new Color( 0x32CD32 ), new Color( 0x00FF00 ),
-            new Color( 0xFFFFE0 ), new Color( 0xB0C4DE ),
-            new Color( 0x778899 ), new Color( 0x87CEFA ),
-            new Color( 0x20B2AA ), new Color( 0xFFA07A ),
-            new Color( 0xFFB6C1 ), new Color( 0x90EE90 ),
-            new Color( 0xD3D3D3 ), new Color( 0xFAFAD2 ),
-            new Color( 0xE0FFFF ), new Color( 0xF08080 ),
-            new Color( 0xADD8E6 ), new Color( 0x7CFC00 ),
-            new Color( 0x4B0082 ), new Color( 0xFF69B4 ),
-            new Color( 0xFFD700 ), new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
+    public Color[] colors = { new Color( 0x000000 ), new Color( 0x9ACD32 ),
+            new Color( 0x008080 ), new Color( 0xF5DEB3 ),
+            new Color( 0xEE82EE ), new Color( 0x40E0D0 ),
+            new Color( 0xFF6347 ), new Color( 0xD8BFD8 ),
+            new Color( 0xFFFF00 ), new Color( 0x4682B4 ),
+            new Color( 0x00FF7F ), new Color( 0x708090 ),
+            new Color( 0x6A5ACD ), new Color( 0x87CEEB ),
+            new Color( 0xC0C0C0 ), new Color( 0xA0522D ),
+            new Color( 0x2E8B57 ), new Color( 0xF4A460 ),
+            new Color( 0xFA8072 ), new Color( 0x8B4513 ),
+            new Color( 0x4169E1 ), new Color( 0xBC8F8F ),
+            new Color( 0xFF0000 ), new Color( 0x800080 ),
+            new Color( 0xB0E0E6 ), new Color( 0xDDA0DD ),
+            new Color( 0xFFC0CB ), new Color( 0xCD853F ),
+            new Color( 0xFFDAB9 ), new Color( 0xFFEFD5 ),
+            new Color( 0xDB7093 ), new Color( 0x98FB98 ),
+            new Color( 0xEEE8AA ), new Color( 0xDA70D6 ),
+            new Color( 0xFF4500 ), new Color( 0xFFA500 ),
+            new Color( 0x6B8E23 ), new Color( 0x000080 ),
+            new Color( 0xFFDEAD ), new Color( 0xF0A0AA ),
+            new Color( 0x191970 ), new Color( 0xC71585 ),
+            new Color( 0x48D1CC ), new Color( 0x00FA9A ),
+            new Color( 0x7B68EE ), new Color( 0x3CB371 ),
+            new Color( 0x0000CD ), new Color( 0x66CDAA ),
+            new Color( 0x800000 ), new Color( 0x32CD32 ),
+            new Color( 0x00FF00 ), new Color( 0xFFFFE0 ),
+            new Color( 0xB0C4DE ), new Color( 0x778899 ),
+            new Color( 0x87CEFA ), new Color( 0x20B2AA ),
+            new Color( 0xFFA07A ), new Color( 0xFFB6C1 ),
+            new Color( 0x90EE90 ), new Color( 0xD3D3D3 ),
+            new Color( 0xFAFAD2 ), new Color( 0xE0FFFF ),
+            new Color( 0xF08080 ), new Color( 0xADD8E6 ),
+            new Color( 0x7CFC00 ), new Color( 0x4B0082 ),
+            new Color( 0xFF69B4 ), new Color( 0xFFD700 ),
+            new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
+
     /** The current run of the simulator */
     public int run = 0;
+
     public Group noneGroup;
+
     /** For adhesion time limits */
     public int lastJoinedAgentTime = 0;
-    /**  The Starting Destination */
-    public final Destination startingDestination = new Destination("D-S", true, Vector2D.ZERO, Color.BLACK, 10);
+
+    /** The Starting Destination */
+    public final Destination startingDestination = new Destination( "D-S",
+            true, Vector2D.ZERO, Color.BLACK, 10 );
+
     /** Unique id count for groups */
     public int uniqueGroupIdCount = 0;
-    
+
     /**
      * Initialize the simulation state
      * 
@@ -188,22 +208,24 @@ public class SimulationState
         _props = props;
 
         String useRandomRandomSeedStr = _props.getProperty( "use-random-random-seed" );
-        Validate.notEmpty( useRandomRandomSeedStr, "use-random-random-seed required" );
+        Validate.notEmpty( useRandomRandomSeedStr,
+                "use-random-random-seed required" );
         boolean useRandomRandomSeed = Boolean.parseBoolean( useRandomRandomSeedStr );
-        
+
         // Get the random number generator seed
         String randomSeedStr = props.getProperty( _RANDOM_SEED_KEY );
         Validate.notEmpty( randomSeedStr, "Random seed is required" );
         long seed = Long.parseLong( randomSeedStr );
-        if(Integer.parseInt(_props.getProperty( "random-seed-override" )) != -1 && !useRandomRandomSeed){
-//        if(Simulator.getRandomSeedOverride() != -1 && !useRandomRandomSeed){
-//            seed = Simulator.getRandomSeedOverride();
-            seed = Integer.parseInt(_props.getProperty( "random-seed-override" ));
-            _props.put( "random-seed", String.valueOf(seed) );
+        if( Integer.parseInt( _props.getProperty( "random-seed-override" ) ) != -1
+                && !useRandomRandomSeed )
+        {
+            seed = Integer.parseInt( _props.getProperty( "random-seed-override" ) );
+            _props.put( "random-seed", String.valueOf( seed ) );
         }
-        else if(useRandomRandomSeed){
+        else if( useRandomRandomSeed )
+        {
             seed = System.currentTimeMillis();
-            _props.put( "random-seed", String.valueOf(seed) );
+            _props.put( "random-seed", String.valueOf( seed ) );
         }
         _random = new MersenneTwisterFast( seed );
 
@@ -215,7 +237,7 @@ public class SimulationState
         Validate.notEmpty( maxSimulationTimeSteps,
                 "Max simulation time steps required" );
         _maxSimulationTimeSteps = Integer.parseInt( maxSimulationTimeSteps );
-        
+
         String destinationSizeRadius = _props.getProperty( "destination-size-radius" );
         Validate.notEmpty( destinationSizeRadius,
                 "destination-size-radius required" );
@@ -224,59 +246,75 @@ public class SimulationState
         _communicationType = getProperties().getProperty( "communication-type" );
         Validate.notEmpty( _communicationType,
                 "Communication type may not be empty" );
-        
+
         String stringShouldRunGraphical = _props.getProperty( "run-graphical" );
-        Validate.notEmpty( stringShouldRunGraphical, "Run graphical option required" );
+        Validate.notEmpty( stringShouldRunGraphical,
+                "Run graphical option required" );
         _isGraphical = Boolean.parseBoolean( stringShouldRunGraphical );
-        
+
         String stringShouldReportEskridge = _props.getProperty( "eskridge-results" );
-        Validate.notEmpty( stringShouldReportEskridge, "Eskridge results required" );
+        Validate.notEmpty( stringShouldReportEskridge,
+                "Eskridge results required" );
         _shouldReportEskridge = Boolean.parseBoolean( stringShouldReportEskridge );
-        
+
         String stringShouldReportConflict = _props.getProperty( "conflict-results" );
-        Validate.notEmpty( stringShouldReportConflict, "Conflict results required" );
+        Validate.notEmpty( stringShouldReportConflict,
+                "Conflict results required" );
         _shouldReportConflict = Boolean.parseBoolean( stringShouldReportConflict );
-        
+
         String stringShouldReportPosition = _props.getProperty( "position-results" );
-        Validate.notEmpty( stringShouldReportPosition, "Position results required" );
+        Validate.notEmpty( stringShouldReportPosition,
+                "Position results required" );
         _shouldReportPosition = Boolean.parseBoolean( stringShouldReportPosition );
-        
+
         String stringShouldReportPredation = _props.getProperty( "predation-results" );
-        Validate.notEmpty( stringShouldReportPredation, "Predation results required" );
+        Validate.notEmpty( stringShouldReportPredation,
+                "Predation results required" );
         _shouldReportPredation = Boolean.parseBoolean( stringShouldReportPredation );
 
         String stringPredatorEnabled = _props.getProperty( "enable-predator" );
         Validate.notEmpty( stringPredatorEnabled, "Enable predator required" );
         _predatorEnabled = Boolean.parseBoolean( stringPredatorEnabled );
-        
+
         String stringPredatorMultiplier = _props.getProperty( "predation-multiplier" );
-        Validate.notEmpty( stringPredatorMultiplier, "Predation multiplier required" );
+        Validate.notEmpty( stringPredatorMultiplier,
+                "Predation multiplier required" );
         _predationConstant = Double.parseDouble( stringPredatorMultiplier );
-        
-        run = Integer.parseInt(_props.getProperty( "current-run" ));
-        
-        // Reporter.ROOT_DIRECTORY = getProperties().getProperty( "results-dir"
-        // );
-        // Validate.notEmpty( Reporter.ROOT_DIRECTORY, "results dir required" );
+
+        run = Integer.parseInt( _props.getProperty( "current-run" ) );
 
         // add communication type to root directory path
         setRootDirectory( "results_" + _communicationType + "_" );
 
-        noneGroup = new Group(this);
+        // create the non group and it it to the list of groups
+        noneGroup = new Group( this );
         _groups.add( noneGroup );
-        
+
+        // set up the group size counts
         groupSizeCounts = new int[getAgentCount() + 1];
-        
+
+        // create list of conflict events
         conflictEvents = new LinkedList<ConflictHistoryEvent>();
-        _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-" + String.format( "%05d", run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
-        _conflictResultsReporter = new Reporter( "conflict-spatial-hidden-var-" + String.format( "%05d", run ) + "-seed-" + String.format("%05d", seed) + ".dat" , "", false );
-        _predationEventsReporter = new Reporter( "predation-spacial-hidden-var-" + String.format( "%05d", run ) + "-seed-" + String.format("%05d", seed) + "-pred_const-" + String.format( "%2.5f", _predationConstant ) + ".dat" , "", false );
-        addPropertiesOutputToResultsReporter(_eskridgeResultsReporter);
+
+        // create and setup reporters
+        _eskridgeResultsReporter = new Reporter( "short-spatial-hidden-var-"
+                + String.format( "%05d", run ) + "-seed-"
+                + String.format( "%05d", seed ) + ".dat", "", false );
+        _conflictResultsReporter = new Reporter( "conflict-spatial-hidden-var-"
+                + String.format( "%05d", run ) + "-seed-"
+                + String.format( "%05d", seed ) + ".dat", "", false );
+        _predationEventsReporter = new Reporter(
+                "predation-spacial-hidden-var-" + String.format( "%05d", run )
+                        + "-seed-" + String.format( "%05d", seed )
+                        + "-pred_const-"
+                        + String.format( "%2.5f", _predationConstant ) + ".dat",
+                "", false );
+        addPropertiesOutputToResultsReporter( _eskridgeResultsReporter );
         addPropertiesOutputToResultsReporter( _conflictResultsReporter );
         addPropertiesOutputToResultsReporter( _predationEventsReporter );
         _LOG.trace( "Leaving initialize( props )" );
     }
-    
+
     /**
      * Sets up the simulation for the next run
      */
@@ -294,22 +332,24 @@ public class SimulationState
             _groups.clear();
             _groups.add( noneGroup );
 
+            // create the output fitness
             _simulationOutputFitness = createSimulationOutputFitness();
-            
+
             Iterator<Agent> agentIter = getAgentIterator();
             while( agentIter.hasNext() )
             {
                 Agent temp = agentIter.next();
+                // report positions if desired
                 temp.reportPositions( _shouldReportPosition );
                 // reset Agents
                 temp.reset();
             }
             numInitiating = 0;
             numReachedDestination = 0;
-            
-            //reset predator
+
+            // reset predator
             _predator.setupNextRun();
-            
+
             // report the all run information and clear it for next run
             System.out.println( "Finished sim run " + _currentSimulationRun );
             System.out.println( "==========================================" );
@@ -319,12 +359,12 @@ public class SimulationState
             _eskridgeResultsReporter.incrementSimulationRun();
             _predationEventsReporter.incrementSimulationRun();
             _conflictResultsReporter.incrementSimulationRun();
-            
-            
+
             if( _currentSimulationRun == _simulationRunCount )
             {
-                if(!_isGraphical){
-                    //do stuff for the eskridge reporter
+                if( !_isGraphical )
+                {
+                    // do stuff for the eskridge reporter
                     addInitiationStatsToEskridgeResultsReporter();
                     addMovementCountsToEskridgeResultsReporter();
                     addFinalInitiatorCountsToEskridgeResultsReporter();
@@ -334,30 +374,34 @@ public class SimulationState
                     addAggregateDataToEskridgeResultsReporter();
                     _eskridgeResultsReporter.report( _shouldReportEskridge );
                 }
-                
-                //do stuff for conflict events reporter
+
+                // do stuff for conflict events reporter
                 addConflictEventsToConflictResultsReporter();
                 _conflictResultsReporter.report( _shouldReportConflict );
-                
-                //do stuff for predation reporter
+
+                // do stuff for predation reporter
                 addPredationResultsToPredationReporter();
                 _predationEventsReporter.report( _shouldReportPredation );
-                
+
                 System.out.println( "Done" );
             }
         }
     }
-    
+
     /**
      * Sets up the simulation for the next run step
      */
     public void setupNextSimulationRunStep()
     {
+        // setup next step for predator
         _predator.setupNextTimeStep();
+        // increment time alive for agents
         Iterator<Agent> iter = getAgentIterator();
-        while(iter.hasNext()){
+        while( iter.hasNext() )
+        {
             iter.next().incrementTimeAlive();
         }
+        // increment simulation time
         _simulationTime++;
     }
 
@@ -420,12 +464,14 @@ public class SimulationState
     {
         return _random;
     }
-    
-    public void setPredator( Predator predator ){
+
+    public void setPredator( Predator predator )
+    {
         _predator = predator;
     }
-    
-    public Predator getPredator(){
+
+    public Predator getPredator()
+    {
         return _predator;
     }
 
@@ -468,15 +514,17 @@ public class SimulationState
     {
         return _agents.size();
     }
-    
-    public int getDestinationRadius(){
+
+    public int getDestinationRadius()
+    {
         return _destinationSizeRadius;
     }
-    
-    public boolean isPredatorEnabled(){
+
+    public boolean isPredatorEnabled()
+    {
         return _predatorEnabled;
     }
-    
+
     public int getNumberGroups()
     {
         int temp = -1;
@@ -489,342 +537,431 @@ public class SimulationState
         }
         return temp;
     }
-    
-    
-    private void addPropertiesOutputToResultsReporter(Reporter reporter){
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+    private void addPropertiesOutputToResultsReporter( Reporter reporter )
+    {
+        DateFormat dateFormat = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
         Date date = new Date();
         reporter.appendLine( "# Started: " + dateFormat.format( date ) );
-        reporter.appendLine( "# " + SPACER);
+        reporter.appendLine( "# " + SPACER );
         reporter.appendLine( "# Simulation properties" );
-        reporter.appendLine( "# " + SPACER);
-        
+        reporter.appendLine( "# " + SPACER );
+
         Enumeration<Object> keys = _props.keys();
         String[] keysArray = new String[_props.size()];
         int count = 0;
-        while(keys.hasMoreElements()){
+        while( keys.hasMoreElements() )
+        {
             String currentKey = (String) keys.nextElement();
             keysArray[count] = currentKey;
             count++;
         }
         Arrays.sort( keysArray );
-        for(int i = 0; i < keysArray.length; i++){
-            reporter.appendLine( "# " + keysArray[i] + " = " + _props.getProperty( keysArray[i] ));
+        for( int i = 0; i < keysArray.length; i++ )
+        {
+            reporter.appendLine( "# " + keysArray[i] + " = "
+                    + _props.getProperty( keysArray[i] ) );
         }
-        
-        reporter.appendLine( "# " + SPACER);
-        reporter.appendLine("");
+
+        reporter.appendLine( "# " + SPACER );
+        reporter.appendLine( "" );
     }
-    
-    private void addInitiationStatsToEskridgeResultsReporter(){
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+
+    private void addInitiationStatsToEskridgeResultsReporter()
+    {
+        _eskridgeResultsReporter.appendLine( "# " + SPACER );
         _eskridgeResultsReporter.appendLine( "# Initiation stats" );
-        _eskridgeResultsReporter.appendLine( "initiations = " + _simulationRunCount);
+        _eskridgeResultsReporter.appendLine( "initiations = "
+                + _simulationRunCount );
         _eskridgeResultsReporter.appendLine( "successes = " + successCount );
-        _eskridgeResultsReporter.appendLine( "total-simulations = " + _simulationRunCount);
-        _eskridgeResultsReporter.appendLine( "total-successful-simulations = " + successCount);
-        _eskridgeResultsReporter.appendLine( "total-leadership-success = " + (successCount / (float)_simulationRunCount));
-        _eskridgeResultsReporter.appendLine("");
+        _eskridgeResultsReporter.appendLine( "total-simulations = "
+                + _simulationRunCount );
+        _eskridgeResultsReporter.appendLine( "total-successful-simulations = "
+                + successCount );
+        _eskridgeResultsReporter.appendLine( "total-leadership-success = "
+                + ( successCount / (float) _simulationRunCount ) );
+        _eskridgeResultsReporter.appendLine( "" );
     }
-    
-    private void addMovementCountsToEskridgeResultsReporter(){
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+
+    private void addMovementCountsToEskridgeResultsReporter()
+    {
+        _eskridgeResultsReporter.appendLine( "# " + SPACER );
         _eskridgeResultsReporter.appendLine( "# Movement counts" );
-//        int[] groupSizeCounts = Simulator.getGroupSizeCounts();
-        for(int i = 0; i < groupSizeCounts.length; i++){
-            _eskridgeResultsReporter.appendLine( "move." + String.format( "%02d", i ) + " = " + groupSizeCounts[i] );
+        // int[] groupSizeCounts = Simulator.getGroupSizeCounts();
+        for( int i = 0; i < groupSizeCounts.length; i++ )
+        {
+            _eskridgeResultsReporter.appendLine( "move."
+                    + String.format( "%02d", i ) + " = " + groupSizeCounts[i] );
         }
-        _eskridgeResultsReporter.appendLine("");
+        _eskridgeResultsReporter.appendLine( "" );
     }
-    
-    private void addFinalInitiatorCountsToEskridgeResultsReporter(){
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+
+    private void addFinalInitiatorCountsToEskridgeResultsReporter()
+    {
+        _eskridgeResultsReporter.appendLine( "# " + SPACER );
         _eskridgeResultsReporter.appendLine( "# Final initiator counts" );
-        
-        _eskridgeResultsReporter.appendLine("final-initiators.00 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.01 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.02 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.03 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.04 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.05 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.06 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.07 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.08 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.09 = 0");
-        _eskridgeResultsReporter.appendLine("final-initiators.10 = 0");
-        
-        _eskridgeResultsReporter.appendLine("");
+
+        _eskridgeResultsReporter.appendLine( "final-initiators.00 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.01 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.02 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.03 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.04 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.05 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.06 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.07 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.08 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.09 = 0" );
+        _eskridgeResultsReporter.appendLine( "final-initiators.10 = 0" );
+
+        _eskridgeResultsReporter.appendLine( "" );
     }
-    
-    private void addMaxInitiatorCountsToEskridgeResultsReporter(){
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+
+    private void addMaxInitiatorCountsToEskridgeResultsReporter()
+    {
+        _eskridgeResultsReporter.appendLine( "# " + SPACER );
         _eskridgeResultsReporter.appendLine( "# Max initiator counts" );
-        
-        _eskridgeResultsReporter.appendLine("max-initiators.00 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.01 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.02 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.03 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.04 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.05 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.06 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.07 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.08 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.09 = 0");
-        _eskridgeResultsReporter.appendLine("max-initiators.10 = 0");
-        
-        _eskridgeResultsReporter.appendLine("");
+
+        _eskridgeResultsReporter.appendLine( "max-initiators.00 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.01 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.02 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.03 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.04 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.05 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.06 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.07 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.08 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.09 = 0" );
+        _eskridgeResultsReporter.appendLine( "max-initiators.10 = 0" );
+
+        _eskridgeResultsReporter.appendLine( "" );
     }
-    
-    private void addIndividualInititationStatsToEskridgeResultsReporter(){
+
+    private void addIndividualInititationStatsToEskridgeResultsReporter()
+    {
         String indInitStatPreceeding = "initiation.Ind";
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+        _eskridgeResultsReporter.appendLine( "# " + SPACER );
         _eskridgeResultsReporter.appendLine( "# Individual initiation stats" );
         Iterator<Agent> iter = _agents.iterator();
         int i = 0;
-        while(iter.hasNext()){
+        while( iter.hasNext() )
+        {
             Agent temp = iter.next();
-            _eskridgeResultsReporter.appendLine( indInitStatPreceeding + String.format("%05d", i) + ".attempts = " + temp.getNumberTimesInitiated() );
-            _eskridgeResultsReporter.appendLine( indInitStatPreceeding + String.format("%05d", i) + ".successes = " + temp.getNumberTimesSuccessful() );
-            _eskridgeResultsReporter.appendLine( indInitStatPreceeding + String.format("%05d", i) + ".attempt-percentage = " + (temp.getNumberTimesInitiated() / (float)_simulationRunCount) );
-            _eskridgeResultsReporter.appendLine( indInitStatPreceeding + String.format("%05d", i) + ".success-percentage = " + (temp.getNumberTimesSuccessful() / (float)_simulationRunCount) );
-            _eskridgeResultsReporter.appendLine("");
-            _eskridgeResultsReporter.appendLine("");
+            _eskridgeResultsReporter.appendLine( indInitStatPreceeding
+                    + String.format( "%05d", i ) + ".attempts = "
+                    + temp.getNumberTimesInitiated() );
+            _eskridgeResultsReporter.appendLine( indInitStatPreceeding
+                    + String.format( "%05d", i ) + ".successes = "
+                    + temp.getNumberTimesSuccessful() );
+            _eskridgeResultsReporter.appendLine( indInitStatPreceeding
+                    + String.format( "%05d", i )
+                    + ".attempt-percentage = "
+                    + ( temp.getNumberTimesInitiated() / (float) _simulationRunCount ) );
+            _eskridgeResultsReporter.appendLine( indInitStatPreceeding
+                    + String.format( "%05d", i )
+                    + ".success-percentage = "
+                    + ( temp.getNumberTimesSuccessful() / (float) _simulationRunCount ) );
+            _eskridgeResultsReporter.appendLine( "" );
+            _eskridgeResultsReporter.appendLine( "" );
             i++;
         }
-        _eskridgeResultsReporter.appendLine("");
+        _eskridgeResultsReporter.appendLine( "" );
     }
-    
-    private void addIndividualDataToEskridgeResultsReporter(){
+
+    private void addIndividualDataToEskridgeResultsReporter()
+    {
         String indDataPreceeding = "individual.";
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+        _eskridgeResultsReporter.appendLine( "# " + SPACER );
         _eskridgeResultsReporter.appendLine( "# Individual data" );
         Iterator<Agent> iter = _agents.iterator();
         int i = 0;
-        while(iter.hasNext()){
+        while( iter.hasNext() )
+        {
             Agent temp = iter.next();
             List<Agent> neighbors = temp.getNearestNeighbors();
             StringBuilder neighborBuilder = new StringBuilder();
             Iterator<Agent> neighborIter = neighbors.iterator();
-            while(neighborIter.hasNext()){
+            while( neighborIter.hasNext() )
+            {
                 String agentName = (String) neighborIter.next().getId();
-                agentName =  agentName.replaceAll( "Agent", "");
-                neighborBuilder.append( "Ind" + String.format( "%05d", Integer.parseInt( agentName )) + " ");
+                agentName = agentName.replaceAll( "Agent", "" );
+                neighborBuilder.append( "Ind"
+                        + String.format( "%05d", Integer.parseInt( agentName ) )
+                        + " " );
             }
-            
+
             StringBuilder initiationHistoryBuilder = new StringBuilder();
             Iterator<InitiationHistoryEvent> initHistory = temp.getInitiationHistory().iterator();
-            while(initHistory.hasNext()){
+            while( initHistory.hasNext() )
+            {
                 InitiationHistoryEvent event = initHistory.next();
                 initiationHistoryBuilder.append( "[" + event.simRun + " "
-                        + event.beforePersonality + " "
-                        + event.wasSuccess + " "
-                        + event.afterPersonality + " "
-                        + event.participants + "] ");
+                        + event.beforePersonality + " " + event.wasSuccess
+                        + " " + event.afterPersonality + " "
+                        + event.participants + "] " );
             }
-            
-            String agentId = "Ind" + String.format("%05d", i);
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".location = " + String.format("%1.4f", temp.getCurrentLocation().getX()) + " " + String.format("%1.4f", temp.getCurrentLocation().getY()));
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".personality = " + temp.getPersonalityTrait().getPersonality() );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".assertiveness = " + temp.getPersonalityTrait().getPersonality() );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".preferred-direction = 0.0");
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".conflict = 0.0" );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".nearest-neighbors = " + neighborBuilder.toString() );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".eigenvector-centrality = %%%" + agentId + "-EIGENVECTOR-CENTRALITY%%%" );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".betweenness = %%%" + agentId + "-BETWEENNESS%%%");
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".sna-todo = %%%" + agentId + "-sna-todo%%%" );
-            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId + ".initiation-history = " + initiationHistoryBuilder.toString() );
-            _eskridgeResultsReporter.appendLine("");
-            _eskridgeResultsReporter.appendLine("");
+
+            String agentId = "Ind" + String.format( "%05d", i );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".location = "
+                    + String.format( "%1.4f", temp.getCurrentLocation().getX() )
+                    + " "
+                    + String.format( "%1.4f", temp.getCurrentLocation().getY() ) );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".personality = "
+                    + temp.getPersonalityTrait().getPersonality() );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".assertiveness = "
+                    + temp.getPersonalityTrait().getPersonality() );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".preferred-direction = 0.0" );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".conflict = 0.0" );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".nearest-neighbors = " + neighborBuilder.toString() );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".eigenvector-centrality = %%%" + agentId
+                    + "-EIGENVECTOR-CENTRALITY%%%" );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".betweenness = %%%" + agentId + "-BETWEENNESS%%%" );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".sna-todo = %%%" + agentId + "-sna-todo%%%" );
+            _eskridgeResultsReporter.appendLine( indDataPreceeding + agentId
+                    + ".initiation-history = "
+                    + initiationHistoryBuilder.toString() );
+            _eskridgeResultsReporter.appendLine( "" );
+            _eskridgeResultsReporter.appendLine( "" );
             i++;
         }
-        
-        _eskridgeResultsReporter.appendLine("");
+
+        _eskridgeResultsReporter.appendLine( "" );
     }
 
-    private void addAggregateDataToEskridgeResultsReporter(){
-        _eskridgeResultsReporter.appendLine( "# " + SPACER);
+    private void addAggregateDataToEskridgeResultsReporter()
+    {
+        _eskridgeResultsReporter.appendLine( "# " + SPACER );
         _eskridgeResultsReporter.appendLine( "# Aggregate data" );
 
         double averageX = 0.0;
         double averageY = 0.0;
-        
+
         Iterator<Agent> iter = _agents.iterator();
         int agentCount = 0;
-        while(iter.hasNext()){
+        while( iter.hasNext() )
+        {
             Agent temp = iter.next();
             averageX += temp.getCurrentLocation().getX();
             averageY += temp.getCurrentLocation().getY();
-            
+
             agentCount++;
         }
-        
+
         averageX /= agentCount;
         averageY /= agentCount;
-        
-        _eskridgeResultsReporter.appendLine("modularity = 0");
-        _eskridgeResultsReporter.appendLine("mean.position = " + String.format("%1.4f", averageX) + " " + String.format("%1.4f", averageY));
-        
-        _eskridgeResultsReporter.appendLine("");
+
+        _eskridgeResultsReporter.appendLine( "modularity = 0" );
+        _eskridgeResultsReporter.appendLine( "mean.position = "
+                + String.format( "%1.4f", averageX ) + " "
+                + String.format( "%1.4f", averageY ) );
+
+        _eskridgeResultsReporter.appendLine( "" );
     }
-    
-    private void addConflictEventsToConflictResultsReporter(){
-        _conflictResultsReporter.appendLine( "# " + SPACER);
-        _conflictResultsReporter.appendLine( "# Conflict Events");
+
+    private void addConflictEventsToConflictResultsReporter()
+    {
+        _conflictResultsReporter.appendLine( "# " + SPACER );
+        _conflictResultsReporter.appendLine( "# Conflict Events" );
         _conflictResultsReporter.appendLine( "# Run  Time  Agent    Dest  Dec Type     Leader    Event(Type:Leader:Prob:Conflict)" );
-        
+
         StringBuilder b = new StringBuilder();
-        
+
         Iterator<ConflictHistoryEvent> iterC = conflictEvents.iterator();
-        while(iterC.hasNext()){
+        while( iterC.hasNext() )
+        {
             ConflictHistoryEvent tempC = iterC.next();
-            
+
             String agentName = tempC.agentId;
-            agentName =  agentName.replaceAll( "Agent", "");
-            agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
-            
-            b.append( String.format( "%03d", tempC.currentRun) + "  ");
-            b.append( String.format("%06d", tempC.timeStep) + "  ");
-            b.append( agentName + "  ");
-            b.append( tempC.destinationId + "  ");
-            
+            agentName = agentName.replaceAll( "Agent", "" );
+            agentName = "Ind"
+                    + String.format( "%05d", Integer.parseInt( agentName ) );
+
+            b.append( String.format( "%03d", tempC.currentRun ) + "  " );
+            b.append( String.format( "%06d", tempC.timeStep ) + "  " );
+            b.append( agentName + "  " );
+            b.append( tempC.destinationId + "  " );
+
             String leaderName = null;
-            if(tempC.decisionMade.getLeader().getId().equals( tempC.agentId )){
+            if( tempC.decisionMade.getLeader().getId().equals( tempC.agentId ) )
+            {
                 leaderName = "-       ";
             }
-            else{
+            else
+            {
                 leaderName = tempC.decisionMade.getLeader().getId().toString();
-                leaderName =  leaderName.replaceAll( "Agent", "");
-                leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
+                leaderName = leaderName.replaceAll( "Agent", "" );
+                leaderName = "Ind"
+                        + String.format( "%05d", Integer.parseInt( leaderName ) );
             }
-            b.append( String.format("%-12s", tempC.decisionMade.getDecisionType()) + " " + leaderName + "  ");
-            if(tempC.possibleDecisions != null){
+            b.append( String.format( "%-12s",
+                    tempC.decisionMade.getDecisionType() )
+                    + " " + leaderName + "  " );
+            if( tempC.possibleDecisions != null )
+            {
                 Iterator<Decision> iterD = tempC.possibleDecisions.iterator();
-                while(iterD.hasNext()){
+                while( iterD.hasNext() )
+                {
                     Decision tempD = iterD.next();
-                    
-                    if(tempD.getLeader().getId().equals( tempD.getAgent().getId() )){
+
+                    if( tempD.getLeader().getId().equals(
+                            tempD.getAgent().getId() ) )
+                    {
                         leaderName = "-        ";
                     }
-                    else{
+                    else
+                    {
                         leaderName = tempD.getLeader().getId().toString();
-                        leaderName =  leaderName.replaceAll( "Agent", "");
-                        leaderName ="Ind" + String.format( "%05d", Integer.parseInt( leaderName ));
+                        leaderName = leaderName.replaceAll( "Agent", "" );
+                        leaderName = "Ind"
+                                + String.format( "%05d",
+                                        Integer.parseInt( leaderName ) );
                     }
-                    
-                    b.append( (String.format("%-12s", tempD.getDecisionType()) + ":").replaceAll( " ", "" ) );
-                    b.append( (leaderName + ":").replaceAll( " ", "" ) );
-                    b.append( (String.format("%1.7f", tempD.getProbability()) + ":").replaceAll( " ", "" ) );
-                    b.append( (String.format("%1.5f", tempD.getConflict()) + ",").replaceAll( " ", "" ) );
+
+                    b.append( ( String.format( "%-12s", tempD.getDecisionType() ) + ":" ).replaceAll(
+                            " ", "" ) );
+                    b.append( ( leaderName + ":" ).replaceAll( " ", "" ) );
+                    b.append( ( String.format( "%1.7f", tempD.getProbability() ) + ":" ).replaceAll(
+                            " ", "" ) );
+                    b.append( ( String.format( "%1.5f", tempD.getConflict() ) + "," ).replaceAll(
+                            " ", "" ) );
                 }
-                //delete extra comma
-                b.deleteCharAt( b.length() - 1);
+                // delete extra comma
+                b.deleteCharAt( b.length() - 1 );
             }
-            else{
+            else
+            {
                 b.append( "-" );
             }
-            
-            b.append( "\n");
+
+            b.append( "\n" );
         }
         _conflictResultsReporter.appendLine( b.toString() );
-        
-        _conflictResultsReporter.appendLine("");
+
+        _conflictResultsReporter.appendLine( "" );
     }
-    
-    private void addPredationResultsToPredationReporter(){
+
+    private void addPredationResultsToPredationReporter()
+    {
         StringBuilder b = new StringBuilder();
-        
-        _predationEventsReporter.appendLine( "# Predation Constant");
-        _predationEventsReporter.appendLine( "predation-constant=" + _predationConstant);
-        _predationEventsReporter.appendLine( "run-count=" + _simulationRunCount);
-        
+
+        _predationEventsReporter.appendLine( "# Predation Constant" );
+        _predationEventsReporter.appendLine( "predation-constant="
+                + _predationConstant );
+        _predationEventsReporter.appendLine( "run-count=" + _simulationRunCount );
+
         Vector2D start = startingDestination.getVector();
-        _predationEventsReporter.appendLine( "Destination-S=[" + start.getX() + "," + start.getY() + "]" );
-        
+        _predationEventsReporter.appendLine( "Destination-S=[" + start.getX()
+                + "," + start.getY() + "]" );
+
         Map<String, Vector2D> destinationStrings = new HashMap<String, Vector2D>();
         Iterator<Agent> aIter = _agents.iterator();
-        while(aIter.hasNext()){
+        while( aIter.hasNext() )
+        {
             Agent temp = aIter.next();
             String destID = temp.getPreferredDestinationId();
-            if(!destinationStrings.containsKey( destID )){
-                destinationStrings.put( destID, temp.getPreferredDestination().getVector() );
+            if( !destinationStrings.containsKey( destID ) )
+            {
+                destinationStrings.put( destID,
+                        temp.getPreferredDestination().getVector() );
             }
         }
-        
+
         Set<String> destinationKeys = destinationStrings.keySet();
         Iterator<String> keysIter = destinationKeys.iterator();
-        while(keysIter.hasNext()){
+        while( keysIter.hasNext() )
+        {
             String destID = keysIter.next();
             int dashIndex = destID.indexOf( "-" );
             String destNum = destID.substring( dashIndex );
             Vector2D vector = destinationStrings.get( destID );
-            _predationEventsReporter.appendLine( "Destination" + destNum + "=[" + vector.getX() + "," + vector.getY() + "]");
+            _predationEventsReporter.appendLine( "Destination" + destNum + "=["
+                    + vector.getX() + "," + vector.getY() + "]" );
         }
-        
-        _predationEventsReporter.appendLine( "# " + SPACER);
-        _predationEventsReporter.appendLine( "# Predation Events");
-        
-        _predationEventsReporter.append( "# " + String.format( "%-5s", "Run") );
-        _predationEventsReporter.append( String.format( "%-6s", "Time") );
-        _predationEventsReporter.append( String.format( "%-6s", "Pred") );
-        _predationEventsReporter.append( String.format( "%-10s", "Agent") );
-        _predationEventsReporter.append( String.format( "%-5s", "n") );
-        _predationEventsReporter.append( String.format( "%-10s", "GrId") );
-        _predationEventsReporter.append( String.format( "%-28s", "Location") );
+
+        _predationEventsReporter.appendLine( "# " + SPACER );
+        _predationEventsReporter.appendLine( "# Predation Events" );
+
+        _predationEventsReporter.append( "# " + String.format( "%-5s", "Run" ) );
+        _predationEventsReporter.append( String.format( "%-6s", "Time" ) );
+        _predationEventsReporter.append( String.format( "%-6s", "Pred" ) );
+        _predationEventsReporter.append( String.format( "%-10s", "Agent" ) );
+        _predationEventsReporter.append( String.format( "%-5s", "n" ) );
+        _predationEventsReporter.append( String.format( "%-10s", "GrId" ) );
+        _predationEventsReporter.append( String.format( "%-28s", "Location" ) );
         _predationEventsReporter.append( String.format( "%-11s", "Pref Dest" ) );
-        _predationEventsReporter.append( String.format( "%-11s", "Lead Dest" ) + "\n" );
-        
+        _predationEventsReporter.append( String.format( "%-11s", "Lead Dest" )
+                + "\n" );
+
         Iterator<PredationEvent> iter = _predator.predationEventIterator();
-        while(iter.hasNext()){
+        while( iter.hasNext() )
+        {
             PredationEvent event = iter.next();
-            b.append( String.format( "%03d", event.run) + "  ");
-            b.append( String.format("%06d", event.timeStep) + "  ");
-            b.append( String.format("%-4s", event.predatorId) + "  ");
-            
+            b.append( String.format( "%03d", event.run ) + "  " );
+            b.append( String.format( "%06d", event.timeStep ) + "  " );
+            b.append( String.format( "%-4s", event.predatorId ) + "  " );
+
             String agentName = event.agentId.toString();
-            agentName =  agentName.replaceAll( "Agent", "");
-            agentName ="Ind" + String.format( "%05d", Integer.parseInt( agentName ));
-            
-            b.append( String.format("%-5s", agentName) + "  ");
-            b.append( String.format("%03d", event.groupSize) + "  ");
-            b.append( String.format("%-8s", event.groupId.toString()) + "  ");
-            String locationTemp = String.format("[%f,%f]", event.location.getX(), event.location.getY());
+            agentName = agentName.replaceAll( "Agent", "" );
+            agentName = "Ind"
+                    + String.format( "%05d", Integer.parseInt( agentName ) );
+
+            b.append( String.format( "%-5s", agentName ) + "  " );
+            b.append( String.format( "%03d", event.groupSize ) + "  " );
+            b.append( String.format( "%-8s", event.groupId.toString() ) + "  " );
+            String locationTemp = String.format( "[%f,%f]",
+                    event.location.getX(), event.location.getY() );
             b.append( String.format( "%-26s", locationTemp ) + "  " );
-            b.append( String.format("%-9s", event.destinationId) + "  ");
-            b.append( String.format("%-9s", event.leaderDestinationId) + "  ");
-            
+            b.append( String.format( "%-9s", event.destinationId ) + "  " );
+            b.append( String.format( "%-9s", event.leaderDestinationId ) + "  " );
+
             b.append( "\n" );
         }
         _predationEventsReporter.appendLine( b.toString() );
         _predationEventsReporter.appendLine( "" );
     }
-    
-    public EvolutionOutputFitness getSimulationOutputFitness(){
+
+    public EvolutionOutputFitness getSimulationOutputFitness()
+    {
         return _simulationOutputFitness;
     }
-    
-    private EvolutionOutputFitness createSimulationOutputFitness(){
+
+    private EvolutionOutputFitness createSimulationOutputFitness()
+    {
         long totalAgentLife = 0;
         long totalTimeTravelledToPreferred = 0;
         int agentsAlive = 0;
         int totalInitiations = 0;
         int totalCancellations = 0;
-        
+
         Iterator<Agent> iter = getAgentIterator();
-        while(iter.hasNext()){
+        while( iter.hasNext() )
+        {
             Agent temp = iter.next();
             totalAgentLife += temp.getTimeAlive();
             totalTimeTravelledToPreferred += temp.getTimeMovingTowardsDestionation();
-            if(temp.isAlive()){
+            if( temp.isAlive() )
+            {
                 agentsAlive++;
             }
             totalInitiations += temp.getTotalInitiations();
             totalCancellations += temp.getTotalCancellations();
         }
-        
-        double percentTime = (double)totalTimeTravelledToPreferred / totalAgentLife;
-        double percentSurvive = (double)agentsAlive / getAgentCount();
-        double percentSuccess = ( (double)totalInitiations - totalCancellations ) / totalInitiations;
-        
-        return new EvolutionOutputFitness( percentTime, percentSurvive, percentSuccess );
+
+        double percentTime = (double) totalTimeTravelledToPreferred
+                / totalAgentLife;
+        double percentSurvive = (double) agentsAlive / getAgentCount();
+        double percentSuccess = ( (double) totalInitiations - totalCancellations )
+                / totalInitiations;
+
+        return new EvolutionOutputFitness( percentTime, percentSurvive,
+                percentSuccess );
     }
 }

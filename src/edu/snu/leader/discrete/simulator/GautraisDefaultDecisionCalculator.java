@@ -1,20 +1,15 @@
 /*
- *  The Bio-inspired Leadership Toolkit is a set of tools used to
- *  simulate the emergence of leaders in multi-agent systems.
- *  Copyright (C) 2014 Southern Nazarene University
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
+ * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
+ * Nazarene University This program is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or at your option) any later version. This program is distributed in the hope
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package edu.snu.leader.discrete.simulator;
@@ -45,10 +40,11 @@ public class GautraisDefaultDecisionCalculator implements
     private double _alphaF = 0;
 
     private double _betaF = 0;
-    
+
     private boolean _preCalcProbs = false;
-    
+
     private double[] _followProbabilities = null;
+
     private double[] _cancelProbabilities = null;
 
     @Override
@@ -79,52 +75,64 @@ public class GautraisDefaultDecisionCalculator implements
         String betaF = _simState.getProperties().getProperty( "beta-f" );
         Validate.notEmpty( betaF, "beta-f may not be empty" );
         _betaF = Double.parseDouble( betaF );
-        
-        String preCalcProbs = _simState.getProperties().getProperty( "pre-calculate-probabilities" );
-        Validate.notEmpty( preCalcProbs, "pre-calculate-probabilities may not be empty" );
+
+        String preCalcProbs = _simState.getProperties().getProperty(
+                "pre-calculate-probabilities" );
+        Validate.notEmpty( preCalcProbs,
+                "pre-calculate-probabilities may not be empty" );
         _preCalcProbs = Boolean.parseBoolean( preCalcProbs );
-        
-        String stringAgentCount = _simState.getProperties().getProperty( "individual-count" );
-        Validate.notEmpty( stringAgentCount, "individual-count may not be empty" );
+
+        String stringAgentCount = _simState.getProperties().getProperty(
+                "individual-count" );
+        Validate.notEmpty( stringAgentCount,
+                "individual-count may not be empty" );
         int agentCount = Integer.parseInt( stringAgentCount );
 
         // add gautrais info to root directory path
         _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "GautraisValues" );
-        
-        if(_preCalcProbs){
+
+        if( _preCalcProbs )
+        {
             _followProbabilities = new double[agentCount];
-            _cancelProbabilities = new double[agentCount ];
-            
-            for(int r = 1; r < agentCount; r++){
-                _followProbabilities[r] = 1 / (_alphaF + ( ( _betaF * ( agentCount - r ) ) / r ));
-                _cancelProbabilities[r] = _alphaC / ( 1 + ( Math.pow( r / _gammaC, _epsilonC ) ) );
+            _cancelProbabilities = new double[agentCount];
+
+            for( int r = 1; r < agentCount; r++ )
+            {
+                _followProbabilities[r] = 1 / ( _alphaF + ( ( _betaF * ( agentCount - r ) ) / r ) );
+                _cancelProbabilities[r] = _alphaC
+                        / ( 1 + ( Math.pow( r / _gammaC, _epsilonC ) ) );
             }
         }
 
     }
-    
+
     /**
-     * Returns an array of all the possible follow probabilities. Will be null if pre-generation was not specified in properties file. 
-     *
+     * Returns an array of all the possible follow probabilities. Will be null
+     * if pre-generation was not specified in properties file.
+     * 
      * @return
      */
-    public double[] getPreCalculatedFollowProbabilities(){
+    public double[] getPreCalculatedFollowProbabilities()
+    {
         return _followProbabilities;
     }
-    
+
     /**
-     * Returns an array of all the possible cancel probabilities. Will be null if pre-generation was not specified in properties file. 
-     *
+     * Returns an array of all the possible cancel probabilities. Will be null
+     * if pre-generation was not specified in properties file.
+     * 
      * @return
      */
-    public double[] getPreCalculatedCancelProbabilities(){
+    public double[] getPreCalculatedCancelProbabilities()
+    {
         return _cancelProbabilities;
     }
 
     @Override
     public void calcInitiateProb( Decision decision )
     {
-        //tauO is the base initiation rate (should be multiplied by agent count but makes the simulations go a lot slower
+        // tauO is the base initiation rate (should be multiplied by agent count
+        // but makes the simulations go a lot slower
         double tauI = _tauO;// * _simState.getAgentCount();
         decision.setProbability( 1 / tauI );
     }
