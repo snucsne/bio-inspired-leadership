@@ -40,10 +40,10 @@ import org.apache.log4j.Logger;
 
 import ec.util.MersenneTwisterFast;
 import edu.snu.leader.discrete.behavior.Decision;
+import edu.snu.leader.discrete.evolution.EvolutionOutputFitness;
 import edu.snu.leader.discrete.simulator.Agent.ConflictHistoryEvent;
 import edu.snu.leader.discrete.simulator.Agent.InitiationHistoryEvent;
 import edu.snu.leader.discrete.simulator.Predator.PredationEvent;
-import edu.snu.leader.discrete.simulator.SimulatorEvolution.OutputFitness;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
@@ -113,7 +113,7 @@ public class SimulationState
     
     public List<ConflictHistoryEvent> conflictEvents = null;
     
-    private OutputFitness _simulationOutputFitness = null;
+    private EvolutionOutputFitness _simulationOutputFitness = null;
 
     private int _destinationSizeRadius = 0;
     private boolean _isGraphical = false;
@@ -798,11 +798,11 @@ public class SimulationState
         _predationEventsReporter.appendLine( "" );
     }
     
-    public OutputFitness getSimulationOutputFitness(){
+    public EvolutionOutputFitness getSimulationOutputFitness(){
         return _simulationOutputFitness;
     }
     
-    private OutputFitness createSimulationOutputFitness(){
+    private EvolutionOutputFitness createSimulationOutputFitness(){
         long totalAgentLife = 0;
         long totalTimeTravelledToPreferred = 0;
         int agentsAlive = 0;
@@ -825,6 +825,6 @@ public class SimulationState
         double percentSurvive = (double)agentsAlive / getAgentCount();
         double percentSuccess = ( (double)totalInitiations - totalCancellations ) / totalInitiations;
         
-        return new OutputFitness( percentTime, percentSurvive, percentSuccess );
+        return new EvolutionOutputFitness( percentTime, percentSurvive, percentSuccess );
     }
 }

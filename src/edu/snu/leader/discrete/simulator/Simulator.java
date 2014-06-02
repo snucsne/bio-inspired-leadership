@@ -27,7 +27,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import edu.snu.leader.discrete.behavior.Decision.DecisionType;
-import edu.snu.leader.discrete.simulator.SimulatorEvolution.OutputFitness;
+import edu.snu.leader.discrete.evolution.EvolutionOutputFitness;
 import edu.snu.leader.util.MiscUtils;
 
 
@@ -242,7 +242,7 @@ public class Simulator
 //        _simulationOutputFitness = of;
 //    }
     
-    public OutputFitness getSimulationOutputFitness(){
+    public EvolutionOutputFitness getSimulationOutputFitness(){
         return _simState.getSimulationOutputFitness();
     }
 
