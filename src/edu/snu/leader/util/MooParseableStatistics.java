@@ -69,8 +69,6 @@ public class MooParseableStatistics extends ParseableStatistics
     }
 
 
-
-
     /**
      * Called immediately after evaluation occurs.
      *
@@ -94,7 +92,7 @@ public class MooParseableStatistics extends ParseableStatistics
         _evalTotalTime += evalTime;
 
         // Call the superclass impl
-        super.postEvaluationStatistics( state );
+//        super.postEvaluationStatistics( state );
 
         // Define the variables to prevent a lot of gc
         Individual bestOfGenInd = null;
@@ -246,7 +244,7 @@ public class MooParseableStatistics extends ParseableStatistics
         builder.append( NEWLINE );
 
         Problem problem = state.evaluator.p_problem;
-        if( !useGen && ( problem instanceof IndividualDescriber ) )
+        if( problem instanceof IndividualDescriber )
         {
             builder.append( ((IndividualDescriber) problem).describe(
                     ind,

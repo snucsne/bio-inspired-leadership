@@ -24,11 +24,11 @@ eval.problem.sim-properties-file = cfg/sim/discrete/sim-properties.parameters
 # ==============================================================
 
 # Population size
-pop.subpop.0.size = 45
-breed.elite.0 =	15
+pop.subpop.0.size = 75
+breed.elite.0 =	25
 
 # Number of generations
-generations = 101
+generations = 51
 
 # Crossover parameters
 pop.subpop.0.species.crossover-type = one

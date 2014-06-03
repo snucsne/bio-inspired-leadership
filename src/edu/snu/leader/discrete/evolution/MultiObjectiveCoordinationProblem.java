@@ -289,6 +289,7 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         builder.append( "] betaC=[" );
         builder.append( inputParameters.getBetaC() );
         builder.append( "]" );
+        builder.append( System.getProperty( "line.separator" ) );
 
         return builder.toString();
     }
