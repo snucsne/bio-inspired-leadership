@@ -44,7 +44,7 @@ import edu.snu.leader.discrete.utils.Reporter;
 
 /**
  * The Simulation State for the simulator
- * 
+ *
  * @author Tim Solum
  */
 public class SimulationState
@@ -197,7 +197,7 @@ public class SimulationState
 
     /**
      * Initialize the simulation state
-     * 
+     *
      * @param props
      */
     public void initialize( Properties props )
@@ -216,7 +216,7 @@ public class SimulationState
         String randomSeedStr = props.getProperty( _RANDOM_SEED_KEY );
         Validate.notEmpty( randomSeedStr, "Random seed is required" );
         long seed = Long.parseLong( randomSeedStr );
-        if( Integer.parseInt( _props.getProperty( "random-seed-override" ) ) != -1
+        if( ( Integer.parseInt( _props.getProperty( "random-seed-override" ) ) != -1 )
                 && !useRandomRandomSeed )
         {
             seed = Integer.parseInt( _props.getProperty( "random-seed-override" ) );
@@ -321,7 +321,7 @@ public class SimulationState
     public void setupNextSimulationRun()
     {
         // report some stuff
-        System.out.println( "Cleaning up sim run " + _currentSimulationRun );
+//        System.out.println( "Cleaning up sim run " + _currentSimulationRun );
 
         if( _currentSimulationRun < _simulationRunCount )
         {
@@ -351,8 +351,8 @@ public class SimulationState
             _predator.setupNextRun();
 
             // report the all run information and clear it for next run
-            System.out.println( "Finished sim run " + _currentSimulationRun );
-            System.out.println( "==========================================" );
+//            System.out.println( "Finished sim run " + _currentSimulationRun );
+//            System.out.println( "==========================================" );
             // increment current simulation run (in reporters too for directory
             // management)
             _currentSimulationRun++;
@@ -383,7 +383,7 @@ public class SimulationState
                 addPredationResultsToPredationReporter();
                 _predationEventsReporter.report( _shouldReportPredation );
 
-                System.out.println( "Done" );
+//                System.out.println( "Done" );
             }
         }
     }
@@ -407,7 +407,7 @@ public class SimulationState
 
     /**
      * Returns the number of simulation runs
-     * 
+     *
      * @return The number of simulation runs
      */
     public int getSimulationRunCount()
@@ -417,7 +417,7 @@ public class SimulationState
 
     /**
      * Returns the maximum number of simulation time steps per run
-     * 
+     *
      * @return Max number of time steps
      */
     public long getMaxSimulationTimeSteps()
@@ -427,7 +427,7 @@ public class SimulationState
 
     /**
      * Returns the current simulation run
-     * 
+     *
      * @return The current simulation run
      */
     public int getCurrentSimulationRun()
@@ -437,7 +437,7 @@ public class SimulationState
 
     /**
      * Returns the current simulation time
-     * 
+     *
      * @return The time of the simulation
      */
     public int getSimulationTime()
@@ -447,7 +447,7 @@ public class SimulationState
 
     /**
      * Returns simulation properties
-     * 
+     *
      * @return The properties for this simulation
      */
     public Properties getProperties()
@@ -457,7 +457,7 @@ public class SimulationState
 
     /**
      * Returns random generator
-     * 
+     *
      * @return The random generator used
      */
     public MersenneTwisterFast getRandomGenerator()
@@ -477,7 +477,7 @@ public class SimulationState
 
     /**
      * Adds the specified agent to the simulation
-     * 
+     *
      * @param agent The agent to add
      */
     public void addAgent( Agent agent )
@@ -492,7 +492,7 @@ public class SimulationState
 
     /**
      * Returns an iterator over all the simulated agents
-     * 
+     *
      * @return An iterator over all the simulated agents
      */
     public Iterator<Agent> getAgentIterator()
@@ -955,10 +955,10 @@ public class SimulationState
             totalCancellations += temp.getTotalCancellations();
         }
 
-        double percentTime = (double) totalTimeTravelledToPreferred
+        float percentTime = (float) totalTimeTravelledToPreferred
                 / totalAgentLife;
-        double percentSurvive = (double) agentsAlive / getAgentCount();
-        double percentSuccess = ( (double) totalInitiations - totalCancellations )
+        float percentSurvive = (float) agentsAlive / getAgentCount();
+        float percentSuccess = ( (float) totalInitiations - totalCancellations )
                 / totalInitiations;
 
         return new EvolutionOutputFitness( percentTime, percentSurvive,

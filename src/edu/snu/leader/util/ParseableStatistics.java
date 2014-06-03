@@ -18,9 +18,9 @@
  */
 package edu.snu.leader.util;
 
-// Imports
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,7 +35,6 @@ import ec.Problem;
 import ec.Statistics;
 import ec.Subpopulation;
 import ec.simple.SimpleFitness;
-import ec.util.Output;
 import ec.util.Parameter;
 
 
@@ -121,6 +120,7 @@ public class ParseableStatistics extends Statistics
         // Get our statistics file
         File statFile = state.parameters.getFile( base.push( P_STATISTICS_FILE ),
                 null );
+        _LOG.debug( "Using statFile=[" + statFile + "]" );
         _statDir = statFile.getParent();
 
         // Add it as our log
@@ -137,7 +137,6 @@ public class ParseableStatistics extends Statistics
                 if( compress )
                 {
                     _statLog = state.output.addLog( statFile,
-                            Output.V_NO_GENERAL - 1,
                             false,
                             false,
                             compress );
@@ -145,7 +144,6 @@ public class ParseableStatistics extends Statistics
                 else
                 {
                     _statLog = state.output.addLog( statFile,
-                            Output.V_NO_GENERAL - 1,
                             false,
                             false );
                 }
@@ -275,7 +273,6 @@ public class ParseableStatistics extends Statistics
     @Override
     public void postEvaluationStatistics( final EvolutionState state )
     {
-
         // Before we do anything, get the time
         long evalTime = ( System.currentTimeMillis() - _evalStartTime );
         println( "eval-time = "
@@ -365,7 +362,6 @@ public class ParseableStatistics extends Statistics
         }
 
         state.output.flush();
-
     }
 
     /**

@@ -28,11 +28,11 @@ public class MiscUtils
 
 
     /**
-* Generates a random gaussian in the interval [0,1]
-*
-* @param random
-* @return The random value
-*/
+     * Generates a random gaussian in the interval [0,1]
+     *
+     * @param random
+     * @return The random value
+     */
     public static double getUnitConstrainedGaussian( MersenneTwisterFast random )
     {
         double value = ( random.nextGaussian() / 8.0 ) + 0.5;
@@ -42,14 +42,14 @@ public class MiscUtils
     }
 
     /**
-* Generates a random gaussian that is guaranteed to lie in the specified
-* interval
-*
-* @param random
-* @param min
-* @param max
-* @return The random value
-*/
+     * Generates a random gaussian that is guaranteed to lie in the specified
+     * interval
+     *
+     * @param random
+     * @param min
+     * @param max
+     * @return The random value
+     */
     public static double getConstrainedGaussian( MersenneTwisterFast random,
             double min,
             double max )
@@ -62,13 +62,13 @@ public class MiscUtils
     }
 
     /**
-* Decodes an integer from an array of bits (booleans)
-*
-* @param bitArray The array to decode
-* @param startIdx The index of the starting value
-* @param length The length of the sub array to decode
-* @return The decoded integer value
-*/
+     * Decodes an integer from an array of bits (booleans)
+     *
+     * @param bitArray The array to decode
+     * @param startIdx The index of the starting value
+     * @param length The length of the sub array to decode
+     * @return The decoded integer value
+     */
     public static int decodeBitArray( boolean[] bitArray,
             int startIdx,
             int length )
@@ -84,11 +84,11 @@ public class MiscUtils
     }
 
     /**
-* Converts the gray code value to standard binary
-*
-* @param grayCode The gray code value to convert
-* @return The binary value
-*/
+     * Converts the gray code value to standard binary
+     *
+     * @param grayCode The gray code value to convert
+     * @return The binary value
+     */
     public static int convertGrayCodeToBinary( int grayCode )
     {
         int binary = 0;
@@ -102,10 +102,11 @@ public class MiscUtils
     }
 
     /**
-*
-* @param propsFileKey The property key corresponding to the experiment properties
-* @return The properties
-*/
+     * Loads the properties file specified using the given key
+     *
+     * @param propsFileKey The property key corresponding to the experiment properties
+     * @return The properties
+     */
     public static Properties loadProperties( String propsFileKey)
     {
         _LOG.trace( "Entering loadProperties( propsFileKey )" );
@@ -164,12 +165,12 @@ public class MiscUtils
 
 
     /**
-* Loads and instantiates the class with the specified filename
-*
-* @param className The name of the class to load and instantiate
-* @param desc Description of the class for error logging
-* @return The instantiated class
-*/
+     * Loads and instantiates the class with the specified filename
+     *
+     * @param className The name of the class to load and instantiate
+     * @param desc Description of the class for error logging
+     * @return The instantiated class
+     */
     static public Object loadAndInstantiate( String className, String desc )
     {
         Object instantiated = null;

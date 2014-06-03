@@ -7,7 +7,7 @@ parent.0 = ../../ec/app/moosuite/spea2.params
 # ==============================================================
 # Problem parameters
 # ==============================================================
-eval.problem = edu.snu.leader.discrete.simulator.MultiObjectiveCoordinationProblem
+eval.problem = edu.snu.leader.discrete.evolution.MultiObjectiveCoordinationProblem
 
 eval.problem.codon-size = 8
 eval.problem.alpha-scaling-factor = 0.010
@@ -24,20 +24,23 @@ eval.problem.sim-properties-file = cfg/sim/discrete/sim-properties.parameters
 # ==============================================================
 
 # Population size
-pop.subpop.0.size = 150
-breed.elite.0 =	50
+pop.subpop.0.size = 45
+breed.elite.0 =	15
 
 # Number of generations
 generations = 101
 
 # Crossover parameters
-pop.subpop.0.species.crossover-type = sbx
-pop.subpop.0.species.crossover-distribution-index = 20
+pop.subpop.0.species.crossover-type = one
+pop.subpop.0.species.mutation-type = flip
+pop.subpop.0.species.mutation-prob = 0.01
+#pop.subpop.0.species.crossover-type = sbx
+#pop.subpop.0.species.crossover-distribution-index = 20
 
 # Mutation parameters
-pop.subpop.0.species.mutation-type = polynomial
-pop.subpop.0.species.mutation-distribution-index = 20
-pop.subpop.0.species.mutation-bounded = true
+#pop.subpop.0.species.mutation-type = polynomial
+#pop.subpop.0.species.mutation-distribution-index = 20
+#pop.subpop.0.species.mutation-bounded = true
 
 
 # ==============================================================
@@ -46,13 +49,14 @@ pop.subpop.0.species.mutation-bounded = true
 pop.subpop.0.species = ec.vector.BitVectorSpecies
 pop.subpop.0.species.ind = ec.vector.BitVectorIndividual
 pop.subpop.0.species.fitness.num-objectives = 2
-pop.subpop.0.species.fitness.maximize = false
+pop.subpop.0.species.fitness.maximize = true
 pop.subpop.0.species.genome-size = 48
 
 
 # ==============================================================
 # Job information
 # ==============================================================
-stat = edu.snu.leader.util.ParseableStatistics
+stat = edu.snu.leader.util.MooParseableStatistics
+stat.num-objectives = 0
 
 

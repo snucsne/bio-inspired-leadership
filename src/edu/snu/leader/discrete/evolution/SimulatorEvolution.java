@@ -1,15 +1,20 @@
 /*
- * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
- * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
- * Nazarene University This program is free software: you can redistribute it
- * and/or modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the License,
- * or at your option) any later version. This program is distributed in the hope
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details. You should have received a copy of
- * the GNU General Public License along with this program. If not, see
- * <http://www.gnu.org/licenses/>.
+ *  The Bio-inspired Leadership Toolkit is a set of tools used to
+ *  simulate the emergence of leaders in multi-agent systems.
+ *  Copyright (C) 2014 Southern Nazarene University
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package edu.snu.leader.discrete.evolution;
@@ -64,13 +69,14 @@ public class SimulatorEvolution
     /**
      * Used for running evolutionary computation on the Sueur model simulator
      * given an EvolutionInputParameters object
-     * 
+     *
      * @param p The input parameters for this evolution
      * @param propertiesFilename If null,
      *            "cfg/sim/discrete/sim-properties.parameters" will be used.
      * @return
      */
-    public static EvolutionOutputFitness runEvolutionFromInputParameters( EvolutionInputParameters p,
+    public static EvolutionOutputFitness runEvolutionFromInputParameters(
+            EvolutionInputParameters p,
             String propertiesFilename )
     {
         // make sure properties filename is not null
@@ -101,16 +107,16 @@ public class SimulatorEvolution
         float totalSuccess = 0f;// Total percents of the success fitness
 
         // loop through each environment to test
-        for( int i = 0; i < p.destinationRunCounts.length; i++ )
+        for( int i = 0; i < p._destinationRunCounts.length; i++ )
         {
             // set environment property
             _simulationProperties.setProperty( "destinations-file",
-                    p.destinationRunCounts[i].destinationFilename );
+                    p._destinationRunCounts[i].destinationFilename );
             // this value should be set to 1
             _simulationProperties.setProperty( "current-run",
                     String.valueOf( 1 ) );
             // run simulations for an environment as many times as specified
-            for( int j = 0; j < p.destinationRunCounts[i].runCount; j++ )
+            for( int j = 0; j < p._destinationRunCounts[i].runCount; j++ )
             {
                 // create simulator and execute it
                 Simulator simulator = new Simulator( 1 );
@@ -135,13 +141,14 @@ public class SimulatorEvolution
     /**
      * Used for running evolutionary computation on the Sueur model simulator
      * from a json file
-     * 
+     *
      * @param jsonFilename The json filename
      * @param propertiesFilename If null,
      *            "cfg/sim/discrete/sim-properties.parameters" will be used.
      * @return
      */
-    public static EvolutionOutputFitness runEvolutionFromJson( String jsonFilename,
+    public static EvolutionOutputFitness runEvolutionFromJson(
+            String jsonFilename,
             String propertiesFilename )
     {
         // open the json file
@@ -180,6 +187,12 @@ public class SimulatorEvolution
         return runEvolutionFromInputParameters( p, propertiesFilename );
     }
 
+    /**
+     * TODO Method description
+     *
+     * @param P
+     * @param filename
+     */
     public static void inputParametersToJson( EvolutionInputParameters P,
             String filename )
     {

@@ -31,29 +31,30 @@ import java.util.Scanner;
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
+import edu.snu.leader.discrete.evolution.EvolutionOutputFitness;
 import edu.snu.leader.util.MiscUtils;
 
 public class SimulatorEvolution
 {
     public final static int SIMULATION_COUNT = 1;
-    
+
     public static void main(String[] args){
         InputParameters input = new InputParameters(0.006, 0.01, 2, 2.3, 0.009, -0.009);
-        OutputFitness output = null;
-        
+        EvolutionOutputFitness output = null;
+
         output = runEvolutionFromInputParameters( input, null );
         System.out.println("Time Towards: " + output.getPercentTime());
         System.out.println("Survivals: " + output.getPercentSurvive());
         System.out.println("Success: " + output.getPercentSuccess());
-        
+
         inputParametersToJson( input, "test.json" );
-        
+
         output = runEvolutionFromJson( "test.json", null);
         System.out.println("Time Towards: " + output.getPercentTime());
         System.out.println("Survivals: " + output.getPercentSurvive());
         System.out.println("Success: " + output.getPercentSuccess());
     }
-    
+
     /**
      * Used for running evolutionary computation on the Sueur model simulator
      *
@@ -61,15 +62,15 @@ public class SimulatorEvolution
      * @param prpertiesFilename If null, "cfg/sim/discrete/sim-properties.parameters" will be used.
      * @return
      */
-    public static OutputFitness runEvolutionFromInputParameters(InputParameters p, String propertiesFilename){
+    public static EvolutionOutputFitness runEvolutionFromInputParameters(InputParameters p, String propertiesFilename){
         if(propertiesFilename == null){
             propertiesFilename = "cfg/sim/discrete/sim-properties.parameters";
         }
         System.setProperty( "sim-properties", propertiesFilename );
         Properties _simulationProperties = MiscUtils.loadProperties("sim-properties");
-        
+
         _simulationProperties.setProperty( "simulation-count", String.valueOf(SIMULATION_COUNT) );
-        
+
         _simulationProperties.setProperty( "alpha", String.valueOf(p.getAlpha()) );
         _simulationProperties.setProperty( "alpha-c", String.valueOf(p.getAlphaC()) );
         _simulationProperties.setProperty( "beta", String.valueOf(p.getBeta()) );
@@ -81,17 +82,17 @@ public class SimulatorEvolution
         _simulationProperties.setProperty( "current-run", String.valueOf(1) );
         simulator.initialize(_simulationProperties);
         simulator.execute();
-        
+
         return simulator.getSimulationOutputFitness();
     }
-    
-    public static OutputFitness runEvolutionFromJson(String jsonFilename, String propertiesFilename){
+
+    public static EvolutionOutputFitness runEvolutionFromJson(String jsonFilename, String propertiesFilename){
         if(propertiesFilename == null){
             propertiesFilename = "cfg/sim/discrete/sim-properties.parameters";
         }
         System.setProperty( "sim-properties", propertiesFilename );
         Properties _simulationProperties = MiscUtils.loadProperties("sim-properties");
-        
+
         StringBuilder b = new StringBuilder();
         Scanner sc = null;
         try{
@@ -100,12 +101,12 @@ public class SimulatorEvolution
         catch( FileNotFoundException e1 ){
             e1.printStackTrace();
         }
-        
+
         while(sc.hasNextLine()){
             b.append( sc.nextLine() );
         }
         sc.close();
-        
+
         Object jsonObj = null;
         try{
             System.out.println(b.toString());
@@ -115,9 +116,9 @@ public class SimulatorEvolution
             e.printStackTrace();
         }
         InputParameters p = (InputParameters) jsonObj;
-        
+
         _simulationProperties.setProperty( "simulation-count", String.valueOf(SIMULATION_COUNT) );
-        
+
         _simulationProperties.setProperty( "alpha", String.valueOf(p.getAlpha()) );
         _simulationProperties.setProperty( "alpha-c", String.valueOf(p.getAlphaC()) );
         _simulationProperties.setProperty( "beta", String.valueOf(p.getBeta()) );
@@ -129,10 +130,10 @@ public class SimulatorEvolution
         _simulationProperties.setProperty( "current-run", String.valueOf(1) );
         simulator.initialize(_simulationProperties);
         simulator.execute();
-        
+
         return simulator.getSimulationOutputFitness();
     }
-    
+
     public static void inputParametersToJson(InputParameters P, String filename){
         String json = null;
         try{
@@ -141,7 +142,7 @@ public class SimulatorEvolution
         catch( IOException e ){
             e.printStackTrace();
         }
-        
+
         PrintWriter out = null;
         try{
             out = new PrintWriter( new BufferedWriter( new FileWriter( filename, false ) ) );
@@ -152,13 +153,13 @@ public class SimulatorEvolution
         catch( IOException e ){
             throw new RuntimeException( "Could not write to " + filename + " output file." );
         }
-        
+
         out.print( json );
         out.close();
     }
-    
-    
-    
+
+
+
     public static class InputParameters{
         private double alpha = 0.0;
         private double beta = 0.0;
@@ -166,7 +167,7 @@ public class SimulatorEvolution
         private double q = 0;
         private double alphaC = 0.0;
         private double betaC = 0.0;
-        
+
         public InputParameters(double alpha, double beta, int S, double q, double alphaC, double betaC){
             this.alpha = alpha;
             this.beta = beta;
@@ -175,7 +176,7 @@ public class SimulatorEvolution
             this.alphaC = alphaC;
             this.betaC = betaC;
         }
-        
+
         public double getAlpha(){
             return alpha;
         }
@@ -200,26 +201,26 @@ public class SimulatorEvolution
             return betaC;
         }
     }
-    
+
     public static class OutputFitness{
         private double percentTime = 0.0;
         private double percentSurvive = 0.0;
         private double percentSuccess = 0.0;
-        
+
         OutputFitness(double percentTime, double percentSurvive, double percentSuccess){
             this.percentTime = percentTime;
             this.percentSurvive = percentSurvive;
             this.percentSuccess = percentSuccess;
         }
-        
+
         public double getPercentTime(){
             return percentTime;
         }
-        
+
         public double getPercentSurvive(){
             return percentSurvive;
         }
-        
+
         public double getPercentSuccess(){
             return percentSuccess;
         }

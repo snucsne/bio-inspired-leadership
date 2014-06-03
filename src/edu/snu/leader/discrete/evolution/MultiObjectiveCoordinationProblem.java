@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package edu.snu.leader.discrete.simulator;
+package edu.snu.leader.discrete.evolution;
 
 //Imports
 import ec.EvolutionState;
@@ -27,6 +27,7 @@ import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.vector.BitVectorIndividual;
 
+import edu.snu.leader.discrete.evolution.EvolutionInputParameters.DestinationRunCounts;
 import edu.snu.leader.util.IndividualDescriber;
 import edu.snu.leader.util.MiscUtils;
 
@@ -234,17 +235,17 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         BitVectorIndividual bitInd = (BitVectorIndividual) ind;
 
         // Decode the genome
-        decodeGenome( bitInd.genome );
+        EvolutionInputParameters inputParameters = decodeGenome( bitInd.genome );
 
         // Run the simulation
-        SimulatorEvolution.runEvolutionFromInputParameters(
-                null,
+        EvolutionOutputFitness outputFitness = SimulatorEvolution.runEvolutionFromInputParameters(
+                inputParameters,
                 _simulatorPropertiesFile );
 
         // Store the fitness (or objective) values
         float[] objectiveValues = new float[2];
-        objectiveValues[0] = 0.0f;
-        objectiveValues[1] = 0.0f;
+        objectiveValues[0] = outputFitness.getPercentTime();
+        objectiveValues[1] = outputFitness.getPercentSurvive();
         MultiObjectiveFitness fitness = (MultiObjectiveFitness) ind.fitness;
         fitness.setObjectives( state, objectiveValues );
 
@@ -264,8 +265,32 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
     @Override
     public String describe( Individual ind, String prefix, String statDir )
     {
-        // TODO Finish this later
-        throw new RuntimeException( "Not yet implemented" );
+        // Cast it to the proper type
+        BitVectorIndividual bitInd = (BitVectorIndividual) ind;
+
+        // Decode the genome
+        EvolutionInputParameters inputParameters = decodeGenome( bitInd.genome );
+
+        StringBuilder builder = new StringBuilder();
+        builder.append( prefix );
+        builder.append( "decoded-parameters = " );
+
+        // Describe the parameters
+        builder.append( "alpha=[" );
+        builder.append( inputParameters.getAlpha() );
+        builder.append( "] beta=[" );
+        builder.append( inputParameters.getBeta() );
+        builder.append( "] S=[" );
+        builder.append( inputParameters.getS() );
+        builder.append( "] q=[" );
+        builder.append( inputParameters.getQ() );
+        builder.append( "] alphaC=[" );
+        builder.append( inputParameters.getAlphaC() );
+        builder.append( "] betaC=[" );
+        builder.append( inputParameters.getBetaC() );
+        builder.append( "]" );
+
+        return builder.toString();
     }
 
     /**
@@ -273,10 +298,11 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
      *
      * @param genome
      */
-    protected void decodeGenome( boolean[] genome )
+    protected EvolutionInputParameters decodeGenome( boolean[] genome )
     {
         // Pre-calculate the max codon value
         float maxValue = (float) Math.pow( 2.0, _codonSize );
+
         // Decode each codon in the genome, starting with alpha
         int rawAlpha = decodeAndConvert( genome, 0 );
         float normalizedAlpha = rawAlpha / maxValue;
@@ -288,7 +314,7 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
 
         int rawS = decodeAndConvert( genome, _codonSize * 2 );
         float normalizedS = rawS / maxValue;
-        float s = normalizedS * _sScalingFactor;
+        int s = Math.round( normalizedS * _sScalingFactor );
 
         int rawQ = decodeAndConvert( genome, _codonSize * 3 );
         float normalizedQ = rawQ / maxValue;
@@ -302,12 +328,34 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         float normalizedBetaC = rawBetaC / maxValue;
         float betaC = normalizedBetaC * _betaCScalingFactor;
 
+        // THIS IS BAD
+        // Hardcode the destinations
+        DestinationRunCounts[] destinations = new DestinationRunCounts[3];
+        destinations[0] = new DestinationRunCounts(
+                "cfg/sim/destinations/destinations-diffdis-10-per-0.5-seed-1.dat",
+                3 );
+        destinations[1] = new DestinationRunCounts(
+                "cfg/sim/destinations/destinations-poles-10-per-0.5-seed-1.dat",
+                3 );
+        destinations[2] = new DestinationRunCounts(
+                "cfg/sim/destinations/destinations-split-10-per-0.5-seed-1.dat",
+                3 );
+
         // Store the values
+        EvolutionInputParameters inputParameters = new EvolutionInputParameters(
+                alpha,
+                beta,
+                s,
+                q,
+                alphaC,
+                betaC,
+                destinations );
 
         // Log it
-        _LOG.debug( null );
+        _LOG.debug( inputParameters.toString() );
 
         // Return them
+        return inputParameters;
     }
 
     /**

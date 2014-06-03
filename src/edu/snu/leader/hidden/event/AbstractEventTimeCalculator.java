@@ -21,9 +21,7 @@ package edu.snu.leader.hidden.event;
 // Imports
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-
 import edu.snu.leader.hidden.SimulationState;
-
 import java.util.Properties;
 
 
