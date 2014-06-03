@@ -543,7 +543,8 @@ public class Agent
         // if it is moving towards its preferred destination then increment time
         // moving towards destination
         if( _preferredDestination.getID().equals(
-                _leader.getPreferredDestination().getID() ) )
+                _leader.getPreferredDestination().getID() ) 
+                && !_currentVelocity.equals( Vector2D.ZERO ) )
         {
             _timeMovingTowardsDestination++;
         }

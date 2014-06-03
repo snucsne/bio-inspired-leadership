@@ -30,17 +30,18 @@ public class EvolutionInputParameters
     /**
      * DestinationRunCounts
      *
-     * TODO Class description
+     * Used to run a simulation on an environment a 
+     * provided number of times
      *
      * @author Brent Eskridge
      * @version $Revision$ ($Author$)
      */
     public static class DestinationRunCounts
     {
-        /** TODO */
+        /** Filename for the destination file used */
         public String destinationFilename = null;
 
-        /** TODO */
+        /** The number of runs for the particular destination */
         public int runCount = 0;
 
         /**
@@ -56,25 +57,25 @@ public class EvolutionInputParameters
         }
     }
 
-    /** TODO */
+    /** The initiation constant */
     private float _alpha = 0.0f;
 
-    /** TODO */
+    /** The following constant */
     private float _beta = 0.0f;
 
-    /** TODO */
+    /** The snowballing threshold */
     private int _S = 0;
 
-    /** TODO */
+    /** The snowballing rate */
     private float _q = 0;
 
-    /** TODO */
+    /** The canceling alpha constant */
     private float _alphaC = 0.0f;
 
-    /** TODO */
+    /** The canceling beta constant */
     private float _betaC = 0.0f;
 
-    /** TODO */
+    /** Contains the desired destinations with run counts to test */
     public DestinationRunCounts[] _destinationRunCounts = null;
 
     /**
@@ -106,7 +107,7 @@ public class EvolutionInputParameters
     }
 
     /**
-     * TODO Method description
+     * Returns alpha
      *
      * @return
      */
@@ -116,7 +117,7 @@ public class EvolutionInputParameters
     }
 
     /**
-     * TODO Method description
+     * Returns beta
      *
      * @return
      */
@@ -126,7 +127,7 @@ public class EvolutionInputParameters
     }
 
     /**
-     * TODO Method description
+     * Returns S
      *
      * @return
      */
@@ -136,7 +137,7 @@ public class EvolutionInputParameters
     }
 
     /**
-     * TODO Method description
+     * Returns q
      *
      * @return
      */
@@ -146,7 +147,7 @@ public class EvolutionInputParameters
     }
 
     /**
-     * TODO Method description
+     * Returns alpha-c
      *
      * @return
      */
@@ -156,7 +157,7 @@ public class EvolutionInputParameters
     }
 
     /**
-     * TODO Method description
+     * Returns beta-c
      *
      * @return
      */
@@ -166,7 +167,8 @@ public class EvolutionInputParameters
     }
 
     /**
-     * TODO Method description
+     * Returns a string representation
+     * of this object
      *
      * @return
      * @see java.lang.Object#toString()

@@ -70,13 +70,13 @@ public class SimulatorEvolution
      * Used for running evolutionary computation on the Sueur model simulator
      * given an EvolutionInputParameters object
      *
-     * @param p The input parameters for this evolution
+     * @param param The input parameters for this evolution
      * @param propertiesFilename If null,
      *            "cfg/sim/discrete/sim-properties.parameters" will be used.
      * @return
      */
     public static EvolutionOutputFitness runEvolutionFromInputParameters(
-            EvolutionInputParameters p,
+            EvolutionInputParameters param,
             String propertiesFilename )
     {
         // make sure properties filename is not null
@@ -92,14 +92,14 @@ public class SimulatorEvolution
         _simulationProperties.setProperty( "simulation-count",
                 String.valueOf( SIMULATION_COUNT ) );
         _simulationProperties.setProperty( "alpha",
-                String.valueOf( p.getAlpha() ) );
+                String.valueOf( param.getAlpha() ) );
         _simulationProperties.setProperty( "alpha-c",
-                String.valueOf( p.getAlphaC() ) );
-        _simulationProperties.setProperty( "beta", String.valueOf( p.getBeta() ) );
+                String.valueOf( param.getAlphaC() ) );
+        _simulationProperties.setProperty( "beta", String.valueOf( param.getBeta() ) );
         _simulationProperties.setProperty( "beta-c",
-                String.valueOf( p.getBetaC() ) );
-        _simulationProperties.setProperty( "S", String.valueOf( p.getS() ) );
-        _simulationProperties.setProperty( "q", String.valueOf( p.getQ() ) );
+                String.valueOf( param.getBetaC() ) );
+        _simulationProperties.setProperty( "S", String.valueOf( param.getS() ) );
+        _simulationProperties.setProperty( "q", String.valueOf( param.getQ() ) );
 
         int totalRuns = 0;// Total simulation runs
         float totalTime = 0f;// Total percents of the time fitness
@@ -107,16 +107,16 @@ public class SimulatorEvolution
         float totalSuccess = 0f;// Total percents of the success fitness
 
         // loop through each environment to test
-        for( int i = 0; i < p._destinationRunCounts.length; i++ )
+        for( int i = 0; i < param._destinationRunCounts.length; i++ )
         {
             // set environment property
             _simulationProperties.setProperty( "destinations-file",
-                    p._destinationRunCounts[i].destinationFilename );
+                    param._destinationRunCounts[i].destinationFilename );
             // this value should be set to 1
             _simulationProperties.setProperty( "current-run",
                     String.valueOf( 1 ) );
             // run simulations for an environment as many times as specified
-            for( int j = 0; j < p._destinationRunCounts[i].runCount; j++ )
+            for( int j = 0; j < param._destinationRunCounts[i].runCount; j++ )
             {
                 // create simulator and execute it
                 Simulator simulator = new Simulator( 1 );
@@ -188,19 +188,19 @@ public class SimulatorEvolution
     }
 
     /**
-     * TODO Method description
+     * Saves a set of EvolutionInputParameters to a json file
      *
-     * @param P
-     * @param filename
+     * @param param The parameter set
+     * @param filename The json filename
      */
-    public static void inputParametersToJson( EvolutionInputParameters P,
+    public static void inputParametersToJson( EvolutionInputParameters param,
             String filename )
     {
         // open a json writer
         String json = null;
         try
         {
-            json = JsonWriter.objectToJson( P );
+            json = JsonWriter.objectToJson( param );
         }
         catch( IOException e )
         {

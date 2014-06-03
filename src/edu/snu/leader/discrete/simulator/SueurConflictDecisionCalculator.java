@@ -297,14 +297,12 @@ public class SueurConflictDecisionCalculator implements
     @Override
     public double[] getPreCalculatedFollowProbabilities()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public double[] getPreCalculatedCancelProbabilities()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 }

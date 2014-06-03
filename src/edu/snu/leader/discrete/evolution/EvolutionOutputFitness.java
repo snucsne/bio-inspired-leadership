@@ -55,7 +55,8 @@ public class EvolutionOutputFitness
     }
 
     /**
-     * TODO Method description
+     * Returns percentage of time moving towards
+     * preferred destination
      *
      * @return
      */
@@ -65,7 +66,7 @@ public class EvolutionOutputFitness
     }
 
     /**
-     * TODO Method description
+     * Returns percentage of survival
      *
      * @return
      */
@@ -75,7 +76,7 @@ public class EvolutionOutputFitness
     }
 
     /**
-     * TODO Method description
+     * Returns percentage of success
      *
      * @return
      */

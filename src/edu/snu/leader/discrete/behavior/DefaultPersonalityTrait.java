@@ -35,6 +35,6 @@ public class DefaultPersonalityTrait implements PersonalityTrait
     @Override
     public void initialize( Agent agent )
     {
-        // TODO Auto-generated method stub
+        // Nothing to do
     }
 }
