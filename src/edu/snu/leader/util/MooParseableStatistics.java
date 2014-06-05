@@ -14,6 +14,11 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,16 +34,59 @@ public class MooParseableStatistics extends ParseableStatistics
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger( ParseableStatistics.class.getName() );
 
+    private static class MooIndComparator implements Comparator<Individual>
+    {
+        /**
+         * Compares to individuals w.r.t. their objective fitness values
+         *
+         * @param ind1 The first individual to be compared
+         * @param ind2 The second individual to be compared
+         * @return A negative integer, zero, or a positive integer as the first
+         *         argument is less than, equal to, or greater than the second
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         */
+        @Override
+        public int compare( Individual ind1, Individual ind2 )
+        {
+            int result = 0;
+
+            // Get the fitness values
+            MultiObjectiveFitness ind1Fitness = (MultiObjectiveFitness) ind1.fitness;
+            float[] ind1Objectives = ind1Fitness.getObjectives();
+            MultiObjectiveFitness ind2Fitness = (MultiObjectiveFitness) ind2.fitness;
+            float[] ind2Objectives = ind2Fitness.getObjectives();
+
+            // Compare them
+            for( int i = 0; (i < ind1Objectives.length) && (0 == result); i++ )
+            {
+                if( ind1Objectives[i] < ind2Objectives[i] )
+                {
+                    result = -1;
+                }
+                else if ( ind1Objectives[i] > ind2Objectives[i] )
+                {
+                    result = 1;
+                }
+            }
+
+            return result;
+        }
+
+    }
+
+
     /** Default serial version uid */
     private static final long serialVersionUID = 1L;
 
-    /** Number of fitness objectives parameter */
+    /** Number of fitness objectives parameter key */
     public static final String P_NUM_OBJECTIVES = "num-objectives";
+
+    /** Objective information parameter key prefix */
+    public static final String P_OBJECTIVE_PREFIX = "objective";
 
 
     /** The number of fitness objectives */
     protected int _numObjectives = 0;
-
 
 
     /**
@@ -65,6 +113,9 @@ public class MooParseableStatistics extends ParseableStatistics
                 null );
         _LOG.info( "Using _numObjectives=[" + _numObjectives + "]" );
 
+        // We don't need a "best found" since we have a pareto front
+        _bestFound = new Individual[0];
+
         _LOG.trace( "Leaving setup( state, base )" );
     }
 
@@ -75,18 +126,25 @@ public class MooParseableStatistics extends ParseableStatistics
      * @param state The current state of evolution
      * @see edu.snu.leader.util.ParseableStatistics#postEvaluationStatistics(ec.EvolutionState)
      */
+    @SuppressWarnings( { "synthetic-access", "rawtypes" } )
     @Override
     public void postEvaluationStatistics( EvolutionState state )
     {
+        state.output.println( "",
+                _statLog );
+
         // Before we do anything, get the time
         long evalTime = ( System.currentTimeMillis() - _evalStartTime );
         println( "eval-time = "
                 + evalTime,
                 state );
+        long totalSeconds = TimeUnit.SECONDS.convert( evalTime, TimeUnit.MILLISECONDS);
+        long minutes = TimeUnit.MINUTES.convert( totalSeconds, TimeUnit.SECONDS );
+        long seconds = totalSeconds - TimeUnit.SECONDS.convert( minutes, TimeUnit.MINUTES );
         println( "eval-time-human = "
-                + TimeUnit.MILLISECONDS.toMinutes( evalTime )
+                + minutes
                 + "m "
-                + TimeUnit.MILLISECONDS.toSeconds( evalTime )
+                + seconds
                 + "s",
                 state );
         _evalTotalTime += evalTime;
@@ -95,7 +153,6 @@ public class MooParseableStatistics extends ParseableStatistics
 //        super.postEvaluationStatistics( state );
 
         // Define the variables to prevent a lot of gc
-        Individual bestOfGenInd = null;
         Individual currentInd = null;
         Subpopulation subPop = null;
         int subPopSize = 0;
@@ -120,9 +177,6 @@ public class MooParseableStatistics extends ParseableStatistics
                 + "].";
 
             // Iterate over all the individuals in the sub-population
-            bestOfGenInd = null;
-//            _bestFound[i] = bestOfGenInd;
-//            _bestFoundGen[i] = state.generation;
             for( int j = 0; j < subPopSize; j++ )
             {
                 // Get the current individual
@@ -135,23 +189,6 @@ public class MooParseableStatistics extends ParseableStatistics
                 {
                     fitnessStats[k].addValue( objectiveFitnessValues[k] );
                 }
-
-                // Is this individual the best found for this subpopulation
-                // for this generation?
-                if( (null == bestOfGenInd)
-                        || (currentInd.fitness.betterThan( bestOfGenInd.fitness )) )
-                {
-                    bestOfGenInd = currentInd;
-
-                    // Is it the best of the run?
-                    if( (_bestFound[i] == null) ||
-                            (currentInd.fitness.betterThan(_bestFound[i].fitness)) )
-                    {
-                        // Yup
-                        _bestFound[i] = currentInd;
-                        _bestFoundGen[i] = state.generation;
-                    }
-                }
             }
 
             // Compute and log the mean values and variance of the fitness stats
@@ -159,45 +196,78 @@ public class MooParseableStatistics extends ParseableStatistics
             {
                 String objectiveID = String.format( "%02d", j );
                 println( prefix
-                        + "fitness-"
+                        + "objective-fitness."
                         + objectiveID
-                        + "-mean = "
+                        + ".mean = "
                         + fitnessStats[j].getMean(),
                         state );
                 println( prefix
-                        + "fitness-"
+                        + "objective-fitness."
                         + objectiveID
-                        + "-variance = "
+                        + ".variance = "
                         + fitnessStats[j].getVariance(),
                         state );
                 println( prefix
-                        + "fitness-"
+                        + "objective-fitness."
                         + objectiveID
-                        + "-std-dev = "
+                        + ".std-dev = "
                         + fitnessStats[j].getStandardDeviation(),
                         state );
             }
 
-            // Display the best individual's stats
-            print( buildIndDescription( bestOfGenInd,
-                    state,
-                    true,
-                    prefix + "best-individual."),
+            // Get the individuals on the pareto front
+            List paretoInds = MultiObjectiveFitness.partitionIntoParetoFront(
+                    subPop.individuals,
+                    null,
+                    null );
+            println( prefix
+                    + "pareto-front-individual-count = "
+                    + paretoInds.size(),
                     state );
 
-            indFitness = (MultiObjectiveFitness) _bestFound[i].fitness;
-            float[] bestFoundObjectiveFitnessValues = indFitness.getObjectives();
-            for( int j = 0; j < fitnessStats.length; j++ )
+            // Prune the pareto front to only display the unique individuals
+            Map<String,Individual> uniqueParetoInds = new HashMap<String,Individual>();
+            for( int j = 0; j < paretoInds.size(); j++ )
             {
-                println( prefix
-                        + "best-individual-found-so-far.fitness-"
-                        + String.format( "%02d", j )
-                        + bestFoundObjectiveFitnessValues[j],
+                Individual current = (Individual) paretoInds.get( j );
+
+                // Check to see if the same genome is in the list
+                String genome = current.genotypeToStringForHumans();
+                if( uniqueParetoInds.containsKey( genome ) )
+                {
+                    // Yup, continue on to the next one
+                    continue;
+                }
+                else
+                {
+                    // Nope, add it
+                    uniqueParetoInds.put( genome, current );
+                }
+            }
+            println( prefix
+                    + "pareto-front-unique-individual-count = "
+                    + uniqueParetoInds.size(),
+                    state );
+
+            // Sort the unique individuals
+            Individual[] sortedUnique = uniqueParetoInds.values().toArray(
+                    new Individual[uniqueParetoInds.size() ] );
+            Arrays.sort( sortedUnique, new MooIndComparator() );
+
+            // Display the stats of the unique individuals
+            for( int j = 0; j < sortedUnique.length; j++ )
+            {
+                Individual current = sortedUnique[j];
+
+                print( buildIndDescription( current,
+                        state,
+                        true,
+                        prefix
+                            + "pareto-individual."
+                            + String.format( "%03d", j )
+                            + "." ),
                         state );
             }
-            println( prefix + "best-individual-found-so-far.generation = "
-                    + _bestFoundGen[i],
-                    state );
         }
 
         state.output.flush();

@@ -373,6 +373,8 @@ public class ParseableStatistics extends Statistics
     @Override
     public void finalStatistics( EvolutionState state, int result )
     {
+        state.output.println( "", _statLog );
+
         // Before we do everything, get the time for the job
         long jobTime = System.currentTimeMillis() - _jobStartTime;
 
@@ -383,6 +385,16 @@ public class ParseableStatistics extends Statistics
         println( "job-time = " + jobTime,
                 state,
                 false );
+        long totalJobSeconds = TimeUnit.SECONDS.convert( jobTime, TimeUnit.MILLISECONDS);
+        long minutes = TimeUnit.MINUTES.convert( totalJobSeconds, TimeUnit.SECONDS );
+        long seconds = totalJobSeconds - TimeUnit.SECONDS.convert( minutes, TimeUnit.MINUTES );
+        println( "job-time-human = "
+                + minutes
+                + "m "
+                + seconds
+                + "s",
+                state );
+
         println( "breed-time = " + _breedTotalTime,
                 state,
                 false );

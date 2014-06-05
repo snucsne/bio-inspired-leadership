@@ -2,6 +2,7 @@
 # Parent parameters
 # ==============================================================
 parent.0 = ../../ec/app/moosuite/spea2.params
+#parent.0 = ../../ec/app/moosuite/nsga2.params
 
 
 # ==============================================================
@@ -9,14 +10,29 @@ parent.0 = ../../ec/app/moosuite/spea2.params
 # ==============================================================
 eval.problem = edu.snu.leader.discrete.evolution.MultiObjectiveCoordinationProblem
 
-eval.problem.codon-size = 8
-eval.problem.alpha-scaling-factor = 0.010
-eval.problem.beta-scaling-factor = 0.015
-eval.problem.s-scaling-factor = 20
-eval.problem.q-scaling-factor = 5
-eval.problem.alpha-c-scaling-factor = 0.010
-eval.problem.beta-c-scaling-factor = -0.010
+eval.problem.alpha.scaling-factor = 0.02
+eval.problem.alpha.codon-size = 7
+eval.problem.beta.scaling-factor = 0.02
+eval.problem.beta.codon-size = 7
+eval.problem.s.modulus = 33
+eval.problem.s.codon-size = 5
+eval.problem.q.scaling-factor = 10
+eval.problem.q.codon-size = 7
+eval.problem.alpha-c.scaling-factor = 0.020
+eval.problem.alpha-c.codon-size = 7
+eval.problem.beta-c.scaling-factor = -0.020
+eval.problem.beta-c.codon-size = 7
 eval.problem.sim-properties-file = cfg/sim/discrete/sim-properties.parameters
+
+eval.problem.sim-destinations-count = 3
+eval.problem.sim-destinations.00.file = cfg/sim/destinations/destinations-diffdis-10-per-0.5-seed-1.dat
+eval.problem.sim-destinations.00.sim-count = 5
+eval.problem.sim-destinations.01.file = cfg/sim/destinations/destinations-poles-10-per-0.5-seed-1.dat
+eval.problem.sim-destinations.01.sim-count = 5
+eval.problem.sim-destinations.02.file = cfg/sim/destinations/destinations-split-10-per-0.5-seed-1.dat
+eval.problem.sim-destinations.02.sim-count = 5
+
+eval.problem.force-reevaluation = true
 
 
 # ==============================================================
@@ -24,8 +40,8 @@ eval.problem.sim-properties-file = cfg/sim/discrete/sim-properties.parameters
 # ==============================================================
 
 # Population size
-pop.subpop.0.size = 75
-breed.elite.0 =	25
+pop.subpop.0.size = 150
+breed.elite.0 =	50
 
 # Number of generations
 generations = 51
@@ -50,13 +66,14 @@ pop.subpop.0.species = ec.vector.BitVectorSpecies
 pop.subpop.0.species.ind = ec.vector.BitVectorIndividual
 pop.subpop.0.species.fitness.num-objectives = 2
 pop.subpop.0.species.fitness.maximize = true
-pop.subpop.0.species.genome-size = 48
+pop.subpop.0.species.genome-size = 40
 
 
 # ==============================================================
 # Job information
 # ==============================================================
 stat = edu.snu.leader.util.MooParseableStatistics
-stat.num-objectives = 0
-
+stat.num-objectives = 2
+stat.objective.00.name = Percentage of lifetime spent moving to preferred destination
+stat.objective.01.name = Survival percentage
 
