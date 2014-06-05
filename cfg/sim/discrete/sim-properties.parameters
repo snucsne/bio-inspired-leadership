@@ -29,6 +29,7 @@ max-location-radius = 10
 destination-size-radius = 10
 
 #predation
+count-non-movers-as-survivors = false
 max-agents-eaten-per-step = 10
 enable-predator = true
 predation-multiplier = 0.001

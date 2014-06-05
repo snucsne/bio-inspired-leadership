@@ -20,7 +20,9 @@ package edu.snu.leader.discrete.evolution;
 
 
 /**
- * EvolutionInputParameters Input parameters for the evolving simulations
+ * EvolutionInputParameters 
+ * 
+ * Input parameters for the evolving simulations
  *
  * @author Tim Solum
  * @version $Revision$ ($Author$)
@@ -43,6 +45,9 @@ public class EvolutionInputParameters
 
         /** The number of runs for the particular destination */
         public int runCount = 0;
+        
+        /** The seed used for this run */
+        public long seed = 0;
 
         /**
          * Builds this DestinationRunCounts object
@@ -50,10 +55,11 @@ public class EvolutionInputParameters
          * @param destinationFilename
          * @param runCount
          */
-        public DestinationRunCounts( String destinationFilename, int runCount )
+        public DestinationRunCounts( String destinationFilename, int runCount, long seed )
         {
             this.destinationFilename = destinationFilename;
             this.runCount = runCount;
+            this.seed = seed;
         }
     }
 

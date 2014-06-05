@@ -194,6 +194,12 @@ public class SimulationState
 
     /** Unique id count for groups */
     public int uniqueGroupIdCount = 0;
+    
+    /** 
+     * Whether or not agents that never left the starting place
+     * should be counted as survivors.
+     */
+    private boolean _shouldCountNonMoverAsSurvivor = false;
 
     /**
      * Initialize the simulation state
@@ -271,6 +277,12 @@ public class SimulationState
         Validate.notEmpty( stringShouldReportPredation,
                 "Predation results required" );
         _shouldReportPredation = Boolean.parseBoolean( stringShouldReportPredation );
+        
+        String stringShouldCountNonMoverAsSurvivor = 
+                _props.getProperty( "count-non-movers-as-survivors" );
+        Validate.notEmpty( stringShouldCountNonMoverAsSurvivor,
+                "Should Count Non Mover As Survivor required" );
+        _shouldCountNonMoverAsSurvivor = Boolean.parseBoolean( stringShouldCountNonMoverAsSurvivor);
 
         String stringPredatorEnabled = _props.getProperty( "enable-predator" );
         Validate.notEmpty( stringPredatorEnabled, "Enable predator required" );
@@ -947,6 +959,15 @@ public class SimulationState
             Agent temp = iter.next();
             totalAgentLife += temp.getTimeAlive();
             totalTimeTravelledToPreferred += temp.getTimeMovingTowardsDestionation();
+            // if agent is in start zone at end of simulation then it dies if
+            // we don't want to count non-movers
+            if( !_shouldCountNonMoverAsSurvivor && 
+                    temp.getCurrentLocation().distance1( 
+                    startingDestination.getVector() ) < startingDestination.getRadius())
+            {
+                temp.kill();
+            }
+            
             if( temp.isAlive() )
             {
                 agentsAlive++;

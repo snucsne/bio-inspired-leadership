@@ -46,7 +46,7 @@ public class SimulatorEvolution
     {
         DestinationRunCounts drc = new DestinationRunCounts(
                 "cfg/sim/destinations/destinations-split-10-dis-150.0-ang-72.00-per-0.500-seed-1.dat",
-                1 );
+                1, 5L );
         DestinationRunCounts[] drcs = { drc };
         EvolutionInputParameters input = new EvolutionInputParameters( 0.006f,
                 0.01f, 2, 2.3f, 0.009f, -0.009f, drcs );
@@ -119,7 +119,7 @@ public class SimulatorEvolution
             for( int j = 0; j < param._destinationRunCounts[i].runCount; j++ )
             {
                 // create simulator and execute it
-                Simulator simulator = new Simulator( 1 );
+                Simulator simulator = new Simulator( param._destinationRunCounts[i].seed );
                 simulator.initialize( _simulationProperties );
                 simulator.execute();
 
