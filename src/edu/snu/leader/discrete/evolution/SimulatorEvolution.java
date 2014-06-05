@@ -119,7 +119,7 @@ public class SimulatorEvolution
             for( int j = 0; j < param._destinationRunCounts[i].runCount; j++ )
             {
                 // create simulator and execute it
-                Simulator simulator = new Simulator( param._destinationRunCounts[i].seed );
+                Simulator simulator = new Simulator( param._destinationRunCounts[i].seed + j );
                 simulator.initialize( _simulationProperties );
                 simulator.execute();
 
