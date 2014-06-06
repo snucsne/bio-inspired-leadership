@@ -949,6 +949,7 @@ public class SimulationState
     {
         long totalAgentLife = 0;
         long totalTimeTravelledToPreferred = 0;
+        long totalTimeTravelledAwayFromPreferred = 0;
         int agentsAlive = 0;
         int totalInitiations = 0;
         int totalCancellations = 0;
@@ -959,6 +960,7 @@ public class SimulationState
             Agent temp = iter.next();
             totalAgentLife += temp.getTimeAlive();
             totalTimeTravelledToPreferred += temp.getTimeMovingTowardsDestionation();
+            totalTimeTravelledAwayFromPreferred += temp.getTimeMovingAwayFromDestination();
             // if agent is in start zone at end of simulation then it dies if
             // we don't want to count non-movers
             if( !_shouldCountNonMoverAsSurvivor && 
@@ -981,8 +983,10 @@ public class SimulationState
         float percentSurvive = (float) agentsAlive / getAgentCount();
         float percentSuccess = ( (float) totalInitiations - totalCancellations )
                 / totalInitiations;
+        float percentTimeAway = (float) totalTimeTravelledAwayFromPreferred
+                / totalAgentLife;
 
         return new EvolutionOutputFitness( percentTime, percentSurvive,
-                percentSuccess );
+                percentSuccess, percentTimeAway );
     }
 }

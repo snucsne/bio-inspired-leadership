@@ -56,6 +56,7 @@ public class SimulatorEvolution
         System.out.println( "Time Towards: " + output.getPercentTime() );
         System.out.println( "Survivals: " + output.getPercentSurvive() );
         System.out.println( "Success: " + output.getPercentSuccess() );
+        System.out.println( "Time Away: " + output.getPercentTimeAway() );
 
         inputParametersToJson( input, "test.json" );
 
@@ -64,6 +65,7 @@ public class SimulatorEvolution
         System.out.println( "Time Towards: " + output.getPercentTime() );
         System.out.println( "Survivals: " + output.getPercentSurvive() );
         System.out.println( "Success: " + output.getPercentSuccess() );
+        System.out.println( "Time Away: " + output.getPercentTimeAway() );
     }
 
     /**
@@ -105,6 +107,7 @@ public class SimulatorEvolution
         float totalTime = 0f;// Total percents of the time fitness
         float totalSurvive = 0f;// Total percents of the survival fitness
         float totalSuccess = 0f;// Total percents of the success fitness
+        float totalTimeAway = 0f;// Total percents of the time moving away fitness
 
         // loop through each environment to test
         for( int i = 0; i < param._destinationRunCounts.length; i++ )
@@ -128,6 +131,7 @@ public class SimulatorEvolution
                 totalTime += temp.getPercentTime();
                 totalSurvive += temp.getPercentSurvive();
                 totalSuccess += temp.getPercentSuccess();
+                totalTimeAway += temp.getPercentTimeAway();
                 totalRuns++;// increment run count
             }
         }
@@ -135,7 +139,7 @@ public class SimulatorEvolution
         // return the mean percentages of all the runs as the final
         // EvolutionOutputFitness
         return new EvolutionOutputFitness( totalTime / totalRuns, totalSurvive
-                / totalRuns, totalSuccess / totalRuns );
+                / totalRuns, totalSuccess / totalRuns, totalTimeAway / totalRuns );
     }
 
     /**

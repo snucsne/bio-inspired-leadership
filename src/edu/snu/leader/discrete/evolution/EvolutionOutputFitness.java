@@ -38,6 +38,11 @@ public class EvolutionOutputFitness
     /** Percent of success as defined by (inits - cancels)/inits */
     private float percentSuccess = 0.0f;
 
+    /** Percentage of time alive that agents move away from their preferred
+     * destination
+     */
+    private float percentTimeAway = 0.0f;
+    
     /**
      * Builds this EvolutionOutputFitness object
      *
@@ -47,11 +52,13 @@ public class EvolutionOutputFitness
      */
     public EvolutionOutputFitness( float percentTime,
             float percentSurvive,
-            float percentSuccess )
+            float percentSuccess,
+            float percentTimeAway)
     {
         this.percentTime = percentTime;
         this.percentSurvive = percentSurvive;
         this.percentSuccess = percentSuccess;
+        this.percentTimeAway = percentTimeAway;
     }
 
     /**
@@ -83,5 +90,16 @@ public class EvolutionOutputFitness
     public float getPercentSuccess()
     {
         return percentSuccess;
+    }
+    
+    /**
+     * Returns the percentage of time alive that agents move away from 
+     * their preferred destination
+     *
+     * @return
+     */
+    public float getPercentTimeAway()
+    {
+        return percentTimeAway;
     }
 }

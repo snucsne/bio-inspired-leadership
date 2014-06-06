@@ -148,6 +148,8 @@ public class Agent
     private long _timeAlive = 0;
 
     private long _timeMovingTowardsDestination = 0;
+    
+    private long _timeMovingAwayFromDestination = 0;
 
     private int _totalInitiations = 0;
 
@@ -281,6 +283,7 @@ public class Agent
         // reset some results information
         _timeAlive = 0;
         _timeMovingTowardsDestination = 0;
+        _timeMovingAwayFromDestination = 0;
         _totalInitiations = 0;
         _totalCancellations = 0;
     }
@@ -547,6 +550,12 @@ public class Agent
                 && !_currentVelocity.equals( Vector2D.ZERO ) )
         {
             _timeMovingTowardsDestination++;
+        }
+        else if(! _preferredDestination.getID().equals(
+                _leader.getPreferredDestination().getID() ) 
+                && !_currentVelocity.equals( Vector2D.ZERO ) )
+        {
+            _timeMovingAwayFromDestination++;
         }
         // move
         _movementBehavior.move();
@@ -892,6 +901,11 @@ public class Agent
     public long getTimeMovingTowardsDestionation()
     {
         return _timeMovingTowardsDestination;
+    }
+    
+    public long getTimeMovingAwayFromDestination()
+    {
+        return _timeMovingAwayFromDestination;
     }
 
     /**
