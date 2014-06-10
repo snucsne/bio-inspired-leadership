@@ -1001,7 +1001,7 @@ public class SimulationState
                 / totalAgentLife;
         float percentTimeToDestination = (float) totalTimeToDestination / totalTimesteps;
         float percentDistanceToDestination = (float)(totalDistance / totalDistanceFromStart);
-        float percentTimeAlive = (float) totalAgentLife / totalRunningTimeSteps;
+        float percentTimeAlive = (float) totalAgentLife / totalTimesteps;
 
         return new EvolutionOutputFitness( percentTime, percentSurvive,
                 percentSuccess, percentTimeAway, percentTimeToDestination,
