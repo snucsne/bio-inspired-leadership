@@ -44,6 +44,23 @@ public class EvolutionOutputFitness
     private float percentTimeAway = 0.0f;
     
     /**
+     * The time taken to make it to the preferred destination relative
+     * to the maximum amount of time steps
+     */
+    private float percentTimeToDestination = 0.0f;
+    
+    /**
+     * The percentage of distance away from the agent's preferred
+     * destination
+     */
+    private float percentDistanceToDestination = 0.0f;
+    
+    /**
+     * The percentage of time steps alive
+     */
+    private float percentTimeAlive = 0.0f;
+    
+    /**
      * Builds this EvolutionOutputFitness object
      *
      * @param percentTime
@@ -53,12 +70,18 @@ public class EvolutionOutputFitness
     public EvolutionOutputFitness( float percentTime,
             float percentSurvive,
             float percentSuccess,
-            float percentTimeAway)
+            float percentTimeAway,
+            float percentTimeToDestination,
+            float percentDistanceToDestination,
+            float percentTimeAlive)
     {
         this.percentTime = percentTime;
         this.percentSurvive = percentSurvive;
         this.percentSuccess = percentSuccess;
         this.percentTimeAway = percentTimeAway;
+        this.percentTimeToDestination = percentTimeToDestination;
+        this.percentDistanceToDestination = percentDistanceToDestination;
+        this.percentTimeAlive = percentTimeAlive;
     }
 
     /**
@@ -101,5 +124,36 @@ public class EvolutionOutputFitness
     public float getPercentTimeAway()
     {
         return percentTimeAway;
+    }
+    
+    /**
+     * The time taken to make it to the preferred destination relative
+     * to the maximum amount of time steps
+     * @return
+     */
+    public float getPercentTimeToDestination()
+    {
+        return percentTimeToDestination;
+    }
+    
+    /**
+     * Returns the percentage of distance away from the agent's preferred
+     * destination
+     *
+     * @return
+     */
+    public float getPercentDistanceToDestination()
+    {
+        return percentDistanceToDestination;
+    }
+    
+    /**
+     * Returns the percentage of time steps alive
+     *
+     * @return
+     */
+    public float getPercentTimeAlive()
+    {
+        return percentTimeAlive;
     }
 }

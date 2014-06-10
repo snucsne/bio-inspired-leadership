@@ -337,15 +337,15 @@ public class SimulationState
 
         if( _currentSimulationRun < _simulationRunCount )
         {
+            // create the output fitness
+            _simulationOutputFitness = createSimulationOutputFitness();
+            
             _simulationTime = 0;
 
             // reset the NONE group and clear the rest of the groups
             noneGroup.reset();
             _groups.clear();
             _groups.add( noneGroup );
-
-            // create the output fitness
-            _simulationOutputFitness = createSimulationOutputFitness();
 
             Iterator<Agent> agentIter = getAgentIterator();
             while( agentIter.hasNext() )
@@ -953,6 +953,11 @@ public class SimulationState
         int agentsAlive = 0;
         int totalInitiations = 0;
         int totalCancellations = 0;
+        long totalTimeToDestination = 0;
+        long totalRunningTimeSteps = 0;
+        long totalTimesteps = 0;
+        double totalDistance = 0;
+        double totalDistanceFromStart = 0;
 
         Iterator<Agent> iter = getAgentIterator();
         while( iter.hasNext() )
@@ -968,6 +973,7 @@ public class SimulationState
                     startingDestination.getVector() ) < startingDestination.getRadius())
             {
                 temp.kill();
+                
             }
             
             if( temp.isAlive() )
@@ -976,6 +982,14 @@ public class SimulationState
             }
             totalInitiations += temp.getTotalInitiations();
             totalCancellations += temp.getTotalCancellations();
+            totalTimeToDestination += temp.getTimeToDestination();
+            totalRunningTimeSteps += getSimulationTime();
+            totalTimesteps += getMaxSimulationTimeSteps();
+            
+            if(!temp.hasReachedDestination()){
+                totalDistance += temp.getCurrentLocation().distance( temp.getPreferredDestination().getVector() );
+            }
+            totalDistanceFromStart += temp.getInitialLocation().distance( temp.getPreferredDestination().getVector() );
         }
 
         float percentTime = (float) totalTimeTravelledToPreferred
@@ -985,8 +999,12 @@ public class SimulationState
                 / totalInitiations;
         float percentTimeAway = (float) totalTimeTravelledAwayFromPreferred
                 / totalAgentLife;
+        float percentTimeToDestination = (float) totalTimeToDestination / totalTimesteps;
+        float percentDistanceToDestination = (float)(totalDistance / totalDistanceFromStart);
+        float percentTimeAlive = (float) totalAgentLife / totalRunningTimeSteps;
 
         return new EvolutionOutputFitness( percentTime, percentSurvive,
-                percentSuccess, percentTimeAway );
+                percentSuccess, percentTimeAway, percentTimeToDestination,
+                percentDistanceToDestination, percentTimeAlive);
     }
 }

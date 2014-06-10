@@ -46,10 +46,10 @@ public class SimulatorEvolution
     {
         DestinationRunCounts drc = new DestinationRunCounts(
                 "cfg/sim/destinations/destinations-split-10-dis-150.0-ang-72.00-per-0.500-seed-1.dat",
-                1, 5L );
+                5, 1L );
         DestinationRunCounts[] drcs = { drc };
-        EvolutionInputParameters input = new EvolutionInputParameters( 0.006f,
-                0.01f, 2, 2.3f, 0.009f, -0.009f, drcs );
+        EvolutionInputParameters input = new EvolutionInputParameters( 0.006161429f,
+                0.013422819f, 2, 2.3f, 0.009f, -0.009f, drcs );
         EvolutionOutputFitness output = null;
 
         output = runEvolutionFromInputParameters( input, null );
@@ -57,15 +57,9 @@ public class SimulatorEvolution
         System.out.println( "Survivals: " + output.getPercentSurvive() );
         System.out.println( "Success: " + output.getPercentSuccess() );
         System.out.println( "Time Away: " + output.getPercentTimeAway() );
-
-        inputParametersToJson( input, "test.json" );
-
-        // should be the same as above outputs
-        output = runEvolutionFromJson( "test.json", null );
-        System.out.println( "Time Towards: " + output.getPercentTime() );
-        System.out.println( "Survivals: " + output.getPercentSurvive() );
-        System.out.println( "Success: " + output.getPercentSuccess() );
-        System.out.println( "Time Away: " + output.getPercentTimeAway() );
+        System.out.println( "Mean Time to Destination: " + output.getPercentTimeToDestination() );
+        System.out.println( "Distance: " + output.getPercentDistanceToDestination() );
+        System.out.println( "Time Alive: " + output.getPercentTimeAlive() );
     }
 
     /**
@@ -108,6 +102,9 @@ public class SimulatorEvolution
         float totalSurvive = 0f;// Total percents of the survival fitness
         float totalSuccess = 0f;// Total percents of the success fitness
         float totalTimeAway = 0f;// Total percents of the time moving away fitness
+        float totalTimeToDestination = 0f;// Total percents of time taken to destination
+        float totalDistanceToDestination = 0f;// Total percents of distance to destination
+        float totalTimeAlive = 0f;// Total percents of time alive
 
         // loop through each environment to test
         for( int i = 0; i < param._destinationRunCounts.length; i++ )
@@ -132,6 +129,9 @@ public class SimulatorEvolution
                 totalSurvive += temp.getPercentSurvive();
                 totalSuccess += temp.getPercentSuccess();
                 totalTimeAway += temp.getPercentTimeAway();
+                totalTimeToDestination += temp.getPercentTimeToDestination();
+                totalDistanceToDestination += temp.getPercentDistanceToDestination();
+                totalTimeAlive += temp.getPercentTimeAlive();
                 totalRuns++;// increment run count
             }
         }
@@ -139,7 +139,9 @@ public class SimulatorEvolution
         // return the mean percentages of all the runs as the final
         // EvolutionOutputFitness
         return new EvolutionOutputFitness( totalTime / totalRuns, totalSurvive
-                / totalRuns, totalSuccess / totalRuns, totalTimeAway / totalRuns );
+                / totalRuns, totalSuccess / totalRuns, totalTimeAway / totalRuns,
+                totalTimeToDestination / totalRuns, totalDistanceToDestination / totalRuns, 
+                totalTimeAlive / totalRuns);
     }
 
     /**
