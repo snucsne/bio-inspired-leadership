@@ -90,6 +90,7 @@ public class SimulatorLauncherGUI extends JFrame {
     private JPanel panelPredationBoxes;
     private JPanel panelPredationStuff;
     private JPanel panelPredationConstant;
+    private JPanel panelNonMoversSurvive;
     private JCheckBox chckbxPredationEnable;
     private JFormattedTextField frmtdtxtfldPredationMinimum;
     private JFormattedTextField frmtdtxtfldPercentage;
@@ -271,11 +272,13 @@ public class SimulatorLauncherGUI extends JFrame {
                     panelPredationStuff.setVisible(true);
                     panelPredationBoxes.setVisible(true);
                     panelPredationConstant.setVisible(true);
+                    panelNonMoversSurvive.setVisible( true );
                 }
                 else{
                     panelPredationStuff.setVisible(false);
                     panelPredationBoxes.setVisible(false);
                     panelPredationConstant.setVisible(false);
+                    panelNonMoversSurvive.setVisible( false );
                 }
             }
         });
@@ -310,6 +313,10 @@ public class SimulatorLauncherGUI extends JFrame {
         frmtdtxtfldMaxTimeSteps.setColumns(6);
         frmtdtxtfldMaxTimeSteps.setValue((Number)20000);
         panelCounts.add(frmtdtxtfldMaxTimeSteps);
+        
+        
+        ////////Panel tab 2
+        
         
         JPanel panelTab2 = new JPanel();
         tabbedPane.addTab("Parameters", null, panelTab2, null);
@@ -505,6 +512,16 @@ public class SimulatorLauncherGUI extends JFrame {
         frmtdtxtfldPredationConstant.setToolTipText("Value should be positive. Recommended values are near 0.001");
         frmtdtxtfldPredationConstant.setColumns(4);
         frmtdtxtfldPredationConstant.setValue((Number)0.001);
+        
+        panelNonMoversSurvive = new JPanel();
+        panelTab2.add( panelNonMoversSurvive );
+        
+        final JCheckBox chckbxNonMoversSurvive = new JCheckBox("Non-movers Survive?");
+        chckbxNonMoversSurvive.setSelected( false );
+        panelNonMoversSurvive.add( chckbxNonMoversSurvive );
+        
+        
+        ////////Tab 3
         
         JPanel panelTab3 = new JPanel();
         tabbedPane.addTab("Environment", null, panelTab3, null);
@@ -885,6 +902,7 @@ public class SimulatorLauncherGUI extends JFrame {
                     _simulatorProperties.put("use-predation-threshold", String.valueOf(chckbxUsePredationThreshold.isSelected()));
                     _simulatorProperties.put("predation-threshold", String.valueOf(spinnerPredationThreshold.getValue()));
                     _simulatorProperties.put("predation-by-population", String.valueOf(chckbxPopulationIndependent.isSelected()));
+                    _simulatorProperties.put("count-non-movers-as-survivors", String.valueOf( chckbxNonMoversSurvive.isSelected() ));
                     
                     _simulatorProperties.put("adhesion-time-limit", String.valueOf(frmtdtxtfldMaxTimeSteps.getValue()));
                     
