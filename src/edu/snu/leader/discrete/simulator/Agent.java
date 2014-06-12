@@ -154,6 +154,8 @@ public class Agent
     private int _totalInitiations = 0;
 
     private int _totalCancellations = 0;
+    
+    private long _timeToDestination = 0;
 
     /**
      * Builds an Agent disregarding Personality and Conflict
@@ -254,6 +256,8 @@ public class Agent
     /** Resets the Agent for the next simulation run */
     public void reset()
     {
+        _timeToDestination = _simState.getMaxSimulationTimeSteps();
+        
         // reset location stuff
         _currentLocation = _initialLocation;
         _currentVelocity = Vector2D.ZERO;
@@ -929,6 +933,7 @@ public class Agent
         // if it just reached destination
         if( !_hasReachedDestination )
         {
+            _timeToDestination = getTime();
             // increment numReached and set velocity to zero
             _simState.numReachedDestination++;
             _currentVelocity = Vector2D.ZERO;
@@ -941,6 +946,10 @@ public class Agent
         _hasReachedDestination = true;
         // no longer makes decisions
         _hasNewDecision = false;
+    }
+    
+    public long getTimeToDestination(){
+        return _timeToDestination;
     }
 
     public boolean hasReachedDestination()
