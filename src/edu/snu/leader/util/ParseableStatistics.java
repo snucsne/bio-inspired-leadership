@@ -172,7 +172,10 @@ public class ParseableStatistics extends Statistics
 
         // Display the parameters
         String newline = System.getProperty("line.separator");
-        StringBuilder paramBuilder = new StringBuilder( "# Evolution parameters" );
+        StringBuilder paramBuilder = new StringBuilder();
+        paramBuilder.append( "# =========================================================" );
+        paramBuilder.append( newline );
+        paramBuilder.append( "# Evolution parameters" );
         paramBuilder.append( newline );
         paramBuilder.append( newline );
         paramBuilder.append( "# " );
@@ -393,7 +396,8 @@ public class ParseableStatistics extends Statistics
                 + "m "
                 + seconds
                 + "s",
-                state );
+                state,
+                false );
 
         println( "breed-time = " + _breedTotalTime,
                 state,

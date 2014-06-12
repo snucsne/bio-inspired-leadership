@@ -1,0 +1,52 @@
+simulation-count = 60000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 10
+rebuild-individuals = false
+use-nearest-neighbor-group-size = true
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership-personality-local-reversal.dat
+use-sim-log-file-flag = false
+
+event-time-calculator-class = edu.snu.leader.hidden.event.SigmoidPersonalityEventTimeCalculator
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+sigmoid-slope-value = 10
+
+
+individual-builder-class = edu.snu.leader.hidden.builder.PersonalityDistributionAndDirIndividualBuilder
+personality-mean = 0.5
+personality-std-dev = 0
+min-personality = 0.1
+max-personality = 0.9
+personality-rng-dist = gaussian
+direction-mean = 0
+direction-std-dev = 0.025
+min-direction = -1.0
+max-direction = 1.0
+direction-delta = 0
+positive-delta-probability = 0
+
+
+personality-calculator-class = edu.snu.leader.hidden.personality.DirectionUpdateRulePersonalityCalculator
+personality-discount = 0.02
+min-personality = 0.1
+max-personality = 0.9
+true-winner-effects-active = true
+true-loser-effects-active = true
+bystander-winner-effects-active = false
+bystander-loser-effects-active = false
+winner-reward = 1.0
+loser-penalty = 0.0
+modify-winner-discount = false
+modify-winner-reward = true
+directions-file = cfg/sim/environment/env-dir-constant.dat
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc
+
+observer-count = 1
+observer.00.class = edu.snu.leader.hidden.observer.MimicsDependantDirectionSimObserver
+low-mimics-dir-offset = -0.5
+high-mimics-dir-offset = 0.5
+

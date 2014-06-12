@@ -1,0 +1,9 @@
+# =========================================================
+# Sim: Simulation index at which the direction changes
+#      NOTE: This value is multiplied by the number of individuals
+# Direction: The preferred environmental direction [-1,1]
+# Sigma: The standard deviation (a Gaussian is used)
+# =========================================================
+# SimIdx    Direction  Sigma
+-000001     -0.500     0.1
+

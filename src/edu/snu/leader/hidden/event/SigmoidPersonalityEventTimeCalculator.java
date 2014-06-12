@@ -24,29 +24,29 @@ import java.util.Properties;
 public class SigmoidPersonalityEventTimeCalculator
         extends PersonalityEventTimeCalculator
 {
-    
+
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
             SigmoidPersonalityEventTimeCalculator.class.getName() );
-    
+
     /** Key for modifying the sigmoid slope value */
     private final String _SIGMOID_SLOPE_VALUE_KEY = "sigmoid-slope-value";
-    
-    
-    
+
+
+
     /** Sigmoid slope value */
     private float _sigmoidSlopeValue = 0.0f;
-    
+
    /**
      * Builds this SigmoidPersonalityEventTimeCalculator object
      *
-     */ 
+     */
     public SigmoidPersonalityEventTimeCalculator()
     {
-        _description = "k = 2.0f  * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * 10.0f) ) )";
+        _description = "k = 2.0f  * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * _sigmoidSlopeValue) ) )";
     }
-    
-    
+
+
     /**
      * Initializes this calculator
      *
@@ -57,24 +57,24 @@ public class SigmoidPersonalityEventTimeCalculator
     public void initialize(SimulationState simState)
     {
         _LOG.trace( "Entering initialize( simState )" );
-        
+
         // Call superclass implementation
         super.initialize( simState );
-        
+
         // Get the properties
         Properties props = simState.getProps();
-        
+
         // Get the sigmoid slope value
         String sigmoidSlopeValueStr = props.getProperty(_SIGMOID_SLOPE_VALUE_KEY);
-        Validate.notEmpty(sigmoidSlopeValueStr, 
+        Validate.notEmpty(sigmoidSlopeValueStr,
                 "Sigmoid slope value (Key ="
                 + _SIGMOID_SLOPE_VALUE_KEY
                 + ") may not be empty " );
         _sigmoidSlopeValue = Float.parseFloat(sigmoidSlopeValueStr);
         _LOG.info( "Using _sigmoidSlopeValue = [" + _sigmoidSlopeValue + "]" );
-        
-        _LOG.trace( "Leaving initialize( simState )" );     
-        
+
+        _LOG.trace( "Leaving initialize( simState )" );
+
     }
 
 
@@ -87,7 +87,7 @@ public class SigmoidPersonalityEventTimeCalculator
     @Override
     protected float calculateK( float value )
     {
-        return 2.0f * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * 10.0f) ) );
+        return 2.0f * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * _sigmoidSlopeValue) ) );
     }
 
 }

@@ -24,6 +24,7 @@ import ec.Individual;
 import ec.Problem;
 import ec.multiobjective.MultiObjectiveFitness;
 import ec.simple.SimpleProblemForm;
+import ec.util.MersenneTwisterFast;
 import ec.util.Parameter;
 import ec.vector.BitVectorIndividual;
 
@@ -130,8 +131,11 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
     /** The simulator properties file */
     private String _simulatorPropertiesFile = null;
 
-    /** The simulator destination information */
-    private DestinationRunCounts[] _destinationInfo = new DestinationRunCounts[0];
+    /** The array of destination files */
+    private String[] _destinationFiles = new String[0];
+
+    /** The array of destination simulation counts */
+    private int[] _destinationSimCounts = new int[0];
 
     /** Flag indicating that individuals should be re-evaluated every generation */
     private boolean _forceReevaluation = false;
@@ -271,6 +275,9 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
                 null );
         _LOG.info( "Using _simulatorPropertiesFile=[" + _simulatorPropertiesFile + "]" );
 
+        // Save it for later
+        System.setProperty( _P_SIM_PROPERTIES_FILE, _simulatorPropertiesFile );
+
         // Get the number of destination files
         String destCountKey = _P_SIM_DESTINATIONS_PREFIX + "-count";
         Validate.isTrue( state.parameters.exists(
@@ -279,7 +286,8 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         int destCount = state.parameters.getInt(
                 base.push( destCountKey ),
                 null );
-        _destinationInfo = new DestinationRunCounts[destCount];
+        _destinationFiles = new String[destCount];
+        _destinationSimCounts = new int[destCount];
 
         // Load each destination file
         for( int i = 0; i < destCount; i++ )
@@ -294,7 +302,7 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
                     "Simulator destination file ["
                     + String.format( "%02d", i )
                     + "] is required" );
-            String destFile = state.parameters.getString(
+            _destinationFiles[i] = state.parameters.getString(
                     base.push( destFileKey ),
                     null );
 
@@ -308,27 +316,10 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
                     "Simulator destination simulation count ["
                     + String.format( "%02d", i )
                     + "] is required" );
-            int destSimCount = state.parameters.getInt(
+            _destinationSimCounts[i] = state.parameters.getInt(
                     base.push( destSimCountKey ),
                     null );
-
-            // Store it
-            _destinationInfo[i] = new DestinationRunCounts( destFile,
-                    destSimCount );
         }
-
-//        // THIS IS BAD
-//        // Hardcode the destinations
-//        _destinationInfo = new DestinationRunCounts[3];
-//        destinations[0] = new DestinationRunCounts(
-//                "cfg/sim/destinations/destinations-diffdis-10-per-0.5-seed-1.dat",
-//                2 );
-//        destinations[1] = new DestinationRunCounts(
-//                "cfg/sim/destinations/destinations-poles-10-per-0.5-seed-1.dat",
-//                2 );
-//        destinations[2] = new DestinationRunCounts(
-//                "cfg/sim/destinations/destinations-split-10-per-0.5-seed-1.dat",
-//                2 );
 
         // Get the simulator properties file
         Validate.isTrue( state.parameters.exists(
@@ -383,7 +374,8 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         BitVectorIndividual bitInd = (BitVectorIndividual) ind;
 
         // Decode the genome
-        EvolutionInputParameters inputParameters = decodeGenome( bitInd.genome );
+        EvolutionInputParameters inputParameters = decodeGenome( bitInd.genome,
+                state.random[threadnum] );
 
         // Run the simulation
         EvolutionOutputFitness outputFitness = SimulatorEvolution.runEvolutionFromInputParameters(
@@ -391,9 +383,11 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
                 _simulatorPropertiesFile );
 
         // Store the fitness (or objective) values
-        float[] objectiveValues = new float[2];
-        objectiveValues[0] = outputFitness.getPercentTime();
-        objectiveValues[1] = outputFitness.getPercentSurvive();
+        float[] objectiveValues = new float[3];
+//        objectiveValues[0] = outputFitness.getPercentTime();
+        objectiveValues[0] = 1.0f - outputFitness.getPercentDistanceToDestination();
+        objectiveValues[1] = 1.0f - outputFitness.getPercentTimeToDestination();
+        objectiveValues[2] = outputFitness.getPercentSurvive();
         MultiObjectiveFitness fitness = (MultiObjectiveFitness) ind.fitness;
         fitness.setObjectives( state, objectiveValues );
 
@@ -417,7 +411,7 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         BitVectorIndividual bitInd = (BitVectorIndividual) ind;
 
         // Decode the genome
-        EvolutionInputParameters inputParameters = decodeGenome( bitInd.genome );
+        EvolutionInputParameters inputParameters = decodeGenome( bitInd.genome, null );
 
         StringBuilder builder = new StringBuilder();
         builder.append( prefix );
@@ -425,17 +419,17 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
 
         // Describe the parameters
         builder.append( "alpha=[" );
-        builder.append( inputParameters.getAlpha() );
+        builder.append( String.format( "%08.6f", inputParameters.getAlpha() ) );
         builder.append( "] beta=[" );
-        builder.append( inputParameters.getBeta() );
+        builder.append( String.format( "%08.6f", inputParameters.getBeta() ) );
         builder.append( "] S=[" );
-        builder.append( inputParameters.getS() );
+        builder.append( String.format( "%2d", inputParameters.getS() ) );
         builder.append( "] q=[" );
-        builder.append( inputParameters.getQ() );
+        builder.append( String.format( "%08.6f", inputParameters.getQ() ) );
         builder.append( "] alphaC=[" );
-        builder.append( inputParameters.getAlphaC() );
+        builder.append( String.format( "%08.6f", inputParameters.getAlphaC() ) );
         builder.append( "] betaC=[" );
-        builder.append( inputParameters.getBetaC() );
+        builder.append( String.format( "%+09.6f", inputParameters.getBetaC() ) );
         builder.append( "]" );
         builder.append( System.getProperty( "line.separator" ) );
 
@@ -447,14 +441,15 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
      *
      * @param genome
      */
-    protected EvolutionInputParameters decodeGenome( boolean[] genome )
+    protected EvolutionInputParameters decodeGenome( boolean[] genome,
+            MersenneTwisterFast random )
     {
         int codonIdx = 0;
 
         // Decode each codon in the genome, starting with alpha
         float maxValue = (float) Math.pow( 2.0, _alphaCodonSize );
         int rawAlpha = decodeAndConvert( genome, 0, _alphaCodonSize );
-        float normalizedAlpha = rawAlpha / maxValue;
+        float normalizedAlpha = ( rawAlpha / maxValue );
         float alpha = normalizedAlpha * _alphaScalingFactor;
         codonIdx += _alphaCodonSize;
 
@@ -485,6 +480,23 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         float normalizedBetaC = rawBetaC / maxValue;
         float betaC = normalizedBetaC * _betaCScalingFactor;
 
+        // Build the destinations
+        DestinationRunCounts[] destinationInfo =
+                new DestinationRunCounts[ _destinationFiles.length ];
+        for(int i = 0; i < destinationInfo.length; i++ )
+        {
+            long seed = 0;
+            if( null != random )
+            {
+                seed = random.nextInt();
+            }
+            destinationInfo[i] = new DestinationRunCounts(
+                    _destinationFiles[i],
+                    _destinationSimCounts[i],
+                    seed );
+
+        }
+
         // Store the values
         EvolutionInputParameters inputParameters = new EvolutionInputParameters(
                 alpha,
@@ -493,7 +505,7 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
                 q,
                 alphaC,
                 betaC,
-                _destinationInfo );
+                destinationInfo );
 
         // Log it
         _LOG.debug( inputParameters.toString() );

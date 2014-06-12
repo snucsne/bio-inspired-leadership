@@ -24,7 +24,7 @@ do
             $DATA_DIR \
             $BASE_DIR/analysis/$PREFIX \
             $BASE_DIR/figures/changepoints/$PREFIX/$PREFIX
-
+#exit
 done
 
 # =========================================================

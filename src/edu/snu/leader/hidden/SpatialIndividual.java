@@ -981,6 +981,16 @@ public class SpatialIndividual
     }
 
     /**
+     * Sets the preferredDirection for this object
+     *
+     * @param preferredDirection The preferred direction of movement
+     */
+    public void setPreferredDirection( float preferredDirection)
+    {
+        _preferredDirection = preferredDirection;
+    }
+
+    /**
      * Returns the conflict for this object
      *
      * @return The conflict

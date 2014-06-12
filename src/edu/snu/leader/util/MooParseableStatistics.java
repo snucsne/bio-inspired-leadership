@@ -14,11 +14,14 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -84,6 +87,10 @@ public class MooParseableStatistics extends ParseableStatistics
     /** Objective information parameter key prefix */
     public static final String P_OBJECTIVE_PREFIX = "objective";
 
+    /** Parameter key for the simulator properties file */
+    private static final String _SIM_PROPERTIES_FILE = "sim-properties-file";
+
+
 
     /** The number of fitness objectives */
     protected int _numObjectives = 0;
@@ -119,6 +126,78 @@ public class MooParseableStatistics extends ParseableStatistics
         _LOG.trace( "Leaving setup( state, base )" );
     }
 
+
+    /**
+     * Called immediately after initialization.
+     *
+     * @param state The current state of evolution
+     * @see edu.snu.leader.util.ParseableStatistics#postInitializationStatistics(ec.EvolutionState)
+     */
+    @Override
+    public void postInitializationStatistics( EvolutionState state )
+    {
+        // Call the superclass implementation
+        super.postInitializationStatistics( state );
+
+        // Display the parameters from the simulator properties file
+        String simulatorPropertiesFile = System.getProperty( _SIM_PROPERTIES_FILE );
+        Properties simProps = new Properties();
+        try
+        {
+            // Load the properties file
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            InputStream input = loader.getResourceAsStream(
+                    simulatorPropertiesFile );
+            if( null == input )
+            {
+                _LOG.error( "Null input stream for simulator properties file ["
+                        + simulatorPropertiesFile
+                        + "] key" );
+                throw new RuntimeException( "Null input stream for simulator properties file ["
+                        + simulatorPropertiesFile
+                        + "]" );
+            }
+
+            // Load the properties
+            simProps.load( input );
+
+            // Display the parameters
+            String newline = System.getProperty("line.separator");
+            StringBuilder paramBuilder = new StringBuilder();
+            paramBuilder.append( newline );
+            paramBuilder.append( "# =========================================================" );
+            paramBuilder.append( newline );
+            paramBuilder.append( "# Simulator parameters" );
+            paramBuilder.append( newline );
+            paramBuilder.append( newline );
+            String[] names = simProps.stringPropertyNames().toArray( new String[0] );
+            Arrays.sort( names );
+            for( int i = 0; i < names.length; i++ )
+            {
+                String currentName = names[i];
+                String currentValue = simProps.getProperty( currentName );
+                paramBuilder.append( "# " );
+                paramBuilder.append( currentName );
+                paramBuilder.append( " = " );
+                paramBuilder.append( currentValue );
+                paramBuilder.append( newline );
+            }
+            paramBuilder.append( "# =========================================================" );
+            paramBuilder.append( newline );
+            state.output.println( paramBuilder.toString(),
+                    _statLog );
+        }
+        catch( IOException ioe )
+        {
+            _LOG.error( "Unable to read simulator properties in file ["
+                    + simulatorPropertiesFile
+                    + "]",
+                    ioe );
+            throw new RuntimeException( "Unable to read simulator properties in file ["
+                    + simulatorPropertiesFile
+                    + "]", ioe );
+        }
+    }
 
     /**
      * Called immediately after evaluation occurs.

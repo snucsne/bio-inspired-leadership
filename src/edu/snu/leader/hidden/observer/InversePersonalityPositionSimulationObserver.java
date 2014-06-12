@@ -32,8 +32,8 @@ import edu.snu.leader.hidden.SpatialIndividual;
  * @author Brent Eskridge
  * @version $Revision$ ($Author$)
  */
-public class InversePersonalityPositionSimulationObserver extends
-        AbstractSimulationObserver
+public class InversePersonalityPositionSimulationObserver
+        extends AbstractSimulationObserver
 {
 
     /**

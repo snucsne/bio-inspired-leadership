@@ -13,7 +13,7 @@
 	</appender>
 
 	<root>
-		<priority value="warn" />
+		<priority value="info" />
 		<appender-ref ref="FileAppender" />
 	</root>
 

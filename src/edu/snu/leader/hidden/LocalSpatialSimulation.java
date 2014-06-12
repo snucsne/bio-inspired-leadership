@@ -51,6 +51,9 @@ public class LocalSpatialSimulation
     /** Key for simulation properties file */
     private static final String _PROPS_FILE_KEY = "sim-properties";
 
+    /** Key for the number of observers */
+    private static final String _OBSERVER_COUNT_KEY = "observer-count";
+
 
     private class InitiatorData {
         public SpatialIndividual initiator = null;
@@ -123,6 +126,34 @@ public class LocalSpatialSimulation
         // Get the simulation count
         _simulationCount = _simState.getSimulationCount();
 
+        // Get the number of observers
+        int observerCount = 0;
+        String observerCountStr = _props.getProperty( _OBSERVER_COUNT_KEY );
+        if( null != observerCountStr )
+        {
+            observerCount = Integer.parseInt( observerCountStr );
+        }
+
+        // Get the observers
+        for( int i = 0; i < observerCount; i++ )
+        {
+            // Get the class name
+            String key = "observer."
+                    + String.format( "%02d", i )
+                    + ".class";
+            String observerClassStr = _props.getProperty( key );
+
+            // Instantiate and initialize the observer
+            SimulationObserver observer = (SimulationObserver)
+                    MiscUtils.loadAndInstantiate(
+                            observerClassStr,
+                            "Simulation observer class" );
+            observer.initialize( _simState );
+
+            // Save it
+            _simObservers.add( observer );
+        }
+
         _LOG.trace( "Leaving initialize()" );
     }
 
@@ -133,19 +164,12 @@ public class LocalSpatialSimulation
     {
         _LOG.trace( "Entering run()" );
 
+        // Set up the simulation
+        setUpSimulation();
+
         // Run the simulation a number of times
         for( int i = 0; i< _simulationCount; i++ )
         {
-//            if( i == 40000 )
-//            {
-////                _LOG.getRootLogger().setLevel( Level.DEBUG );
-//                _LOG.setLevel( Level.DEBUG );
-//            }
-//            if( i == 40002 )
-//            {
-//                System.exit( 0 );
-//            }
-
             _LOG.debug( "Simulation ["
                     + i
                     + "]" );
@@ -156,19 +180,35 @@ public class LocalSpatialSimulation
             // Set the simulation index
             _simState.setSimIndex( i );
 
-            // Set up the simulation
+            // Set up the simulation run
             setUpSimulationRun();
 
+            // Execute the simulation
             executeSimulation( i );
 
-            // Tear down the simulation
+            // Tear down the simulation run
             tearDownSimulationRun();
         }
+
+        // Tear down the simulation
+        tearDownSimulation();
 
         // Report the final results
         _reporter.reportFinalResults();
 
         _LOG.trace( "Leaving run()" );
+    }
+
+    /**
+     * Iterate over all the observers and have them set up the simulation
+     */
+    private void setUpSimulation()
+    {
+        Iterator<SimulationObserver> iter = _simObservers.iterator();
+        while( iter.hasNext() )
+        {
+            iter.next().simSetUp();
+        }
     }
 
     /**
@@ -195,6 +235,17 @@ public class LocalSpatialSimulation
         }
     }
 
+    /**
+     * Iterate over all the observers and have them tear down the simulation
+     */
+    private void tearDownSimulation()
+    {
+        Iterator<SimulationObserver> iter = _simObservers.iterator();
+        while( iter.hasNext() )
+        {
+            iter.next().simTearDown();
+        }
+    }
 
     /**
      * Executes a single run of the simulator

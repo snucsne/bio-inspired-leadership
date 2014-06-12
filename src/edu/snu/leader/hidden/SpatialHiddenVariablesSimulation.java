@@ -25,6 +25,7 @@ import edu.snu.leader.hidden.observer.SimulationObserver;
 import edu.snu.leader.util.MiscUtils;
 
 import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -51,6 +52,9 @@ public class SpatialHiddenVariablesSimulation
 
     /** Key for the number of times to run the simulator */
     private static final String _SIMULATION_COUNT_KEY = "simulation-count";
+
+    /** Key for the number of observers */
+    private static final String _OBSERVER_COUNT_KEY = "observer-count";
 
 
     private class IndividualEvent {
@@ -132,6 +136,34 @@ public class SpatialHiddenVariablesSimulation
 
         // Get the simulation count
         _simulationCount = _simState.getSimulationCount();
+
+        // Get the number of observers
+        int observerCount = 0;
+        String observerCountStr = _props.getProperty( _OBSERVER_COUNT_KEY );
+        if( null != observerCountStr )
+        {
+            observerCount = Integer.parseInt( observerCountStr );
+        }
+
+        // Get the observers
+        for( int i = 0; i < observerCount; i++ )
+        {
+            // Get the class name
+            String key = "observer."
+                    + String.format( "%02d", i )
+                    + ".class";
+            String observerClassStr = _props.getProperty( key );
+
+            // Instantiate and initialize the observer
+            SimulationObserver observer = (SimulationObserver)
+                    MiscUtils.loadAndInstantiate(
+                            observerClassStr,
+                            "Simulation observer class" );
+            observer.initialize( _simState );
+
+            // Save it
+            _simObservers.add( observer );
+        }
 
         _LOG.trace( "Leaving initialize()" );
     }

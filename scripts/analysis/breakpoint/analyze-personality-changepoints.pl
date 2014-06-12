@@ -128,6 +128,15 @@ sub processHistoryData
     {
         my ($idx, $beforePersonality, $result, $afterPersonality, $followers) =
                 split( /\s+/, $initiation );
+        
+        # If multipli initiations are allowed, it is possible for multiple
+        # updates to occur in one simulation.  Only use the last update.
+        if( @{$simIDXsRef}[$#{$simIDXsRef}] == ($idx + 1) )
+        {
+            pop( @{$simIDXsRef} );
+            pop( @{$personalityValuesRef} );
+        }
+
         push( @{$simIDXsRef}, ($idx + 1) );
         push( @{$personalityValuesRef}, $afterPersonality );
         $lastPersonality = $afterPersonality;
@@ -151,8 +160,8 @@ sub analyzeData
 
     # ---------------------------------------------------------------
     # Create an input file for R
-#    my $rInputFile = "/tmp/personality-TEST.r";
-    my $rInputFile = "/tmp/personality-$plotRunID.r";
+    my $rInputFile = "/tmp/personality-TEST.r";
+#    my $rInputFile = "/tmp/personality-$plotRunID.r";
     my $rOutputFile = $rInputFile.".out";
 
     open( INPUT, "> $rInputFile" ) or die "Unable to open input file [$rInputFile]: $!\n";
