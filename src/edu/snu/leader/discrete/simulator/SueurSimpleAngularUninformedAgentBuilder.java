@@ -30,8 +30,8 @@ import edu.snu.leader.discrete.utils.Reporter;
 import edu.snu.leader.discrete.utils.Utils;
 import edu.snu.leader.util.MiscUtils;
 
-
-public class SueurSimpleAngularAgentBuilder implements AgentBuilder
+public class SueurSimpleAngularUninformedAgentBuilder implements 
+        AgentBuilder
 {
     private Point2D[] _locations = null;
 
@@ -131,6 +131,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
                 new Color( 0xFF69B4 ), new Color( 0xFFD700 ),
                 new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
 
+        Map<Vector2D, Integer> destinationCounts = new HashMap<Vector2D, Integer>();
         Map<Vector2D, Color> destinationColors = new HashMap<Vector2D, Color>();
         Map<Color, Integer> destinationIds = new HashMap<Color, Integer>();
         int colorCount = 0;
@@ -140,33 +141,39 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
             Agent tempAgent = agents.get( i );
             MovementBehavior mb = new SimpleAngularMovement();
             tempAgent.initialize( _simState, _locations[i] );
-
-            // set their destination
-            Vector2D agentDestination = new Vector2D( _destinations[i].getX(),
-                    _destinations[i].getY() );
-            Color destinationColor = null;
-            // set their color for their destination
-            // if new destination then give it new color
-            if( destinationColors.containsKey( agentDestination ) )
-            {
-                destinationColor = destinationColors.get( agentDestination );
+            
+            // set their destination if they have one
+            if(i < 8){
+                Vector2D agentDestination = new Vector2D( _destinations[i].getX(),
+                        _destinations[i].getY() );
+                Color destinationColor = null;
+                // set their color for their destination
+                // if new destination then give it new color
+                if( destinationColors.containsKey( agentDestination ) )
+                {
+                    destinationColor = destinationColors.get( agentDestination );
+                    destinationCounts.put( agentDestination, destinationCounts.get( 
+                            agentDestination ) + 1 );
+                }
+                // not a new destination, give it the color other's have been
+                // assigned
+                else
+                {
+                    _simState.addDestination( agentDestination );
+                    destinationColor = colors[colorCount];
+                    destinationCounts.put( agentDestination, 0 );
+                    destinationColors.put( agentDestination, destinationColor );
+                    destinationIds.put( destinationColor, colorCount );
+                    colorCount++;
+                }
+                String destinationID = "D-" + destinationIds.get( destinationColor );
+        
+                // create a new preferred destination and give it to agent
+                Destination agentPreferredDestination = new Destination(
+                        destinationID, true, agentDestination, destinationColor,
+                        _destinationRadius );
+                tempAgent.setPreferredDestination( agentPreferredDestination );
             }
-            // not a new destination, give it the color other's have been
-            // assigned
-            else
-            {
-                destinationColor = colors[colorCount];
-                destinationColors.put( agentDestination, destinationColor );
-                destinationIds.put( destinationColor, colorCount );
-                colorCount++;
-            }
-            String destinationID = "D-" + destinationIds.get( destinationColor );
-
-            // create a new preferred destination and give it to agent
-            Destination agentPreferredDestination = new Destination(
-                    destinationID, true, agentDestination, destinationColor,
-                    _destinationRadius );
-            tempAgent.setPreferredDestination( agentPreferredDestination );
             
             String agentName = tempAgent.getId().toString();
             agentName = agentName.replaceAll( "Agent", "" );
@@ -185,7 +192,20 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
             tempAgent.setMovementBehavior( mb );
             mb.initialize( tempAgent );
         }
+        
+        for( int i = 0; i < agents.size(); i++ )
+        {
+            if( agents.get( i ).getPreferredDestination() != null 
+                    && destinationCounts.get( agents.get( i ).getPreferredDestination().getVector() ) > 1 )
+            {
+                agents.get( i ).getPreferredDestination().setIsGood( true );
+            }
+            else if( agents.get( i ).getPreferredDestination() == null )
+            {
+                agents.get( i ).setPreferredDestination( _simState.noneDestination );
+            }
+        }
+        
         return agents;
     }
-
 }

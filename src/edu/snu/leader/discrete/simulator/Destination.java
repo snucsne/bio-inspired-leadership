@@ -32,6 +32,8 @@ public class Destination
     private Color _color = null;
 
     private double _radius = 0;
+    
+    private boolean _isGood = false;
 
     public Destination( String id,
             boolean isSafe,
@@ -78,5 +80,15 @@ public class Destination
     public double getRadius()
     {
         return _radius;
+    }
+    
+    public void setIsGood( boolean isGood )
+    {
+        _isGood = isGood;
+    }
+    
+    public boolean isGood()
+    {
+        return _isGood;
     }
 }

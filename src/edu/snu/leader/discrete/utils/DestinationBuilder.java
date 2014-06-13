@@ -47,17 +47,18 @@ public class DestinationBuilder
         for( int count = 10; count <= 70; count += 10 )
         {
             DestinationBuilder db = new DestinationBuilder( count, 1 );
-            db.generatePoles( 50, 100, 1.0 );
-            db.generateSplitNorth( 150, 72, 1.0 );
-            db.generateSides( 25, 50, .50 );
+//            db.generatePoles( 50, 100, 1.0 );
+//            db.generateSplitNorth( 150, 72, 1.0 );
+            db.generateSplitPoles( 150, 72, 0.75, 4 );
+//            db.generateSides( 25, 50, .50 );
 
-            double[] horizontalPercentages = { 1 };
-            db.generateHorizontalNorth( 60, 25, 1, horizontalPercentages );
+//            double[] horizontalPercentages = { 1 };
+//            db.generateHorizontalNorth( 60, 25, 1, horizontalPercentages );
 
-            db.generateCircle( 55, count );
+//            db.generateCircle( 55, count );
 
-            db.generateOneNorth( 70 );
-            db.generateDifferentDistance( 0, 200, 100, 75 );
+//            db.generateOneNorth( 70 );
+//            db.generateDifferentDistance( 0, 200, 100, 75 );
         }
     }
 
@@ -67,7 +68,7 @@ public class DestinationBuilder
         _randomSeed = seed;
         _rng = new MersenneTwisterFast( _randomSeed );
     }
-
+    
     public void generateDifferentDistance( double percentNorth,
             double northY,
             double eastX,
@@ -243,6 +244,81 @@ public class DestinationBuilder
                 + String.format( "%01.3f", percentLeft ) + "-seed-"
                 + _randomSeed + ".dat";
         saveToFile( filename );
+    }
+    
+    /**
+     * Creates two sets of split destinations, one north and one south. They are
+     * identical except for their y coordinates.
+     *
+     * @param distance Distance away from origin
+     * @param angle Angle offset from origin
+     * @param percentLeft Percent of destinations that are to the left
+     * @param destinationCount Number of destinations desired at one of the 
+     * poles (duplicated on the other side)
+     */
+    public void generateSplitPoles( double distance,
+            double angle,
+            double percentLeft,
+            int destinationCount)
+    {
+        int temp = _destinationCount;
+        _destinationCount = destinationCount * 2;
+        _destinations = new Point2D[_destinationCount];
+        int numberLeft = (int) Math.round( destinationCount * percentLeft );
+
+        // get the x and y coords
+        double xCoord = distance * Math.cos( Math.toRadians( angle ) );
+        double yCoord = distance * Math.sin( Math.toRadians( angle ) );
+
+        // create the left and right points
+        Point2D left = new Point2D.Double( -xCoord, -yCoord );
+        Point2D right = new Point2D.Double( xCoord, -yCoord );
+
+        // fill destinations array
+        for( int i = 0; i < destinationCount; i++ )
+        {
+            if( numberLeft > 0 )
+            {
+                numberLeft--;
+                _destinations[i] = left;
+            }
+            else
+            {
+                _destinations[i] = right;
+            }
+        }
+        
+        numberLeft = (int) Math.round( destinationCount * percentLeft );
+
+        // get the x and y coords
+        xCoord = distance * Math.cos( Math.toRadians( angle ) );
+        yCoord = distance * Math.sin( Math.toRadians( angle ) );
+
+        // create the left and right points
+        left = new Point2D.Double( -xCoord, yCoord );
+        right = new Point2D.Double( xCoord, yCoord );
+
+        // fill destinations array
+        for( int i = destinationCount; i < destinationCount * 2; i++ )
+        {
+            if( numberLeft > 0 )
+            {
+                numberLeft--;
+                _destinations[i] = left;
+            }
+            else
+            {
+                _destinations[i] = right;
+            }
+        }
+
+        String filename = directory + "destinations-split-poles-" + destinationCount
+                + "-dis-" + String.format( "%03.1f", distance ) + "-ang-"
+                + String.format( "%03.2f", angle ) + "-per-"
+                + String.format( "%01.3f", percentLeft ) + "-seed-"
+                + _randomSeed + ".dat";
+        saveToFile( filename );
+        _destinationCount = temp;
     }
 
     public void generateHorizontalNorth( int distOrigin,

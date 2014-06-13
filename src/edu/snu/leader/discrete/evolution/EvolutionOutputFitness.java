@@ -60,6 +60,14 @@ public class EvolutionOutputFitness
      */
     private float percentTimeAlive = 0.0f;
     
+    /** The percent of agents that made it to a good destination */
+    private float percentGoodDestination = 0.0f;
+    
+    /** The percent of agents that made it to their preferred destination
+     * if they had one.
+     */
+    private float percentToPreferredDestination = 0.0f;
+    
     /**
      * Builds this EvolutionOutputFitness object
      *
@@ -73,7 +81,9 @@ public class EvolutionOutputFitness
             float percentTimeAway,
             float percentTimeToDestination,
             float percentDistanceToDestination,
-            float percentTimeAlive)
+            float percentTimeAlive,
+            float percentGoodDestination,
+            float percentToPreferredDestination)
     {
         this.percentTime = percentTime;
         this.percentSurvive = percentSurvive;
@@ -82,6 +92,8 @@ public class EvolutionOutputFitness
         this.percentTimeToDestination = percentTimeToDestination;
         this.percentDistanceToDestination = percentDistanceToDestination;
         this.percentTimeAlive = percentTimeAlive;
+        this.percentGoodDestination = percentGoodDestination;
+        this.percentToPreferredDestination = percentToPreferredDestination;
     }
 
     /**
@@ -155,5 +167,15 @@ public class EvolutionOutputFitness
     public float getPercentTimeAlive()
     {
         return percentTimeAlive;
+    }
+    
+    public float getPercentGoodDestination()
+    {
+        return percentGoodDestination;
+    }
+    
+    public float getPercentToPreferredDestination()
+    {
+        return percentToPreferredDestination;
     }
 }

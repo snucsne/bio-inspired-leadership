@@ -45,7 +45,8 @@ public class SimulatorEvolution
     public static void main( String[] args )
     {
         DestinationRunCounts drc = new DestinationRunCounts(
-                "cfg/sim/destinations/destinations-split-10-dis-150.0-ang-72.00-per-0.500-seed-1.dat",
+//                "cfg/sim/destinations/destinations-split-10-dis-150.0-ang-72.00-per-0.500-seed-1.dat",
+                "cfg/sim/destinations/destinations-split-poles-4-dis-150.0-ang-72.00-per-0.750-seed-1.dat",
                 5, 1L );
         DestinationRunCounts[] drcs = { drc };
         EvolutionInputParameters input = new EvolutionInputParameters( 0.006161429f,
@@ -60,6 +61,8 @@ public class SimulatorEvolution
         System.out.println( "Mean Time to Destination: " + output.getPercentTimeToDestination() );
         System.out.println( "Distance: " + output.getPercentDistanceToDestination() );
         System.out.println( "Time Alive: " + output.getPercentTimeAlive() );
+        System.out.println( "Percent Good: " + output.getPercentGoodDestination() );
+        System.out.println( "Percent preferred: " + output.getPercentToPreferredDestination() );
     }
 
     /**
@@ -105,6 +108,8 @@ public class SimulatorEvolution
         float totalTimeToDestination = 0f;// Total percents of time taken to destination
         float totalDistanceToDestination = 0f;// Total percents of distance to destination
         float totalTimeAlive = 0f;// Total percents of time alive
+        float totalToGoodDestination = 0f;// Total percent that made it to good destination
+        float totalToPreferredDestination = 0f;// Total percent that made it to preferred destination
 
         // loop through each environment to test
         for( int i = 0; i < param._destinationRunCounts.length; i++ )
@@ -132,6 +137,8 @@ public class SimulatorEvolution
                 totalTimeToDestination += temp.getPercentTimeToDestination();
                 totalDistanceToDestination += temp.getPercentDistanceToDestination();
                 totalTimeAlive += temp.getPercentTimeAlive();
+                totalToGoodDestination += temp.getPercentGoodDestination();
+                totalToPreferredDestination += temp.getPercentToPreferredDestination();
                 totalRuns++;// increment run count
             }
         }
@@ -141,7 +148,8 @@ public class SimulatorEvolution
         return new EvolutionOutputFitness( totalTime / totalRuns, totalSurvive
                 / totalRuns, totalSuccess / totalRuns, totalTimeAway / totalRuns,
                 totalTimeToDestination / totalRuns, totalDistanceToDestination / totalRuns, 
-                totalTimeAlive / totalRuns);
+                totalTimeAlive / totalRuns, totalToGoodDestination / totalRuns,
+                totalToPreferredDestination / totalRuns );
     }
 
     /**

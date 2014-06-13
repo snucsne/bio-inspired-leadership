@@ -71,16 +71,8 @@ public class Main
                             String.valueOf( run ) );
                     simulator.initialize( _simulationProperties );
                     simulator.execute();
-
-//                    System.out.println( "Time: "
-//                            + simulator.getSimulationOutputFitness().getPercentTime() );
-//                    System.out.println( "Survival: "
-//                            + simulator.getSimulationOutputFitness().getPercentSurvive() );
-//                    System.out.println( "Success: "
-//                            + simulator.getSimulationOutputFitness().getPercentSuccess() );
                 }
             }
-            // System.setProperty( "sim-properties", args[0] );
             else
             {
                 // run graphical

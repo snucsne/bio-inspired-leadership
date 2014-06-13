@@ -125,6 +125,10 @@ public class SimulationState
 
     private boolean _isGraphical = false;
 
+    private List<Vector2D> _destinationVectors = null;
+    
+    private boolean _shouldStopAtAnyDestination = false;
+    
     // previously static variables are below
     public int successCount = 0;
 
@@ -136,7 +140,7 @@ public class SimulationState
     public int numReachedDestination = 0;
 
     public int numInitiating = 0;
-
+    
     /** Total number of groups. */
     public int totalNumGroups = 1;
 
@@ -191,6 +195,9 @@ public class SimulationState
     /** The Starting Destination */
     public final Destination startingDestination = new Destination( "D-S",
             true, Vector2D.ZERO, Color.BLACK, 10 );
+    
+    /** For agents that do not have a preferred destination */
+    public final Destination noneDestination = new Destination( "D-N", false, Vector2D.ZERO, Color.BLACK, 10 );
 
     /** Unique id count for groups */
     public int uniqueGroupIdCount = 0;
@@ -213,6 +220,8 @@ public class SimulationState
         // Save the properties
         _props = props;
 
+        _destinationVectors = new LinkedList<Vector2D>();
+        
         String useRandomRandomSeedStr = _props.getProperty( "use-random-random-seed" );
         Validate.notEmpty( useRandomRandomSeedStr,
                 "use-random-random-seed required" );
@@ -238,6 +247,11 @@ public class SimulationState
         String simulationRunCount = _props.getProperty( "simulation-count" );
         Validate.notEmpty( simulationRunCount, "Simulation run count required" );
         _simulationRunCount = Integer.parseInt( simulationRunCount );
+        
+        String stringShouldStopAtAnyDestination = _props.getProperty( "stop-at-any-destination" );
+        Validate.notEmpty( stringShouldStopAtAnyDestination, 
+                "Should Stop At Any Destination required" );
+        _shouldStopAtAnyDestination = Boolean.parseBoolean( stringShouldStopAtAnyDestination );
 
         String maxSimulationTimeSteps = _props.getProperty( "max-simulation-time-steps" );
         Validate.notEmpty( maxSimulationTimeSteps,
@@ -501,6 +515,16 @@ public class SimulationState
     {
         _groups.add( group );
     }
+    
+    public void addDestination( Vector2D destination )
+    {
+        _destinationVectors.add( destination );
+    }
+    
+    public Iterator<Vector2D> getDestinationsIterator()
+    {
+        return _destinationVectors.iterator();
+    }
 
     /**
      * Returns an iterator over all the simulated agents
@@ -535,6 +559,11 @@ public class SimulationState
     public boolean isPredatorEnabled()
     {
         return _predatorEnabled;
+    }
+    
+    public boolean shouldStopAnywhere()
+    {
+        return _shouldStopAtAnyDestination;
     }
 
     public int getNumberGroups()
@@ -881,8 +910,11 @@ public class SimulationState
             String destID = temp.getPreferredDestinationId();
             if( !destinationStrings.containsKey( destID ) )
             {
-                destinationStrings.put( destID,
-                        temp.getPreferredDestination().getVector() );
+                if( !temp.getPreferredDestination().getID().equals( "D-N" ) )
+                {
+                    destinationStrings.put( destID,
+                            temp.getPreferredDestination().getVector() );
+                }
             }
         }
 
@@ -958,6 +990,9 @@ public class SimulationState
         long totalTimesteps = 0;
         double totalDistance = 0;
         double totalDistanceFromStart = 0;
+        int totalToGoodDestination = 0;
+        int totalToPreferredDestination = 0;
+        int totalWithPreferred = 0;
 
         Iterator<Agent> iter = getAgentIterator();
         while( iter.hasNext() )
@@ -980,16 +1015,41 @@ public class SimulationState
             {
                 agentsAlive++;
             }
+            
+            if( temp.getReachedGoodDestination() )
+            {
+                totalToGoodDestination++;
+            }
+            
             totalInitiations += temp.getTotalInitiations();
             totalCancellations += temp.getTotalCancellations();
             totalTimeToDestination += temp.getTimeToDestination();
             totalRunningTimeSteps += getSimulationTime();
             totalTimesteps += getMaxSimulationTimeSteps();
             
-            if(!temp.hasReachedDestination()){
-                totalDistance += temp.getCurrentLocation().distance( temp.getPreferredDestination().getVector() );
+            if( !temp.getPreferredDestinationId().equals( "D-N" ) )
+            {
+                totalWithPreferred++;
             }
-            totalDistanceFromStart += temp.getInitialLocation().distance( temp.getPreferredDestination().getVector() );
+            
+            if( temp.getCurrentLocation().distance( temp.getPreferredDestination().getVector() ) < temp.getPreferredDestination().getRadius()
+                    && temp.hasReachedDestination() 
+                    && !temp.getPreferredDestinationId().equals( "D-N" ) )
+            {
+                totalToPreferredDestination++;
+            }
+            
+            if( !temp.hasReachedDestination() )
+            {
+                if( !temp.getPreferredDestination().getID().equals( "D-N" ) )
+                {
+                    totalDistance += temp.getCurrentLocation().distance( temp.getPreferredDestination().getVector() );
+                }
+            }
+            if( !temp.getPreferredDestination().getID().equals( "D-N" ) )
+            {
+                totalDistanceFromStart += temp.getInitialLocation().distance( temp.getPreferredDestination().getVector() );
+            }
         }
 
         float percentTime = (float) totalTimeTravelledToPreferred
@@ -1002,9 +1062,12 @@ public class SimulationState
         float percentTimeToDestination = (float) totalTimeToDestination / totalTimesteps;
         float percentDistanceToDestination = (float)(totalDistance / totalDistanceFromStart);
         float percentTimeAlive = (float) totalAgentLife / totalTimesteps;
+        float percentGoodDestination = (float) totalToGoodDestination / getAgentCount();
+        float percentToPreferredDestination = (float) totalToPreferredDestination / totalWithPreferred;
 
         return new EvolutionOutputFitness( percentTime, percentSurvive,
                 percentSuccess, percentTimeAway, percentTimeToDestination,
-                percentDistanceToDestination, percentTimeAlive);
+                percentDistanceToDestination, percentTimeAlive,
+                percentGoodDestination, percentToPreferredDestination);
     }
 }

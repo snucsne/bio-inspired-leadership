@@ -14,6 +14,8 @@
 
 package edu.snu.leader.discrete.behavior;
 
+import java.util.Iterator;
+
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import edu.snu.leader.discrete.simulator.Agent;
@@ -26,9 +28,30 @@ public class SimpleAngularMovement implements MovementBehavior
     @Override
     public void move()
     {
+        boolean isInDestination = false;
+        // if agents should stop at any destination
+        if( _agent.getSimState().shouldStopAnywhere())
+        {
+            Iterator<Vector2D> destinations = _agent.getSimState().getDestinationsIterator();
+            while(destinations.hasNext()){
+                Vector2D temp = destinations.next();
+                if( _agent.getCurrentLocation().distance( temp ) < _agent.getSimState().getDestinationRadius() )
+                {
+                    _agent.reachedDestination();
+                    _agent.setReachedGoodDestination( _agent.getLeader().getPreferredDestination().isGood() );
+                    isInDestination = true;
+                }
+            }
+        }
+        
+        if( isInDestination ) 
+        {
+            // nothing to do here
+        }
         // if agent is initiating and is within their destination then they have
         // reached their destination
-        if( _agent.getCurrentLocation().distance1(
+        else if( !_agent.getPreferredDestination().getID().equals( "D-N" )
+                && _agent.getCurrentLocation().distance1(
                 _agent.getPreferredDestination().getVector() ) < _agent.getPreferredDestination().getRadius() )
         {
             _agent.reachedDestination();
