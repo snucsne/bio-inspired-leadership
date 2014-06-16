@@ -155,6 +155,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
             // assigned
             else
             {
+                _simState.addDestination( agentDestination );
                 destinationColor = colors[colorCount];
                 destinationColors.put( agentDestination, destinationColor );
                 destinationIds.put( destinationColor, colorCount );

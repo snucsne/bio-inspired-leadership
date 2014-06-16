@@ -57,6 +57,8 @@ import me.solhub.simple.engine.DebugLocationsStructure;
 
 import org.apache.commons.lang.Validate;
 
+import edu.snu.leader.discrete.utils.DestinationBuilder;
+
 import java.awt.Component;
 
 public class SimulatorLauncherGUI extends JFrame {
@@ -99,6 +101,7 @@ public class SimulatorLauncherGUI extends JFrame {
     private JCheckBox chckbxRandomSeed;
     private JFormattedTextField frmtdtxtfldDestinationRadius;
     private JComboBox<String> comboBoxAgentBuilder;
+    private JPanel panelInformedCount;
     
     /**
      * Launch the application.
@@ -329,7 +332,7 @@ public class SimulatorLauncherGUI extends JFrame {
         
         final JComboBox<String> comboBoxDecisionCalculator = new JComboBox<String>();
         panelDecisionCalculator.add(comboBoxDecisionCalculator);
-        comboBoxDecisionCalculator.setModel(new DefaultComboBoxModel<String>(new String[] {"Default", "Conflict"}));
+        comboBoxDecisionCalculator.setModel(new DefaultComboBoxModel<String>(new String[] {"Default", "Conflict", "Conflict Uninformed"}));
         
         JPanel panelAgentBuilder = new JPanel();
         panelTab2.add(panelAgentBuilder);
@@ -339,7 +342,7 @@ public class SimulatorLauncherGUI extends JFrame {
         
         comboBoxAgentBuilder = new JComboBox<String>();
         panelAgentBuilder.add(comboBoxAgentBuilder);
-        comboBoxAgentBuilder.setModel(new DefaultComboBoxModel<String>(new String[] {"Default", "Simple Angular", "Personality Simple Angular"}));
+        comboBoxAgentBuilder.setModel(new DefaultComboBoxModel<String>(new String[] {"Default", "Simple Angular", "Personality Simple Angular", "Simple Angular Uninformed"}));
         comboBoxAgentBuilder.setSelectedIndex( 1 );
         comboBoxAgentBuilder.addActionListener( new ActionListener(){
             @Override
@@ -385,28 +388,48 @@ public class SimulatorLauncherGUI extends JFrame {
         panelEnvironment.add(lblEnvironment);
         
         comboBoxEnvironment = new JComboBox<String>();
-        comboBoxEnvironment.setModel(new DefaultComboBoxModel<String>(new String[] {"Medium", "Minimum", "Maximum"}));
+        comboBoxEnvironment.setModel(new DefaultComboBoxModel<String>(new String[] {"Minimum", "Medium", "Maximum", "Uninformed"}));
+        comboBoxEnvironment.setSelectedIndex( 1 );
         comboBoxEnvironment.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String item = (String)comboBoxEnvironment.getSelectedItem();
+                if(!item.equals( "Uninformed" )){
+                    comboBoxDecisionCalculator.setEnabled( true );
+                    comboBoxAgentBuilder.setEnabled( true );
+                }
+                
                 if(item.equals("Medium")){
                     panelAngle.setVisible(true);
                     panelDistance.setVisible(true);
                     panelPercentage.setVisible(true);
                     panelNumberOfDestinations.setVisible(false);
+                    panelInformedCount.setVisible( false );
                 }
                 else if(item.equals("Minimum")){
                     panelAngle.setVisible(false);
                     panelDistance.setVisible(false);
                     panelPercentage.setVisible(true);
                     panelNumberOfDestinations.setVisible(false);
+                    panelInformedCount.setVisible( false );
                 }
                 else if(item.equals("Maximum")){
                     panelAngle.setVisible(false);
                     panelDistance.setVisible(false);
                     panelPercentage.setVisible(true);
                     panelNumberOfDestinations.setVisible(false);
+                    panelInformedCount.setVisible( false );
+                }
+                else if(item.equals( "Uninformed" )){
+                    panelAngle.setVisible(true);
+                    panelDistance.setVisible(true);
+                    panelPercentage.setVisible(true);
+                    panelNumberOfDestinations.setVisible(false);
+                    panelInformedCount.setVisible( true );
+                    comboBoxDecisionCalculator.setSelectedIndex( 2 );
+                    comboBoxDecisionCalculator.setEnabled( false );
+                    comboBoxAgentBuilder.setSelectedIndex( 3 );
+                    comboBoxAgentBuilder.setEnabled( false );
                 }
             }
         });
@@ -435,6 +458,12 @@ public class SimulatorLauncherGUI extends JFrame {
         spinnerCancelationThreshold.setModel(new SpinnerNumberModel(new Float(1.0f), new Float(0.0f), new Float(1.01f), new Float(0.05)));
         JFormattedTextField tfCancelationThreshold = ((JSpinner.DefaultEditor)spinnerCancelationThreshold.getEditor()).getTextField();
         tfCancelationThreshold.setEditable(false);
+        
+        JPanel panelStopAnywhere = new JPanel();
+        panelTab2.add( panelStopAnywhere );
+        
+        final JCheckBox chckbxStopAnywhere = new JCheckBox( "Stop Anywhere?" );
+        panelStopAnywhere.add( chckbxStopAnywhere );
         
         panelNearestNeighborCount = new JPanel();
         panelNearestNeighborCount.setVisible(false);
@@ -770,6 +799,21 @@ public class SimulatorLauncherGUI extends JFrame {
         frmtdtxtfldPercentage.setColumns(3);
         frmtdtxtfldPercentage.setValue((Number)0.500);
         
+        panelInformedCount = new JPanel();
+        panelEnvironmentVariables.add( panelInformedCount );
+        
+        JLabel lblInformedCount = new JLabel("Informed Count");
+        panelInformedCount.add( lblInformedCount );
+        
+        final JFormattedTextField frmtdtxtfldInformedCount = new JFormattedTextField(countFormat);
+        frmtdtxtfldInformedCount.setHorizontalAlignment(SwingConstants.TRAILING);
+        frmtdtxtfldInformedCount.setColumns(3);
+        frmtdtxtfldInformedCount.setToolTipText( "The number of agents moving toward a preferred destination. This number is duplicated on the southern pole as well." );
+        frmtdtxtfldInformedCount.setValue( (Number)4 );
+        panelInformedCount.setVisible( false );
+        
+        panelInformedCount.add( frmtdtxtfldInformedCount );
+        
         JPanel panelStartButtons = new JPanel();
         
         JButton btnStartSimulation = new JButton("Create Simulator Instance");
@@ -795,6 +839,7 @@ public class SimulatorLauncherGUI extends JFrame {
                 frmtdtxtfldDistance.setBackground( Color.WHITE );
                 frmtdtxtfldDestinationRadius.setBackground( Color.WHITE );
                 frmtdtxtfldAngle.setBackground( Color.WHITE );
+                frmtdtxtfldInformedCount.setBackground( Color.WHITE );
                 
                 StringBuilder errorMessages = new StringBuilder();
                 
@@ -864,6 +909,18 @@ public class SimulatorLauncherGUI extends JFrame {
                     errorPacketContainer.addPacket("Angle must be positive", frmtdtxtfldAngle, 2);
                     isReady = false;
                 }
+                if(((Number)frmtdtxtfldInformedCount.getValue()).intValue() <= 0){
+                    errorMessages.append("Informed Count must be positive\n");
+                    frmtdtxtfldInformedCount.setBackground( Color.YELLOW );
+                    errorPacketContainer.addPacket("Informed Count must be positive", frmtdtxtfldInformedCount, 2);
+                    isReady = false;
+                }
+                else if(((Number)frmtdtxtfldInformedCount.getValue()).intValue() * 2 > sliderAgent.getValue()){
+                    errorMessages.append("Informed Count should at most be half the count of total agents\n");
+                    frmtdtxtfldInformedCount.setBackground( Color.YELLOW );
+                    errorPacketContainer.addPacket("Informed Count should at most be half the count of total agents", frmtdtxtfldInformedCount, 2);
+                    isReady = false;
+                }
                 
                 
                 if(!isReady){
@@ -904,6 +961,8 @@ public class SimulatorLauncherGUI extends JFrame {
                     _simulatorProperties.put("predation-by-population", String.valueOf(chckbxPopulationIndependent.isSelected()));
                     _simulatorProperties.put("count-non-movers-as-survivors", String.valueOf( chckbxNonMoversSurvive.isSelected() ));
                     
+                    _simulatorProperties.put( "stop-at-any-destination", String.valueOf( chckbxStopAnywhere.isSelected() ) );
+                    
                     _simulatorProperties.put("adhesion-time-limit", String.valueOf(frmtdtxtfldMaxTimeSteps.getValue()));
                     
                     _simulatorProperties.put("alpha", String.valueOf(frmtdtxtfldAlpha.getValue()));
@@ -933,7 +992,8 @@ public class SimulatorLauncherGUI extends JFrame {
                     StringBuilder sbDecisionCalculator = new StringBuilder();
                     sbDecisionCalculator.append("edu.snu.leader.discrete.simulator.");
                     sbDecisionCalculator.append(comboBoxModel.getSelectedItem());
-                    sbDecisionCalculator.append(comboBoxDecisionCalculator.getSelectedItem());
+//                    sbDecisionCalculator.append(comboBoxDecisionCalculator.getSelectedItem());
+                    sbDecisionCalculator.append(comboBoxDecisionCalculator.getSelectedItem().toString().replace(" ", ""));
                     sbDecisionCalculator.append("DecisionCalculator");
                     _simulatorProperties.put("decision-calculator", String.valueOf(sbDecisionCalculator.toString()));
                     
@@ -943,6 +1003,9 @@ public class SimulatorLauncherGUI extends JFrame {
                     sbLocationsFile.append("-seed-00001.dat");
                     _simulatorProperties.put("locations-file", String.valueOf(sbLocationsFile.toString()));
                     
+                    //create destination file
+                    DestinationBuilder db = new DestinationBuilder(sliderAgent.getValue() , 1L);
+                    
                     StringBuilder sbDestinationsFile = new StringBuilder();
                     sbDestinationsFile.append("cfg/sim/destinations/destinations-");
                     switch(comboBoxEnvironment.getSelectedItem().toString()){
@@ -950,6 +1013,7 @@ public class SimulatorLauncherGUI extends JFrame {
                             sbDestinationsFile.append("diffdis-" + sliderAgent.getValue());
                             sbDestinationsFile.append("-per-" + frmtdtxtfldPercentage.getValue());
                             sbDestinationsFile.append("-seed-1.dat");
+                            db.generateDifferentDistance(((Number)frmtdtxtfldPercentage.getValue()).doubleValue(), 200, 100, 75 );
                             break;
                         case("Medium"):
                             sbDestinationsFile.append("split-" + sliderAgent.getValue());
@@ -957,11 +1021,21 @@ public class SimulatorLauncherGUI extends JFrame {
                             sbDestinationsFile.append("-ang-" + String.format("%.2f", ((Number)frmtdtxtfldAngle.getValue()).doubleValue()));
                             sbDestinationsFile.append("-per-" + String.format("%.3f", ((Number)frmtdtxtfldPercentage.getValue()).doubleValue()));
                             sbDestinationsFile.append("-seed-1.dat");
+                            db.generateSplitNorth( ((Number)frmtdtxtfldDistance.getValue()).doubleValue(), ((Number)frmtdtxtfldAngle.getValue()).doubleValue(), ((Number)frmtdtxtfldPercentage.getValue()).doubleValue() );
                             break;
                         case("Maximum"):
                             sbDestinationsFile.append("poles-" + sliderAgent.getValue());
                             sbDestinationsFile.append("-per-" + frmtdtxtfldPercentage.getValue());
                             sbDestinationsFile.append("-seed-1.dat");
+                            db.generatePoles( 50, 100, ((Number)frmtdtxtfldPercentage.getValue()).doubleValue() );
+                            break;
+                        case("Uninformed"):
+                            sbDestinationsFile.append("split-poles-" + frmtdtxtfldInformedCount.getValue());
+                            sbDestinationsFile.append("-dis-" +  String.format("%.1f", ((Number)frmtdtxtfldDistance.getValue()).doubleValue()));
+                            sbDestinationsFile.append("-ang-" + String.format("%.2f", ((Number)frmtdtxtfldAngle.getValue()).doubleValue()));
+                            sbDestinationsFile.append("-per-" + String.format("%.3f", ((Number)frmtdtxtfldPercentage.getValue()).doubleValue()));
+                            sbDestinationsFile.append("-seed-1.dat");
+                            db.generateSplitPoles( ((Number)frmtdtxtfldDistance.getValue()).doubleValue(), ((Number)frmtdtxtfldAngle.getValue()).doubleValue(), ((Number)frmtdtxtfldPercentage.getValue()).doubleValue(), ((Number)frmtdtxtfldInformedCount.getValue()).intValue() );
                             break;
                         default: //Should never happen
                             break;
