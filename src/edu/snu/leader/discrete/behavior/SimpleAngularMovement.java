@@ -35,7 +35,7 @@ public class SimpleAngularMovement implements MovementBehavior
             Iterator<Vector2D> destinations = _agent.getSimState().getDestinationsIterator();
             while(destinations.hasNext()){
                 Vector2D temp = destinations.next();
-                if( _agent.getCurrentLocation().distance( temp ) < _agent.getSimState().getDestinationRadius() )
+                if( _agent.getCurrentLocation().distance( temp ) < _agent.getPreferredDestination().getRadius() )
                 {
                     _agent.reachedDestination();
                     _agent.setReachedGoodDestination( _agent.getLeader().getPreferredDestination().isGood() );

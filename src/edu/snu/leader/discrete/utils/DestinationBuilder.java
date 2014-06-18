@@ -62,7 +62,7 @@ public class DestinationBuilder
         }
     }
 
-    DestinationBuilder( int destinationCount, long seed )
+    public DestinationBuilder( int destinationCount, long seed )
     {
         _destinationCount = destinationCount;
         _randomSeed = seed;
