@@ -465,7 +465,7 @@ public class Agent
                 }
                 _hasNewDecision = true;
             }
-
+            
             if( _hasNewDecision )
             {
                 // add the new decision to the history
@@ -518,7 +518,7 @@ public class Agent
                     _simState.addGroup( _group );
                     // reset last joined time
                     _simState.lastJoinedAgentTime = 0;
-                    // increament numInitiating in sim state
+                    // increment numInitiating in sim state
                     _simState.numInitiating++;
                 }
                 else if( _currentDecision.getDecision().getDecisionType() == DecisionType.FOLLOW )
@@ -1032,17 +1032,20 @@ public class Agent
         {
             Agent temp = neighbors.get( i );
             Object groupId = _observedGroupHistory.get( temp.getId() ).groupId;
-            if( !groupJoinTime.containsKey( groupId ) )
+            if( temp.isAlive() )
             {
-                groupJoinTime.put( groupId,
-                        _observedGroupHistory.get( temp.getId() ).time );
-                oldestObservedMembersOfGroups.put( groupId, temp );
-            }
-            else if( _observedGroupHistory.get( temp.getId() ).time < groupJoinTime.get( groupId ) )
-            {
-                groupJoinTime.put( groupId,
-                        _observedGroupHistory.get( temp.getId() ).time );
-                oldestObservedMembersOfGroups.put( groupId, temp );
+                if( !groupJoinTime.containsKey( groupId ) )
+                {
+                    groupJoinTime.put( groupId,
+                            _observedGroupHistory.get( temp.getId() ).time );
+                    oldestObservedMembersOfGroups.put( groupId, temp );
+                }
+                else if( _observedGroupHistory.get( temp.getId() ).time < groupJoinTime.get( groupId ) )
+                {
+                    groupJoinTime.put( groupId,
+                            _observedGroupHistory.get( temp.getId() ).time );
+                    oldestObservedMembersOfGroups.put( groupId, temp );
+                }
             }
         }
 
@@ -1061,6 +1064,11 @@ public class Agent
                     possibleDecisions.add( new Follow( this, temp ) );
                 }
             }
+        }
+        
+        if(possibleDecisions.size() == 0 && isUninformed()){
+            System.out.println("No decisions able to be made");// TODO observe this more
+            possibleDecisions.add( new DoNothing( this, _leader ) );
         }
 
         return possibleDecisions;

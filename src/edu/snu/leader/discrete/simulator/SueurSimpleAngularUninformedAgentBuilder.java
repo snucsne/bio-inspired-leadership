@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
@@ -142,8 +144,21 @@ public class SueurSimpleAngularUninformedAgentBuilder implements
             MovementBehavior mb = new SimpleAngularMovement();
             tempAgent.initialize( _simState, _locations[i] );
             
+            // get the number of informed individuals as defined by file name
+            int informedCount = 0;
+            // create the pattern and matcher
+            Pattern pattern = Pattern.compile( "(split-poles-)([0-9]+)" );
+            Matcher matcher = pattern.matcher( _destinationsFile );
+            // if we have a match
+            if(matcher.find()){
+                // get the informed individual per pole count in group 2
+                informedCount = Integer.parseInt( matcher.group( 2 ) );
+                // multiply it by 2 to get our total number of informed agents
+                informedCount *= 2;
+            }
+            
             // set their destination if they have one
-            if(i < 8){
+            if(i < informedCount){
                 Vector2D agentDestination = new Vector2D( _destinations[i].getX(),
                         _destinations[i].getY() );
                 Color destinationColor = null;
