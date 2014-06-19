@@ -37,9 +37,9 @@ my %statData = (
 #    "failed-followers-mean" => { "key" => "failed-followers-mean",
 #            "r-data" => "failedfollowersmean",
 #            "title" => "Failed Followers Mean"},
-#    "mimicing-neighbor-count" => { "key" => "mimicing-neighbor-count",
-#            "r-data" => "mimicingneighborcount",
-#            "title" => "Mimicking Neighbor Count"},
+    "mimicing-neighbor-count" => { "key" => "mimicing-neighbor-count",
+            "r-data" => "mimicingneighborcount",
+            "title" => "Mimicking Neighbor Count"},
     "personality" => { "key" => "personality",
             "r-data" => "personality",
             "title" => "Personality"},
@@ -77,14 +77,16 @@ my %snaStatData = (
             "r-data" => "indegree",
             "title" => "In Degree"},
     );
+#%statData{ keys %snaStatData } = values %snaStatData;
+%statData = (%statData, %snaStatData);
 
 
 my @corrData = (
-#    [ "mimicing-neighbor-count", "success-percentage" ],
+    [ "mimicing-neighbor-count", "success-percentage" ],
     [ "personality", "success-percentage" ],
     [ "assertiveness", "success-percentage" ],
     [ "preferred-direction", "success-percentage" ],
-#    [ "mimicing-neighbor-count", "personality" ],
+    [ "mimicing-neighbor-count", "personality" ],
     );
 
 my @snaCorrData = (
@@ -106,6 +108,8 @@ my @snaCorrData = (
 #    [ "failed-followers-mean", "personality" ],
 #    [ "eigenvector-centrality", "failed-followers-mean" ],
     );
+
+@corrData = (@corrData, @snaCorrData);
 
 # -------------------------------------------------------------------
 # Read the data files
@@ -316,20 +320,20 @@ print INPUT "sink()\n";
 # -------------------------------------------------------------------
 # Create a number of scatterplots
 my %plotData = (
-#    "mimics-vs-success" => { "x-data"  => $statData{"mimicing-neighbor-count"}{"r-data"},
-#                   "y-data" => $statData{"success-percentage"}{"r-data"},
-#                   "x-title" => $statData{"mimicing-neighbor-count"}{"title"},
-#                   "y-title" => $statData{"success-percentage"}{"title"},
-#                   "xmax" => "20",
-#                   "xmin" => "0.0",
-#                   "postfix" => "mimics-vs-success" },
-#    "mimics-vs-personality" => { "x-data"  => $statData{"mimicing-neighbor-count"}{"r-data"},
-#                   "y-data" => $statData{"personality"}{"r-data"},
-#                   "x-title" => $statData{"mimicing-neighbor-count"}{"title"},
-#                   "y-title" => $statData{"personality"}{"title"},
-#                   "xmax" => "20",
-#                   "xmin" => "0.0",
-#                   "postfix" => "mimics-vs-personality" },
+    "mimics-vs-success" => { "x-data"  => $statData{"mimicing-neighbor-count"}{"r-data"},
+                   "y-data" => $statData{"success-percentage"}{"r-data"},
+                   "x-title" => $statData{"mimicing-neighbor-count"}{"title"},
+                   "y-title" => $statData{"success-percentage"}{"title"},
+                   "xmax" => "20",
+                   "xmin" => "0.0",
+                   "postfix" => "mimics-vs-success" },
+    "mimics-vs-personality" => { "x-data"  => $statData{"mimicing-neighbor-count"}{"r-data"},
+                   "y-data" => $statData{"personality"}{"r-data"},
+                   "x-title" => $statData{"mimicing-neighbor-count"}{"title"},
+                   "y-title" => $statData{"personality"}{"title"},
+                   "xmax" => "20",
+                   "xmin" => "0.0",
+                   "postfix" => "mimics-vs-personality" },
     "personality-vs-success" => { "x-data"  => $statData{"personality"}{"r-data"},
                    "y-data" => $statData{"success-percentage"}{"r-data"},
                    "x-title" => $statData{"personality"}{"title"},
@@ -404,6 +408,8 @@ my %snaPlotData = (
 #                   "xmin" => "0.0",
 #                   "postfix" => "mimics-vs-failedfollowers" },
 );
+
+%plotData = (%plotData, %snaPlotData);
 
 foreach my $type (sort keys( %plotData ) )
 {

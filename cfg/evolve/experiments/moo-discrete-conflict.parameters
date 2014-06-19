@@ -24,13 +24,18 @@ eval.problem.beta-c.scaling-factor = -0.020
 eval.problem.beta-c.codon-size = 7
 eval.problem.sim-properties-file = cfg/sim/discrete/sim-properties.parameters
 
-eval.problem.sim-destinations-count = 3
-eval.problem.sim-destinations.00.file = cfg/sim/destinations/destinations-diffdis-10-per-0.5-seed-1.dat
+
+eval.problem.sim-destinations-count = 1
+eval.problem.sim-destinations.00.file = cfg/sim/locations/metric/valid-metric-loc-010-seed-00001.dat
 eval.problem.sim-destinations.00.sim-count = 5
-eval.problem.sim-destinations.01.file = cfg/sim/destinations/destinations-poles-10-per-0.5-seed-1.dat
-eval.problem.sim-destinations.01.sim-count = 5
-eval.problem.sim-destinations.02.file = cfg/sim/destinations/destinations-split-10-per-0.5-seed-1.dat
-eval.problem.sim-destinations.02.sim-count = 5
+
+#eval.problem.sim-destinations-count = 3
+#eval.problem.sim-destinations.00.file = cfg/sim/destinations/destinations-diffdis-10-per-0.5-seed-1.dat
+#eval.problem.sim-destinations.00.sim-count = 5
+#eval.problem.sim-destinations.01.file = cfg/sim/destinations/destinations-poles-10-per-0.5-seed-1.dat
+#eval.problem.sim-destinations.01.sim-count = 5
+#eval.problem.sim-destinations.02.file = cfg/sim/destinations/destinations-split-10-per-0.5-seed-1.dat
+#eval.problem.sim-destinations.02.sim-count = 5
 
 eval.problem.force-reevaluation = true
 
@@ -40,8 +45,8 @@ eval.problem.force-reevaluation = true
 # ==============================================================
 
 # Population size
-pop.subpop.0.size = 150
-breed.elite.0 =	50
+pop.subpop.0.size = 15
+breed.elite.0 =	5
 
 # Number of generations
 generations = 21
@@ -75,7 +80,9 @@ pop.subpop.0.species.genome-size = 40
 stat = edu.snu.leader.util.MooParseableStatistics
 stat.num-objectives = 3
 #stat.objective.00.name = Percentage of lifetime spent moving to preferred destination
-stat.objective.00.name = 1 - percentage of distance to goal
-stat.objective.01.name = 1 - percentage of time to reach goal
+#stat.objective.00.name = 1 - percentage of distance to goal
+#stat.objective.01.name = 1 - percentage of time to reach goal
+stat.objective.00.name = Percentage arriving at a "good" destination
+stat.objective.01.name = Precentage arriving at preferred destination
 stat.objective.02.name = Survival percentage
 

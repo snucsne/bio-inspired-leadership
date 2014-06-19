@@ -49,6 +49,7 @@ sub processDataFile
     $data{"switch-list"}{"remained-bold"} = [];
 
     $data{"datafile"} = $dataFile;
+    $data{"switch-sim-index"} = $switchSimIndex;
     loadData( $dataFile, \%data, $switchSimIndex );
 
     # Analyze it
@@ -248,12 +249,20 @@ sub analyzeData
 
     # Build the results file
     my $resultsFile = $dataOutputPrefix.
-            "-personality-position-results-".
+            "-personality-position-results-run-".
             $dataRef->{"run-id"}.
             ".dat";
 
     # ---------------------------------------------------------------
     open( OUTPUT, "> $resultsFile" ) or die "Unable to open results file [$resultsFile]: $!\n";
+
+    # ---------------------------------------------------------------
+    # Dump some run information
+    my $date = localtime;
+    print OUTPUT "# Datafile:       ",$dataRef->{"datafile"},"\n";
+    print OUTPUT "# SwitchSimIndex: ",$dataRef->{"switch-sim-index"},"\n";
+    print OUTPUT "# Date:           $date\n";
+    print OUTPUT "# ===================================================\n\n";
 
     # ---------------------------------------------------------------
     # Add the aggregate data

@@ -42,32 +42,32 @@ public class EvolutionOutputFitness
      * destination
      */
     private float percentTimeAway = 0.0f;
-    
+
     /**
      * The time taken to make it to the preferred destination relative
      * to the maximum amount of time steps
      */
     private float percentTimeToDestination = 0.0f;
-    
+
     /**
      * The percentage of distance away from the agent's preferred
      * destination
      */
     private float percentDistanceToDestination = 0.0f;
-    
+
     /**
      * The percentage of time steps alive
      */
     private float percentTimeAlive = 0.0f;
-    
+
     /** The percent of agents that made it to a good destination */
     private float percentGoodDestination = 0.0f;
-    
+
     /** The percent of agents that made it to their preferred destination
      * if they had one.
      */
     private float percentToPreferredDestination = 0.0f;
-    
+
     /**
      * Builds this EvolutionOutputFitness object
      *
@@ -126,9 +126,9 @@ public class EvolutionOutputFitness
     {
         return percentSuccess;
     }
-    
+
     /**
-     * Returns the percentage of time alive that agents move away from 
+     * Returns the percentage of time alive that agents move away from
      * their preferred destination
      *
      * @return
@@ -137,7 +137,7 @@ public class EvolutionOutputFitness
     {
         return percentTimeAway;
     }
-    
+
     /**
      * The time taken to make it to the preferred destination relative
      * to the maximum amount of time steps
@@ -147,7 +147,7 @@ public class EvolutionOutputFitness
     {
         return percentTimeToDestination;
     }
-    
+
     /**
      * Returns the percentage of distance away from the agent's preferred
      * destination
@@ -158,7 +158,7 @@ public class EvolutionOutputFitness
     {
         return percentDistanceToDestination;
     }
-    
+
     /**
      * Returns the percentage of time steps alive
      *
@@ -168,14 +168,49 @@ public class EvolutionOutputFitness
     {
         return percentTimeAlive;
     }
-    
+
     public float getPercentGoodDestination()
     {
         return percentGoodDestination;
     }
-    
+
     public float getPercentToPreferredDestination()
     {
         return percentToPreferredDestination;
     }
+
+    /**
+     * TODO Method description
+     *
+     * @return
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder( this.getClass().getCanonicalName() );
+        builder.append( ": percentTime=[" );
+        builder.append( percentTime );
+        builder.append( "] percentSurvive=[" );
+        builder.append( percentSurvive );
+        builder.append( "] percentSuccess=[" );
+        builder.append( percentSuccess );
+        builder.append( "] percentTimeAway=[" );
+        builder.append( percentTimeAway );
+        builder.append( "] percentTimeToDestination=[" );
+        builder.append( percentTimeToDestination );
+        builder.append( "] percentDistanceToDestination=[" );
+        builder.append( percentDistanceToDestination );
+        builder.append( "] percentTimeAlive=[" );
+        builder.append( percentTimeAlive );
+        builder.append( "] percentGoodDestination=[" );
+        builder.append( percentGoodDestination );
+        builder.append( "] percentToPreferredDestination=[" );
+        builder.append( percentToPreferredDestination );
+        builder.append( "]" );
+
+        return builder.toString();
+    }
+
+
 }
