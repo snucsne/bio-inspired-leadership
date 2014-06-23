@@ -381,16 +381,18 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         EvolutionOutputFitness outputFitness = SimulatorEvolution.runEvolutionFromInputParameters(
                 inputParameters,
                 _simulatorPropertiesFile );
-        _LOG.warn( outputFitness );
+//        _LOG.warn( outputFitness );
 
         // Store the fitness (or objective) values
-        float[] objectiveValues = new float[3];
+        float[] objectiveValues = new float[5];
 //        objectiveValues[0] = outputFitness.getPercentTime();
 //        objectiveValues[0] = 1.0f - outputFitness.getPercentDistanceToDestination();
 //        objectiveValues[1] = 1.0f - outputFitness.getPercentTimeToDestination();
         objectiveValues[0] = outputFitness.getPercentGoodDestination();
         objectiveValues[1] = outputFitness.getPercentToPreferredDestination();
         objectiveValues[2] = outputFitness.getPercentSurvive();
+        objectiveValues[3] = 1.0f - outputFitness.getPercentDistanceToDestination();
+        objectiveValues[4] = 1.0f - outputFitness.getPercentTimeToDestination();
         MultiObjectiveFitness fitness = (MultiObjectiveFitness) ind.fitness;
         fitness.setObjectives( state, objectiveValues );
 
@@ -501,22 +503,22 @@ public class MultiObjectiveCoordinationProblem extends Problem implements
         }
 
         // Store the values
-//        EvolutionInputParameters inputParameters = new EvolutionInputParameters(
-//                alpha,
-//                beta,
-//                s,
-//                q,
-//                alphaC,
-//                betaC,
-//                destinationInfo );
         EvolutionInputParameters inputParameters = new EvolutionInputParameters(
-                0.006161429f,
-                0.013422819f,
-                4,
-                1,
-                0.009f,
-                -0.009f,
+                alpha,
+                beta,
+                s,
+                q,
+                alphaC,
+                betaC,
                 destinationInfo );
+//        EvolutionInputParameters inputParameters = new EvolutionInputParameters(
+//                0.006161429f,
+//                0.013422819f,
+//                4,
+//                1,
+//                0.009f,
+//                -0.009f,
+//                destinationInfo );
 
         // Log it
         _LOG.debug( inputParameters.toString() );

@@ -26,7 +26,7 @@ eval.problem.sim-properties-file = cfg/sim/discrete/sim-properties.parameters
 
 
 eval.problem.sim-destinations-count = 1
-eval.problem.sim-destinations.00.file = cfg/sim/locations/metric/valid-metric-loc-010-seed-00001.dat
+eval.problem.sim-destinations.00.file = cfg/sim/destinations/destinations-split-poles-4-dis-150.0-ang-72.00-per-0.750-seed-1.dat
 eval.problem.sim-destinations.00.sim-count = 5
 
 #eval.problem.sim-destinations-count = 3
@@ -45,11 +45,11 @@ eval.problem.force-reevaluation = true
 # ==============================================================
 
 # Population size
-pop.subpop.0.size = 15
-breed.elite.0 =	5
+pop.subpop.0.size = 75
+breed.elite.0 =	25
 
 # Number of generations
-generations = 21
+generations = 51
 
 # Crossover parameters
 pop.subpop.0.species.crossover-type = one
@@ -69,7 +69,7 @@ pop.subpop.0.species.mutation-prob = 0.01
 # ==============================================================
 pop.subpop.0.species = ec.vector.BitVectorSpecies
 pop.subpop.0.species.ind = ec.vector.BitVectorIndividual
-pop.subpop.0.species.fitness.num-objectives = 3
+pop.subpop.0.species.fitness.num-objectives = 5
 pop.subpop.0.species.fitness.maximize = true
 pop.subpop.0.species.genome-size = 40
 
@@ -78,11 +78,13 @@ pop.subpop.0.species.genome-size = 40
 # Job information
 # ==============================================================
 stat = edu.snu.leader.util.MooParseableStatistics
-stat.num-objectives = 3
+stat.num-objectives = 5
 #stat.objective.00.name = Percentage of lifetime spent moving to preferred destination
 #stat.objective.00.name = 1 - percentage of distance to goal
 #stat.objective.01.name = 1 - percentage of time to reach goal
 stat.objective.00.name = Percentage arriving at a "good" destination
 stat.objective.01.name = Precentage arriving at preferred destination
 stat.objective.02.name = Survival percentage
+stat.objective.03.name = 1 - percentage of distance to goal
+stat.objective.04.name = 1 - percentage of time to reach goal
 
