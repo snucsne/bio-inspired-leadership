@@ -8,14 +8,14 @@ sim-observer.1.class-name = edu.snu.leader.spatial.observer.PersonalityUpdateSim
 sim-observer.2.class-name = edu.snu.leader.spatial.observer.SingleInitiationOnlySimObserver
 sim-observer.3.class-name = edu.snu.leader.spatial.observer.AllAgentsDepartedSimObserver
 sim-observer.4.class-name = edu.snu.leader.spatial.observer.ResultsReporterSimObserver
-results-file = data/spatial-sim-v2.dat
+results-file = data/spatial-sim-v2-sueur.dat
 
 
 # =========================================================
 # Simulation state parameters
 random-seed = 42
 agent-count = 10
-simulation-run-count = 10
+simulation-run-count = 1000
 simulation-run-step-count = 100000
 single-initiator-only = true
 
@@ -29,15 +29,17 @@ cancel-threshold = 1.0
 initiate-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
 follow-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
 cancel-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
-decision-probability-calculator-class = edu.snu.leader.spatial.calculator.DefaultGautraisDecisionProbabilityCalculator
+decision-probability-calculator-class = edu.snu.leader.spatial.calculator.SigmoidSueurDecisionProbabilityCalculator
 locations-file = cfg/sim/locations/metric/valid-metric-loc-010-seed-00001.dat
 
 
 # =========================================================
 # Calculator parameters
 modify-initiation-rate = true
-modify-following-rate = true
+modify-following-innate-rate = true
+modify-following-mimetic-rate = true
 modify-cancellation-rate = true
+sigmoid-slope-value = 10
 
 
 # =========================================================

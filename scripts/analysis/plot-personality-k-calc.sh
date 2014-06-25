@@ -24,7 +24,7 @@ set key out horiz center top
 
 plot (2 * (1/(1+exp((0.5-x)*10)))) title \"Over-initiation\" with lines lt 1 lw 3 lc rgb  \"#CC6677\"
 replot (2 * (1/(1+exp((0.5-(1-x))*10)))) title \"Over-following and Under-canceling\" with lines lt 1 lw 3 lc rgb  \"#332288\"
-set terminal postscript eps enhanced color \"NimbusSanL-Regu,17\" fontfile \"/usr/share/texmf-texlive/fonts/type1/urw/helvetic/uhvr8a.pfb\"
+set terminal postscript eps enhanced color \"NimbusSanL-Regu,17\" fontfile \"/usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb\"
 set output \"/tmp/tmp.eps\"
 replot"
 

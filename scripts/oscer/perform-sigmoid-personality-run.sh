@@ -22,6 +22,9 @@ RUN_COUNT=$6
 # Get the event time calculator class
 EVENT_CLASS=$7
 
+# Get the sigmoid slope value
+SLOPE_VALUE=$8
+
 # =========================================================
 RUN_END=$(($RUN_START + $RUN_COUNT - 1))
 
@@ -109,6 +112,7 @@ done
                     -Dlocations-file=$LOC_FILE \
                     -Dpersonality-mean=$PERSONALITY \
                     -Devent-time-calculator-class=$EVENT_CLASS \
+                    -Dsigmoid-slope-value=$SLOPE_VALUE \
                     -Drun-id=default \
                     -Dlogname=$PER_TYPE \
                     edu.snu.leader.hidden.SpatialHiddenVariablesSimulation > $PER_TYPE-$$.out
