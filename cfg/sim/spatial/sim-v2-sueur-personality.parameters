@@ -15,7 +15,7 @@ results-file = data/spatial-sim-v2-sueur.dat
 # Simulation state parameters
 random-seed = 42
 agent-count = 10
-simulation-run-count = 1000
+simulation-run-count = 20
 simulation-run-step-count = 100000
 single-initiator-only = true
 

@@ -165,13 +165,21 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
         
         // For now, hard code the equation values
         _alpha = 0.000775f;
+        _LOG.info( "Using _alpha=[" + _alpha + "]" );
         _beta = 0.008f;
+        _LOG.info( "Using _beta=[" + _beta + "]" );
         _s = simState.getAgentCount() * 0.6f;
+        _LOG.info( "Using _s=[" + _s + "]" );
         _q = 1.4f;
+        _LOG.info( "Using _q=[" + _q + "]" );
         _alphaC = 0.009f;
+        _LOG.info( "Using _alphaC=[" + _alphaC + "]" );
         _betaC = -0.009f;
+        _LOG.info( "Using _betaC=[" + _betaC + "]" );
         _sC = 2.0f;
+        _LOG.info( "Using _sC=[" + _sC + "]" );
         _qC = 2.3f;
+        _LOG.info( "Using _qC=[" + _qC + "]" );
         
         _LOG.trace( "Leaving initialize( simState )" );
     }
@@ -235,13 +243,28 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
             beta *= k;
         }
         
-        // Get the number of observed followers
-        int observedFollowerCount = agent.getObservedFollowerCount();
+        // Get the number of observed neighbors
+        int neighborGroupCount = agent.getNeighborGroupCount( group );
+        _LOG.debug( "Observed neighbor count ["
+                + neighborGroupCount
+                + "]" );
 
         // Calculate the probability
-        float moversPart = (float) Math.pow( observedFollowerCount + 1, _q );
+        float moversPart = (float) Math.pow( neighborGroupCount, _q );
         float probability = alpha + beta * moversPart
                 / ((float) Math.pow( _s, _q) + moversPart);
+        
+        _LOG.debug( "Follow: prob=["
+                + probability
+                + "] alpha=["
+                + alpha
+                + "] beta=["
+                + beta
+                + "] X^q=["
+                + moversPart
+                + "] s^q=["
+                + ((float) Math.pow( _s, _q))
+                + "]" );
         
         return probability;
     }

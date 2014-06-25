@@ -567,6 +567,12 @@ public class Agent
     public void setLeader( Agent leader )
     {
         _leader = leader;
+        Object leaderID = "NULL";
+        if( null != leader )
+        {
+            leaderID = leader.getID();
+        }
+        _LOG.debug( "Now following leader=[" + leaderID + "]" );
     }
 
     /**
