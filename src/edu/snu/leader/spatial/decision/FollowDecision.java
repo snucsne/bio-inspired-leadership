@@ -72,6 +72,9 @@ public class FollowDecision extends AbstractDecision
                 "Group may not be null" );
         _group = group;
 
+        // Save the leader
+        _leader = leader;
+
         // Pre-calculate the probability
         _probability = _calculator.calcFollowProbability( _agent, _group );
     }

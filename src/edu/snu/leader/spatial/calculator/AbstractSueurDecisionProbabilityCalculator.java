@@ -43,7 +43,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
     private static final Logger _LOG = Logger.getLogger(
             AbstractSueurDecisionProbabilityCalculator.class.getName() );
 
-    
+
     /** Key for modifying the initiation rate flag */
     private static final String _MODIFY_INITIATION_RATE_KEY = "modify-initiation-rate";
 
@@ -56,8 +56,8 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
     /** Key for modifying the cancellation rate flag */
     private static final String _MODIFY_CANCELLATION_RATE_KEY = "modify-cancellation-rate";
 
-    
-    
+
+
     /** The simulation state */
     protected SimulationState _simState = null;
 
@@ -75,29 +75,29 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
 
     /** Movement alpha value */
     private float _alpha = 0.0f;
-    
+
     /** Movement beta value */
     private float _beta = 0.0f;
-    
+
     /** Movement S value */
     private float _s = 0.0f;
-    
+
     /** Movement q value */
     private float _q = 0.0f;
-    
+
     /** Cancel alpha value */
     private float _alphaC = 0.0f;
-    
+
     /** Cancel beta value */
     private float _betaC = 0.0f;
-    
+
     /** Cancel S value */
     private float _sC = 0.0f;
-    
+
     /** Cancel q value */
     private float _qC = 0.0f;
 
-    
+
     /**
      * Initializes the calculator
      *
@@ -108,10 +108,10 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
     public void initialize( SimulationState simState )
     {
         _LOG.trace( "Entering initialize( simState )" );
-        
+
         // Save the simulation state
         _simState = simState;
-        
+
         // Get the properties
         Properties props = simState.getProperties();
 
@@ -162,7 +162,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
         _LOG.info( "Using _modifyCancellationRate=["
                 + _modifyCancellationRate
                 + "]" );
-        
+
         // For now, hard code the equation values
         _alpha = 0.000775f;
         _LOG.info( "Using _alpha=[" + _alpha + "]" );
@@ -180,7 +180,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
         _LOG.info( "Using _sC=[" + _sC + "]" );
         _qC = 2.3f;
         _LOG.info( "Using _qC=[" + _qC + "]" );
-        
+
         _LOG.trace( "Leaving initialize( simState )" );
     }
 
@@ -196,7 +196,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
     {
         // We only use the alpha component for initiation
         float alpha = _alpha;
-        
+
         // Do we modify it?
         if( _modifyInitiationRate )
         {
@@ -222,10 +222,12 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
     @Override
     public float calcFollowProbability( Agent agent, Group group )
     {
-        // Start off with the default alpha and beta values
+        // Start off with the default values
         float alpha = _alpha;
         float beta = _beta;
-        
+        float s = _s;
+        float q = _q;
+
         // Do we modify the innate (alpha) portion?
         float personality = agent.getPersonalityTrait().getPersonality();
         if( _modifyFollowingInnateRate )
@@ -234,38 +236,39 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
             float k = calculateK( personality );
             alpha *= k;
         }
-        
+
         // Do we modify the mimetic (beta) portion?
         if( _modifyFollowingMimeticRate )
         {
             // Yup
-            float k = calculateK( 1.0f - personality );
-            beta *= k;
+//            float k = calculateK( 1.0f - personality );
+//            beta *= k;
+            float k = calculateK( personality );
+            s *= k;
         }
-        
+
         // Get the number of observed neighbors
         int neighborGroupCount = agent.getNeighborGroupCount( group );
-        _LOG.debug( "Observed neighbor count ["
-                + neighborGroupCount
-                + "]" );
 
         // Calculate the probability
-        float moversPart = (float) Math.pow( neighborGroupCount, _q );
-        float probability = alpha + beta * moversPart
-                / ((float) Math.pow( _s, _q) + moversPart);
-        
-        _LOG.debug( "Follow: prob=["
-                + probability
-                + "] alpha=["
-                + alpha
-                + "] beta=["
-                + beta
-                + "] X^q=["
-                + moversPart
-                + "] s^q=["
-                + ((float) Math.pow( _s, _q))
-                + "]" );
-        
+        float moversPart = (float) Math.pow( neighborGroupCount, q );
+        float probability = alpha + ( ( beta * moversPart )
+                / ((float) Math.pow( s, q) + moversPart) );
+
+//        _LOG.debug( "        Follow: prob=["
+//                + probability
+//                + "] alpha=["
+//                + alpha
+//                + "] beta=["
+//                + beta
+//                + "] X^q=["
+//                + moversPart
+//                + "] s^q=["
+//                + ((float) Math.pow( _s, _q))
+//                + "] neighborGroupCount=["
+//                + neighborGroupCount
+//                + "]" );
+
         return probability;
     }
 
@@ -285,8 +288,8 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
         // Calculate the probability
         // Don't forget to include the leader in the "departed" count
         float moversPart = (float) Math.pow( observedFollowerCount + 1, _qC );
-        float probability = _alphaC + _betaC * moversPart
-                / ((float) Math.pow( _sC, _qC) + moversPart);
+        float probability = _alphaC + ( ( _betaC * moversPart )
+                / ((float) Math.pow( _sC, _qC) + moversPart) );
 
         // Do we modify it?
         if( _modifyCancellationRate )
@@ -301,7 +304,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
 
         return probability;
     }
-    
+
     /**
      * Calculates k coefficient for the collective movement equations
      *

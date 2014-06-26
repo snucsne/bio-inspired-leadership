@@ -3,11 +3,11 @@
 sim-observer-count = 5
 
 # Simulation observers
-sim-observer.0.class-name = edu.snu.leader.spatial.observer.DebugSimObserver
-sim-observer.1.class-name = edu.snu.leader.spatial.observer.PersonalityUpdateSimObserver
-sim-observer.2.class-name = edu.snu.leader.spatial.observer.SingleInitiationOnlySimObserver
-sim-observer.3.class-name = edu.snu.leader.spatial.observer.AllAgentsDepartedSimObserver
-sim-observer.4.class-name = edu.snu.leader.spatial.observer.ResultsReporterSimObserver
+sim-observer.0.class-name = edu.snu.leader.spatial.observer.SingleInitiationOnlySimObserver
+sim-observer.1.class-name = edu.snu.leader.spatial.observer.AllAgentsDepartedSimObserver
+sim-observer.2.class-name = edu.snu.leader.spatial.observer.ResultsReporterSimObserver
+sim-observer.3.class-name = edu.snu.leader.spatial.observer.PersonalityUpdateSimObserver
+sim-observer.4.class-name = edu.snu.leader.spatial.observer.DebugSimObserver
 results-file = data/spatial-sim-v2-sueur.dat
 
 
@@ -51,6 +51,6 @@ min-personality = 0.1
 max-personality = 0.9
 true-winner-effects-active = true
 true-loser-effects-active = true
-bystander-winner-effects-active = true
-bystander-loser-effects-active = true
+bystander-winner-effects-active = false
+bystander-loser-effects-active = false
 

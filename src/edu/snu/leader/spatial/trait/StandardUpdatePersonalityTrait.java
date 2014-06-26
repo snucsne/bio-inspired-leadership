@@ -370,12 +370,20 @@ public class StandardUpdatePersonalityTrait implements PersonalityTrait
         DecisionEvent agentDecisionEvent = _agent.getCurrentDecisionEvent();
         DecisionEvent leaderDecisionEvent = null;
         Agent leader = _agent.getLeader();
-        if( null != leader )
+        if( DecisionType.INITIATE.equals( agentDecisionEvent.getDecision().getType() ) )
+        {
+            _LOG.debug( "Agent ["
+                    + _agent.getID()
+                    + "] is initiating" );
+        }
+        else if( null != leader )
         {
             leaderDecisionEvent = leader.getCurrentDecisionEvent();
-            _LOG.debug( "Leader ["
+            _LOG.debug( "Agent ["
+                    + _agent.getID()
+                    + "] leader's ["
                     + leader.getID()
-                    + "] decided to ["
+                    + "] current decision is to ["
                     + leaderDecisionEvent.getDecision().getType()
                     + "]" );
         }
