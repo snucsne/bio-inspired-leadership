@@ -23,8 +23,10 @@ import java.util.Properties;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+
 import edu.snu.leader.spatial.Agent;
 import edu.snu.leader.spatial.DecisionProbabilityCalculator;
+import edu.snu.leader.spatial.DecisionType;
 import edu.snu.leader.spatial.Group;
 import edu.snu.leader.spatial.SimulationState;
 
@@ -204,7 +206,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
             float personality = agent.getPersonalityTrait().getPersonality();
 
             // Calculate k and use it to change the probability
-            float k = calculateK( personality );
+            float k = calculateK( personality, DecisionType.INITIATE );
             alpha *= k;
         }
 
@@ -233,7 +235,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
         if( _modifyFollowingInnateRate )
         {
             // Yup
-            float k = calculateK( personality );
+            float k = calculateK( personality, DecisionType.FOLLOW );
             alpha *= k;
         }
 
@@ -241,7 +243,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
         if( _modifyFollowingMimeticRate )
         {
             // Yup
-            float k = calculateK( 1.0f - personality );
+            float k = calculateK( 1.0f - personality, DecisionType.FOLLOW );
             beta *= k;
 //            float k = calculateK( personality );
 //            s *= k;
@@ -295,8 +297,10 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
             float personality = agent.getPersonalityTrait().getPersonality();
 
             // Calculate k and use it to change the probability
-            float k = calculateK( personality );
-            sC *= k;
+            float k = calculateK( 1.0f - personality, DecisionType.CANCEL );
+            alphaC *= k;
+            betaC *= k;
+            sC *= ( (k-1.0f)*-0.34f )+1.0f;
             _LOG.debug( "p=[" + personality + "] k=[" + k + "]" );
         }
 
@@ -332,8 +336,9 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
      * Calculates k coefficient for the collective movement equations
      *
      * @param value
+     * @param type
      * @return The k coefficient
      */
-    protected abstract float calculateK( float value );
+    protected abstract float calculateK( float value, DecisionType type );
 
 }

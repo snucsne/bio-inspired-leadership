@@ -19,29 +19,30 @@
 package edu.snu.leader.spatial.calculator;
 
 // Imports
-import java.util.Properties;
+import edu.snu.leader.spatial.DecisionType;
+import edu.snu.leader.spatial.SimulationState;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
-import edu.snu.leader.spatial.DecisionType;
-import edu.snu.leader.spatial.SimulationState;
+import java.util.Properties;
 
 
 /**
- * SigmoidSueurDecisionProbabilityCalculator
+ * CompactSigmoidSueurDecisionProbabilityCalculator
  *
  * TODO Class description
  *
  * @author Brent Eskridge
  * @version $Revision$ ($Author$)
  */
-public class SigmoidSueurDecisionProbabilityCalculator
-        extends AbstractSueurDecisionProbabilityCalculator
+public class CompactSigmoidSueurDecisionProbabilityCalculator extends
+        AbstractSueurDecisionProbabilityCalculator
 {
+
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
-            SigmoidSueurDecisionProbabilityCalculator.class.getName() );
+            CompactSigmoidSueurDecisionProbabilityCalculator.class.getName() );
 
     /** Key for modifying the sigmoid slope value */
     private final String _SIGMOID_SLOPE_VALUE_KEY = "sigmoid-slope-value";
@@ -90,7 +91,25 @@ public class SigmoidSueurDecisionProbabilityCalculator
     @Override
     protected float calculateK( float value, DecisionType type )
     {
-        return 2.0f * ( 1.0f / (1.0f + (float) Math.exp( (0.5f-value) * _sigmoidSlopeValue) ) );
+        float k = 0.0f;
+
+        // If it is initiation or following, use a range of [0.1,1.9]
+        if( DecisionType.INITIATE.equals( type )
+                || DecisionType.FOLLOW.equals( type ) )
+        {
+            k = 0.1f + ( 1.8f * ( 1.0f / (1.0f +
+                    (float) Math.exp( (0.5f-value) * _sigmoidSlopeValue) ) ) );
+        }
+        // Otherwise, if it is a cancel, use a more compact range
+        else if( DecisionType.CANCEL.equals( type ) )
+        {
+//            k = 0.6f + ( 0.8f * ( 1.0f / (1.0f +
+//                    (float) Math.exp( (0.5f-value) * _sigmoidSlopeValue) ) ) );
+            k = 0.59623023f + ( 0.80753954f * ( 1.0f / (1.0f +
+                    (float) Math.exp( (0.5f-value) * _sigmoidSlopeValue) ) ) );
+        }
+
+        return k;
     }
 
 }
