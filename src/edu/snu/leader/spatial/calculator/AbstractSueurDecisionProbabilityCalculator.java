@@ -241,10 +241,10 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
         if( _modifyFollowingMimeticRate )
         {
             // Yup
-//            float k = calculateK( 1.0f - personality );
-//            beta *= k;
-            float k = calculateK( personality );
-            s *= k;
+            float k = calculateK( 1.0f - personality );
+            beta *= k;
+//            float k = calculateK( personality );
+//            s *= k;
         }
 
         // Get the number of observed neighbors
@@ -282,14 +282,11 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
     @Override
     public float calcCancelProbability( Agent agent )
     {
-        // Get the number of observed followers
-        int observedFollowerCount = agent.getObservedFollowerCount();
-
-        // Calculate the probability
-        // Don't forget to include the leader in the "departed" count
-        float moversPart = (float) Math.pow( observedFollowerCount + 1, _qC );
-        float probability = _alphaC + ( ( _betaC * moversPart )
-                / ((float) Math.pow( _sC, _qC) + moversPart) );
+        // Start off with the default values
+        float alphaC = _alphaC;
+        float betaC = _betaC;
+        float sC = _sC;
+        float qC = _qC;
 
         // Do we modify it?
         if( _modifyCancellationRate )
@@ -298,9 +295,35 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
             float personality = agent.getPersonalityTrait().getPersonality();
 
             // Calculate k and use it to change the probability
-            float k = calculateK( 1.0f - personality );
-            probability *= k;
+            float k = calculateK( personality );
+            sC *= k;
+            _LOG.debug( "p=[" + personality + "] k=[" + k + "]" );
         }
+
+        // Get the number of observed followers
+        int observedFollowerCount = agent.getObservedFollowerCount();
+
+        // Calculate the probability
+        // Don't forget to include the leader in the "departed" count
+        float moversPart = (float) Math.pow( observedFollowerCount + 1, qC );
+        float probability = alphaC + ( ( betaC * moversPart )
+                / ((float) Math.pow( sC, qC) + moversPart) );
+
+        _LOG.debug( "        Cancel: prob=["
+                + probability
+                + "] alphaC=["
+                + alphaC
+                + "] betaC=["
+                + betaC
+                + "] sC=["
+                + sC
+                + "] X^q=["
+                + moversPart
+                + "] s^q=["
+                + ((float) Math.pow( sC, qC))
+                + "] observedFollowerCount=["
+                + observedFollowerCount
+                + "]" );
 
         return probability;
     }
