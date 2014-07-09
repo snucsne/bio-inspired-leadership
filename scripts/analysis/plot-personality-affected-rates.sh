@@ -5,6 +5,13 @@ OUTPUT_PREFIX=$1
 YMAX=0.015
 YTICS=0.005
 
+BOLDCOLOR="#882255"
+DEFAULTCOLOR="#000000"
+SHYCOLOR="#117733"
+
+FOLLOWCOLOR="#332288"
+CANCELCOLOR="#aa4499"
+
 PLOT_FILE=/tmp/personality.plot
 
 DEFAULT_OUTPUT=$OUTPUT_PREFIX"-default.eps"
@@ -21,8 +28,8 @@ set size 0.65,0.62
 set key out horiz center top
 
 plot 0.1 title \" \" lc rgb \"#FFFFFF\"
-replot 0.009/(1+(x/2)**2.3) title \"Default cancellation rate\" with lines lt 1 lw 3 lc rgb \"#CC6677\"
-replot 1/(162.3+75.4*(10-x)/x) title \"Default following rate\" with lines lt 2 lw 3 lc rgb \"#332288\"
+replot 0.009/(1+(x/2)**2.3) title \"Cancel\" with lines lt 1 lw 3 lc rgb \"$CANCELCOLOR\"
+replot 1/(162.3+75.4*(10-x)/x) title \"Follow\" with lines lt 2 lw 3 lc rgb \"$FOLLOWCOLOR\"
 
 
 set terminal postscript eps enhanced color \"NimbusSanL-Regu,17\" fontfile \"/usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb\"
@@ -48,9 +55,9 @@ set ytics $YTICS
 set size 0.65,0.62
 set key out horiz center top
 
-plot 1.90515/(162.3+75.4*(10-x)/x) title \"Personality=0.2\" with lines lw 3 lc rgb \"#117733\"
-replot 1/(162.3+75.4*(10-x)/x) title \"Default/Personality=0.5\" with lines lw 3 lc rgb \"#332288\"
-replot 0.09485/(162.3+75.4*(10-x)/x) title \"Personality=0.8\" with lines lw 3 lt 5 lc rgb \"#44AA99\"
+plot 1.90515/(162.3+75.4*(10-x)/x) title \"Shy\" with lines lw 3 lt 2 lc rgb \"$SHYCOLOR\"
+replot 1/(162.3+75.4*(10-x)/x) title \"Default / Moderate\" with lines lt 1 lw 3 lc rgb \"$DEFAULTCOLOR\"
+replot 0.09485/(162.3+75.4*(10-x)/x) title \"Bold\" with lines lw 3 lt 5 lc rgb \"$BOLDCOLOR\"
 
 
 set terminal postscript eps enhanced color \"NimbusSanL-Regu,17\" fontfile \"/usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb\"
@@ -77,9 +84,9 @@ set ytics $YTICS
 set size 0.65,0.62
 set key out horiz center top
 
-plot 1.90515*0.009/(1+(x/2)**2.3) title \"Personality=0.2\" with lines lt 2 lw 3 lc rgb \"#882255\"
-replot 0.009/(1+(x/2)**2.3) title \"Default/Personality=0.5\" with lines lt 1 lw 3 lc rgb \"#CC6677\"
-replot 0.09485*0.009/(1+(x/2)**2.3) title \"Personality=0.8\" with lines lt 5 lw 3 lc rgb \"#999933\"
+plot 1.90515*0.009/(1+(x/2)**2.3) title \"Shy\" with lines lt 2 lw 3 lc rgb \"$SHYCOLOR\"
+replot 0.009/(1+(x/2)**2.3) title \"Default / Moderate\" with lines lt 1 lw 3 lc rgb \"$DEFAULTCOLOR\"
+replot 0.09485*0.009/(1+(x/2)**2.3) title \"Bold\" with lines lt 5 lw 3 lc rgb \"$BOLDCOLOR\"
 
 set terminal postscript eps enhanced color \"NimbusSanL-Regu,17\" fontfile \"/usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb\"
 set output \"/tmp/tmp.eps\"
