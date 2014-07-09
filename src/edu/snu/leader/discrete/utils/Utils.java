@@ -161,6 +161,41 @@ public class Utils
         scanner.close();
         return locations;
     }
+    
+    public static ArrayList<Point2D> readPoints( String filename )
+    {
+        // array list of points
+        ArrayList<Point2D> locations = new ArrayList<Point2D>();
+
+        // create a scanner to read in file
+        Scanner scanner;
+        try
+        {
+            scanner = new Scanner( new File( filename ) );
+        }
+        catch( FileNotFoundException e )
+        {
+            throw new RuntimeException( "Could not find or load " + filename
+                    + " locations file" );
+        }
+
+        // get rid of all of the text we don't need
+        while( !scanner.hasNextDouble() )
+        {
+            scanner.next();
+        }
+        // okay, time to get the points now
+        while( scanner.hasNextDouble() )
+        {
+            double tempx, tempy;
+            tempx = scanner.nextDouble();
+            tempy = scanner.nextDouble();
+            locations.add( new Point2D.Double( tempx, tempy ) );
+        }
+        // close and return
+        scanner.close();
+        return locations;
+    }
 
     /**
      * Generates a unique id

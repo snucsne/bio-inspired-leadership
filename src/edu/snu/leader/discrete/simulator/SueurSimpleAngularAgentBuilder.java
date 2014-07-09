@@ -33,7 +33,7 @@ import edu.snu.leader.util.MiscUtils;
 
 public class SueurSimpleAngularAgentBuilder implements AgentBuilder
 {
-    private Point2D[] _locations = null;
+    private List<Point2D> _locations = null;
 
     private Point2D[] _destinations = null;
 
@@ -72,7 +72,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
                 "Desination-size-radius must have a value" );
         _destinationRadius = Integer.parseInt( stringDestinationRadius );
 
-        _locations = Utils.readPoints( _locationsFile, _numAgents );
+        _locations = Utils.readPoints( _locationsFile );
         _destinations = Utils.readPoints( _destinationsFile, _numAgents );
 
         // add the agent count info to root directory
@@ -139,7 +139,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
         {
             Agent tempAgent = agents.get( i );
             MovementBehavior mb = new SimpleAngularMovement();
-            tempAgent.initialize( _simState, _locations[i] );
+            tempAgent.initialize( _simState, _locations.get( i ) );
 
             // set their destination
             Vector2D agentDestination = new Vector2D( _destinations[i].getX(),

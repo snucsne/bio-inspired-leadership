@@ -15,7 +15,7 @@ results-file = data/spatial-sim-v2-sueur.dat
 # Simulation state parameters
 random-seed = 42
 agent-count = 10
-simulation-run-count = 20
+simulation-run-count = 2000
 simulation-run-step-count = 100000
 single-initiator-only = true
 
@@ -29,7 +29,7 @@ cancel-threshold = 1.0
 initiate-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
 follow-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
 cancel-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
-decision-probability-calculator-class = edu.snu.leader.spatial.calculator.SigmoidSueurDecisionProbabilityCalculator
+decision-probability-calculator-class = edu.snu.leader.spatial.calculator.CompactSigmoidSueurDecisionProbabilityCalculator
 locations-file = cfg/sim/locations/metric/valid-metric-loc-010-seed-00001.dat
 
 

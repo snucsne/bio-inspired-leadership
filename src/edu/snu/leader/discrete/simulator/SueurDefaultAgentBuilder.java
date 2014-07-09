@@ -36,7 +36,7 @@ import edu.snu.leader.util.MiscUtils;
 public class SueurDefaultAgentBuilder implements AgentBuilder
 {
 
-    private Point2D[] _locations = null;
+    private List<Point2D> _locations = null;
 
     private SimulationState _simState = null;
 
@@ -58,7 +58,7 @@ public class SueurDefaultAgentBuilder implements AgentBuilder
                 "locations-file" );
         Validate.notEmpty( _locationsFile, "Locations file may not be empty" );
 
-        _locations = Utils.readPoints( _locationsFile, _numAgents );
+        _locations = Utils.readPoints( _locationsFile );
 
         // add the agent count info to root directory
         _simState.setRootDirectory( Reporter.ROOT_DIRECTORY + "agent-count="
@@ -83,7 +83,7 @@ public class SueurDefaultAgentBuilder implements AgentBuilder
         // initialize them
         for( int i = 0; i < _numAgents; i++ )
         {
-            agents.get( i ).initialize( _simState, _locations[i] );
+            agents.get( i ).initialize( _simState, _locations.get( i ) );
             agents.get( i ).setMovementBehavior( mb );
         }
         return agents;
