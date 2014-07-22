@@ -23,7 +23,7 @@ import edu.snu.leader.discrete.utils.Reporter;
 
 
 /**
- * SueurDefaultDecisionProbablityCalculator Default Sueur Probability Calculator
+ * SueurDefaultDecisionCalculator Default Sueur Probability Calculator
  * 
  * @author Tim Solum
  * @version $Revision$ ($Author$)

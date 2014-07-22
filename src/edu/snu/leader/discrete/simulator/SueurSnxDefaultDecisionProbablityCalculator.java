@@ -58,8 +58,10 @@ public class SueurSnxDefaultDecisionProbablityCalculator implements
     @Override
     public void initialize( SimulationState simState )
     {
+        // save the sim state for later
         _simState = simState;
 
+        // parse some properties
         String alpha = _simState.getProperties().getProperty( "alpha" );
         Validate.notEmpty( alpha, "Alpha may not be empty" );
         _alpha = Double.parseDouble( alpha );
@@ -79,10 +81,6 @@ public class SueurSnxDefaultDecisionProbablityCalculator implements
         String q = _simState.getProperties().getProperty( "q" );
         Validate.notEmpty( q, "q may not be empty" );
         _q = Double.parseDouble( q );
-
-        // String S = _simState.getProperties().getProperty("S");
-        // Validate.notEmpty(S, "S may not be empty");
-        // _S = Integer.parseInt(S);
 
         String cancellationThreshold = _simState.getProperties().getProperty(
                 "cancellation-threshold" );

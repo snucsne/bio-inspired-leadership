@@ -17,6 +17,12 @@ package edu.snu.leader.discrete.simulator;
 import java.util.List;
 
 
+/**
+ * AgentBuilder Interface defining what an agent builder will look like
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public interface AgentBuilder
 {
     /**

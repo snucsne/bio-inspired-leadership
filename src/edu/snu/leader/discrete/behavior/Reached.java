@@ -19,6 +19,13 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * Reached This decision will prevent all further decisions once it has been
+ * made. It is made when an agent has reached a destination.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class Reached extends Decision
 {
     public Reached( Agent agent )
@@ -34,6 +41,7 @@ public class Reached extends Decision
     @Override
     public void choose()
     {
+        // stop this agent from moving since its in a destination
         _agent.setCurrentVelocity( Vector2D.ZERO );
     }
 

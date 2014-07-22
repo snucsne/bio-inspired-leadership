@@ -24,7 +24,8 @@ import edu.snu.leader.discrete.utils.Reporter;
 
 
 /**
- * SueurDefaultDecisionProbablityCalculator Default Sueur Probability Calculator
+ * SueurConflictDecisionCalculator Sueur model with conflict modification for
+ * decision calculations
  * 
  * @author Tim Solum
  * @version $Revision$ ($Author$)
@@ -63,6 +64,7 @@ public class SueurConflictDecisionCalculator implements
     {
         _simState = simState;
 
+        // get values from properties
         String alpha = _simState.getProperties().getProperty( "alpha" );
         Validate.notEmpty( alpha, "Alpha may not be empty" );
         _alpha = Double.parseDouble( alpha );
@@ -108,9 +110,12 @@ public class SueurConflictDecisionCalculator implements
     @Override
     public void calcInitiateProb( Decision decision )
     {
+        // get conflict
         double conflict = _defaultConflictValue;
         conflict = calculateConflict( decision );
+        // calculate k
         double k = 1 / kValue( conflict );
+        // set probability of initiation to alpha / k
         decision.setProbability( _alpha / k );
     }
 
@@ -121,6 +126,7 @@ public class SueurConflictDecisionCalculator implements
         Group group = decision.getLeader().getGroup();
         // probability to join this group
         double lambda = 0.0;
+        // calculate conflict
         double conflict = calculateConflict( decision );
 
         // the number of agents currently in this group
@@ -141,7 +147,9 @@ public class SueurConflictDecisionCalculator implements
                 + ( ( _beta * Math.pow( X, _q ) ) / ( Math.pow( _S, _q ) + Math.pow(
                         X, _q ) ) );
 
+        // calculate k
         double k = 1 / kValue( 1 - conflict );
+        // modify following by 1 / k
         lambda *= 1 / k;
 
         decision.setProbability( lambda );

@@ -32,21 +32,36 @@ import edu.snu.leader.discrete.utils.Reporter;
 import edu.snu.leader.discrete.utils.Utils;
 import edu.snu.leader.util.MiscUtils;
 
-public class SueurSimpleAngularUninformedAgentBuilder implements 
-        AgentBuilder
+
+/**
+ * SueurSimpleAngularUninformedAgentBuilder Builds agents that have simple
+ * angular movement. Some agents are not given a preferred destination and are
+ * considered uninformed.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
+public class SueurSimpleAngularUninformedAgentBuilder implements AgentBuilder
 {
+    /** Starting locations */
     private List<Point2D> _locations = null;
 
+    /** Destinations */
     private Point2D[] _destinations = null;
 
+    /** The simstate */
     private SimulationState _simState = null;
 
+    /** Number of agents to create */
     private int _numAgents = 0;
 
+    /** The locations file used */
     private String _locationsFile = null;
 
+    /** The destinations file used */
     private String _destinationsFile = null;
 
+    /** The radius of destinations */
     private int _destinationRadius = 10;
 
     @Override
@@ -54,6 +69,7 @@ public class SueurSimpleAngularUninformedAgentBuilder implements
     {
         _simState = simState;
 
+        // get values from properties file
         String numAgents = _simState.getProperties().getProperty(
                 "individual-count" );
         Validate.notEmpty( numAgents, "Individual count may not be empty" );
@@ -133,68 +149,85 @@ public class SueurSimpleAngularUninformedAgentBuilder implements
                 new Color( 0xFF69B4 ), new Color( 0xFFD700 ),
                 new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
 
+        // holds the count of agents that prefer each destination
         Map<Vector2D, Integer> destinationCounts = new HashMap<Vector2D, Integer>();
+        // holds the colors assigned to each destination
         Map<Vector2D, Color> destinationColors = new HashMap<Vector2D, Color>();
+        // holds the index for colors used to assign destination colors
         Map<Color, Integer> destinationIds = new HashMap<Color, Integer>();
+        // the current index for colors
         int colorCount = 0;
+
         // initialize them
         for( int i = 0; i < _numAgents; i++ )
         {
             Agent tempAgent = agents.get( i );
+            // create new movement behavior instance
             MovementBehavior mb = new SimpleAngularMovement();
+            // Initialize the agent
             tempAgent.initialize( _simState, _locations.get( i ) );
-            
+
             // get the number of informed individuals as defined by file name
             int informedCount = 0;
             // create the pattern and matcher
             Pattern pattern = Pattern.compile( "(split-poles-)([0-9]+)" );
             Matcher matcher = pattern.matcher( _destinationsFile );
             // if we have a match
-            if(matcher.find()){
+            if( matcher.find() )
+            {
                 // get the informed individual per pole count in group 2
                 informedCount = Integer.parseInt( matcher.group( 2 ) );
                 // multiply it by 2 to get our total number of informed agents
                 informedCount *= 2;
             }
-            
+
             // set their destination if they have one
-            if(i < informedCount){
-                Vector2D agentDestination = new Vector2D( _destinations[i].getX(),
-                        _destinations[i].getY() );
+            if( i < informedCount )
+            {
+                Vector2D agentDestination = new Vector2D(
+                        _destinations[i].getX(), _destinations[i].getY() );
                 Color destinationColor = null;
                 // set their color for their destination
                 // if new destination then give it new color
                 if( destinationColors.containsKey( agentDestination ) )
                 {
+                    // assign its color from the map
                     destinationColor = destinationColors.get( agentDestination );
-                    destinationCounts.put( agentDestination, destinationCounts.get( 
-                            agentDestination ) + 1 );
+                    // increment agent count going to this destination
+                    destinationCounts.put( agentDestination,
+                            destinationCounts.get( agentDestination ) + 1 );
                 }
                 // not a new destination, give it the color other's have been
                 // assigned
                 else
                 {
+                    // add new destination
                     _simState.addDestination( agentDestination );
+                    // assign color and set counts to 0
                     destinationColor = colors[colorCount];
                     destinationCounts.put( agentDestination, 0 );
                     destinationColors.put( agentDestination, destinationColor );
                     destinationIds.put( destinationColor, colorCount );
+                    // increment color count
                     colorCount++;
                 }
-                String destinationID = "D-" + destinationIds.get( destinationColor );
-        
+                String destinationID = "D-"
+                        + destinationIds.get( destinationColor );
+
                 // create a new preferred destination and give it to agent
                 Destination agentPreferredDestination = new Destination(
-                        destinationID, true, agentDestination, destinationColor,
-                        _destinationRadius );
+                        destinationID, true, agentDestination,
+                        destinationColor, _destinationRadius );
                 tempAgent.setPreferredDestination( agentPreferredDestination );
             }
-            
+
+            // the agent name formatted for the position reporter
             String agentName = tempAgent.getId().toString();
             agentName = agentName.replaceAll( "Agent", "" );
             agentName = "Ind"
                     + String.format( "%05d", Integer.parseInt( agentName ) );
 
+            // the header for the position reporter
             tempAgent.setPositionReportHeader( "world-object-name=" + agentName
                     + "\n" + "team-name="
                     + tempAgent.getPreferredDestinationId() + "\n"
@@ -207,20 +240,23 @@ public class SueurSimpleAngularUninformedAgentBuilder implements
             tempAgent.setMovementBehavior( mb );
             mb.initialize( tempAgent );
         }
-        
+
+        // set the good and bad destinations
         for( int i = 0; i < agents.size(); i++ )
         {
-            if( agents.get( i ).getPreferredDestination() != null 
+            // if there is more than one agent going to a destination it is good
+            if( agents.get( i ).getPreferredDestination() != null
                     && destinationCounts.get( agents.get( i ).getPreferredDestination().getVector() ) > 1 )
             {
                 agents.get( i ).getPreferredDestination().setIsGood( true );
             }
             else if( agents.get( i ).getPreferredDestination() == null )
             {
-                agents.get( i ).setPreferredDestination( _simState.noneDestination );
+                agents.get( i ).setPreferredDestination(
+                        _simState.noneDestination );
             }
         }
-        
+
         return agents;
     }
 }

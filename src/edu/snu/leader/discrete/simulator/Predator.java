@@ -24,6 +24,13 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import edu.snu.leader.discrete.utils.Utils;
 
 
+/**
+ * Predator Creates predators that have a probability per time step to eat
+ * agents
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class Predator
 {
     private String _id = null;
@@ -43,14 +50,29 @@ public class Predator
 
     private List<PredationEvent> _predationEvents = null;
 
+    /** Whether or not to use the predation threshold */
     private boolean _usePredationThreshold = false;
 
+    /**
+     * If the group size is above this threshold then the predation probability
+     * is at a minimum
+     */
     private float _predationThreshold = 0.0f;
 
+    /** The minimum value of predation probability */
     private double _predationProbabilityMinimum = 0.0f;
 
+    /**
+     * Modify the probabilities so that total group size of initial group does
+     * not affect results
+     */
     private boolean _usePredationByPopulation = false;
 
+    /**
+     * Builds this Predator object
+     * 
+     * @param id Predator id
+     */
     public Predator( String id )
     {
         _id = id;
@@ -60,6 +82,7 @@ public class Predator
     {
         _simState = simState;
 
+        // get values from properties
         String stringMaxAgentsEatenPerStep = _simState.getProperties().getProperty(
                 "max-agents-eaten-per-step" );
         Validate.notEmpty( stringMaxAgentsEatenPerStep,
@@ -107,6 +130,9 @@ public class Predator
         _predationEvents = new ArrayList<PredationEvent>( _agents.size() );
     }
 
+    /**
+     * This method is called to hunt agents. Should be used once per time step.
+     */
     public void hunt()
     {
         double P = 0; // predation probability
@@ -190,13 +216,21 @@ public class Predator
         }
     }
 
+    /**
+     * Used to set up this predator for the next time step
+     */
     public void setupNextTimeStep()
     {
+        // reset agents eaten this time step
         _agentsEatenThisTimeStep = 0;
     }
 
+    /**
+     * Used to set up this predator for next run
+     */
     public void setupNextRun()
     {
+        // reset agents eaten this time step and total agents eaten
         _agentsEatenThisTimeStep = 0;
         _totalAgentsEaten = 0;
     }
@@ -216,26 +250,72 @@ public class Predator
         return _predationEvents.iterator();
     }
 
+    /**
+     * PredationEvent Holds information about each predation event.
+     * 
+     * @author Tim Solum
+     * @version $Revision$ ($Author$)
+     */
     public class PredationEvent
     {
+        /**
+         * The run it happened
+         */
         public int run = 0;
 
+        /**
+         * The time step it happened
+         */
         public int timeStep = 0;
 
+        /**
+         * The predatorId of the predator
+         */
         public String predatorId = null;
 
+        /**
+         * The agentId of eaten agent
+         */
         public Object agentId = null;
 
+        /**
+         * Group size of the eaten agent
+         */
         public int groupSize = 0;
 
+        /**
+         * GroupId of the eaten agent
+         */
         public Object groupId = null;
 
+        /**
+         * Location in space of eaten agent
+         */
         public Vector2D location = null;
 
+        /**
+         * Where the eaten agent preferred going
+         */
         public String destinationId = null;
 
+        /**
+         * Leader of eaten agent's preferred destination
+         */
         public String leaderDestinationId = null;
 
+        /**
+         * Builds this PredationEvent object
+         * 
+         * @param run
+         * @param timeStep
+         * @param predatorId
+         * @param agentId
+         * @param groupSize
+         * @param groupId
+         * @param location
+         * @param destinationId
+         * @param leaderDestinationId
+         */
         public PredationEvent( int run,
                 int timeStep,
                 String predatorId,

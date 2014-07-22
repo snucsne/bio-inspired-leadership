@@ -23,6 +23,13 @@ import edu.snu.leader.discrete.behavior.Decision;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
+/**
+ * GautraisConflictDecisionCalculator Gautrais model with conflict for decision
+ * calculation
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class GautraisConflictDecisionCalculator implements
         DecisionProbabilityCalculator
 {
@@ -55,6 +62,7 @@ public class GautraisConflictDecisionCalculator implements
     {
         _simState = simState;
 
+        // set values from properties
         String tauO = _simState.getProperties().getProperty( "tau-o" );
         Validate.notEmpty( tauO, "tau-o may not be empty" );
         _tauO = Double.parseDouble( tauO );

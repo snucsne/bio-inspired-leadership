@@ -14,13 +14,20 @@
 
 package edu.snu.leader.discrete.behavior;
 
+/**
+ * DefaultConflictTrait The default conflict trait that is always 0.5
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class DefaultConflictTrait implements ConflictTrait
 {
 
     @Override
     public float getConflict( Decision decision )
     {
-        return 0;
+        // .5 is the default conflict value
+        return 0.5f;
     }
 
     @Override

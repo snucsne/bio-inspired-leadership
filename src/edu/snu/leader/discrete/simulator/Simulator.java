@@ -130,8 +130,6 @@ public class Simulator
         Iterator<Agent> agentIterator = null;
         while( isSimActive() )
         {
-
-            // _LOG.trace("Making decisions");
             // make decisions
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
@@ -142,9 +140,7 @@ public class Simulator
                     temp.makeDecision();
                 }
             }
-            // _LOG.trace("Finished making decisions");
 
-            // _LOG.trace("Executing decisions");
             // execute decisions
             agentIterator = _simState.getAgentIterator();
             while( agentIterator.hasNext() )
@@ -155,7 +151,6 @@ public class Simulator
                     temp.execute();
                 }
             }
-            // _LOG.trace("Finished executing decisions");
 
             // update traits
             agentIterator = _simState.getAgentIterator();
@@ -173,10 +168,8 @@ public class Simulator
                 _simState.getPredator().hunt();
             }
 
-            // _LOG.trace("Setting up next simulation run step");
             // setup next run step
             _simState.setupNextSimulationRunStep();
-            // _LOG.trace("Finished setting up next simulation run step");
         }
 
         _LOG.trace( "Setting up next simulation run" );
@@ -193,8 +186,10 @@ public class Simulator
     {
         _LOG.trace( "Entering buildAgents()" );
 
+        // build agents
         List<Agent> agents = _agentBuilder.build();
 
+        // add them to the simulation state
         for( int i = 0; i < agents.size(); i++ )
         {
             _simState.addAgent( agents.get( i ) );

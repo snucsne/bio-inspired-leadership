@@ -1,40 +1,30 @@
 /*
- *  The Bio-inspired Leadership Toolkit is a set of tools used to
- *  simulate the emergence of leaders in multi-agent systems.
- *  Copyright (C) 2014 Southern Nazarene University
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
+ * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
+ * Nazarene University This program is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or at your option) any later version. This program is distributed in the hope
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package edu.snu.leader.discrete.evolution;
 
-
 /**
- * EvolutionInputParameters 
+ * EvolutionInputParameters Input parameters for the evolving simulations
  * 
- * Input parameters for the evolving simulations
- *
  * @author Tim Solum
  * @version $Revision$ ($Author$)
  */
 public class EvolutionInputParameters
 {
     /**
-     * DestinationRunCounts
-     *
-     * Used to run a simulation on an environment a 
+     * DestinationRunCounts Used to run a simulation on an environment a
      * provided number of times
-     *
+     * 
      * @author Brent Eskridge
      * @version $Revision$ ($Author$)
      */
@@ -45,17 +35,19 @@ public class EvolutionInputParameters
 
         /** The number of runs for the particular destination */
         public int runCount = 0;
-        
+
         /** The seed used for this run */
         public long seed = 0;
 
         /**
          * Builds this DestinationRunCounts object
-         *
+         * 
          * @param destinationFilename
          * @param runCount
          */
-        public DestinationRunCounts( String destinationFilename, int runCount, long seed )
+        public DestinationRunCounts( String destinationFilename,
+                int runCount,
+                long seed )
         {
             this.destinationFilename = destinationFilename;
             this.runCount = runCount;
@@ -86,7 +78,7 @@ public class EvolutionInputParameters
 
     /**
      * Builds this EvolutionInputParameters object
-     *
+     * 
      * @param alpha
      * @param beta
      * @param S
@@ -114,7 +106,7 @@ public class EvolutionInputParameters
 
     /**
      * Returns alpha
-     *
+     * 
      * @return
      */
     public float getAlpha()
@@ -124,7 +116,7 @@ public class EvolutionInputParameters
 
     /**
      * Returns beta
-     *
+     * 
      * @return
      */
     public float getBeta()
@@ -134,7 +126,7 @@ public class EvolutionInputParameters
 
     /**
      * Returns S
-     *
+     * 
      * @return
      */
     public int getS()
@@ -144,7 +136,7 @@ public class EvolutionInputParameters
 
     /**
      * Returns q
-     *
+     * 
      * @return
      */
     public float getQ()
@@ -154,7 +146,7 @@ public class EvolutionInputParameters
 
     /**
      * Returns alpha-c
-     *
+     * 
      * @return
      */
     public float getAlphaC()
@@ -164,7 +156,7 @@ public class EvolutionInputParameters
 
     /**
      * Returns beta-c
-     *
+     * 
      * @return
      */
     public float getBetaC()
@@ -173,9 +165,8 @@ public class EvolutionInputParameters
     }
 
     /**
-     * Returns a string representation
-     * of this object
-     *
+     * Returns a string representation of this object
+     * 
      * @return
      * @see java.lang.Object#toString()
      */
@@ -203,6 +194,5 @@ public class EvolutionInputParameters
 
         return builder.toString();
     }
-
 
 }

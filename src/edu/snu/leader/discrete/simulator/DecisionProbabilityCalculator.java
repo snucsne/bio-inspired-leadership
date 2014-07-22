@@ -17,6 +17,13 @@ package edu.snu.leader.discrete.simulator;
 import edu.snu.leader.discrete.behavior.Decision;
 
 
+/**
+ * DecisionProbabilityCalculator Defines what a probability calculator will look
+ * like
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public interface DecisionProbabilityCalculator
 {
     /**
@@ -53,6 +60,7 @@ public interface DecisionProbabilityCalculator
      * 
      * @return
      */
+    @Deprecated
     public double[] getPreCalculatedFollowProbabilities();
 
     /**
@@ -61,5 +69,6 @@ public interface DecisionProbabilityCalculator
      * 
      * @return
      */
+    @Deprecated
     public double[] getPreCalculatedCancelProbabilities();
 }

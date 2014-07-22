@@ -40,6 +40,7 @@ import edu.snu.leader.discrete.utils.Utils;
  */
 public class Agent
 {
+    /** The diameter of the agent */
     public static final int AGENT_DIAMETER = 2;
 
     private String _positionHistoryHeader = null;
@@ -124,7 +125,7 @@ public class Agent
     private Map<Object, ObservedGroupTime> _observedGroupHistory = null;
 
     private boolean _hasReachedDestination = false;
-    
+
     private boolean _reachedGoodDestination = false;
 
     /** The leader of this Agent if it has one */
@@ -144,19 +145,19 @@ public class Agent
 
     /** Whether or not we should pre calculate the decision probabilities */
     private boolean _preCalcProbs = false;
-    
+
     private boolean _isAlive = false;
 
     private long _timeAlive = 0;
 
     private long _timeMovingTowardsDestination = 0;
-    
+
     private long _timeMovingAwayFromDestination = 0;
 
     private int _totalInitiations = 0;
 
     private int _totalCancellations = 0;
-    
+
     private long _timeToDestination = 0;
 
     /**
@@ -259,7 +260,7 @@ public class Agent
     public void reset()
     {
         _timeToDestination = _simState.getMaxSimulationTimeSteps();
-        
+
         // reset location stuff
         _currentLocation = _initialLocation;
         _currentVelocity = Vector2D.ZERO;
@@ -465,7 +466,7 @@ public class Agent
                 }
                 _hasNewDecision = true;
             }
-            
+
             if( _hasNewDecision )
             {
                 // add the new decision to the history
@@ -549,19 +550,20 @@ public class Agent
                 }
             }
         }
-        
+
         if( !_preferredDestination.getID().equals( "D-N" ) )
         {
-            // if it is moving towards its preferred destination then increment time
+            // if it is moving towards its preferred destination then increment
+            // time
             // moving towards destination
             if( _preferredDestination.getID().equals(
-                    _leader.getPreferredDestination().getID() ) 
+                    _leader.getPreferredDestination().getID() )
                     && !_currentVelocity.equals( Vector2D.ZERO ) )
             {
                 _timeMovingTowardsDestination++;
             }
             else if( !_preferredDestination.getID().equals(
-                    _leader.getPreferredDestination().getID() ) 
+                    _leader.getPreferredDestination().getID() )
                     && !_currentVelocity.equals( Vector2D.ZERO ) )
             {
                 _timeMovingAwayFromDestination++;
@@ -802,7 +804,7 @@ public class Agent
 
     public String getPreferredDestinationId()
     {
-        if( _preferredDestination == null)
+        if( _preferredDestination == null )
         {
             return "none";
         }
@@ -860,12 +862,12 @@ public class Agent
     {
         return _speed;
     }
-    
+
     public boolean getReachedGoodDestination()
     {
         return _reachedGoodDestination;
     }
-    
+
     public void setReachedGoodDestination( boolean reachedGoodDestination )
     {
         _reachedGoodDestination = reachedGoodDestination;
@@ -926,7 +928,7 @@ public class Agent
     {
         return _timeMovingTowardsDestination;
     }
-    
+
     public long getTimeMovingAwayFromDestination()
     {
         return _timeMovingAwayFromDestination;
@@ -967,8 +969,9 @@ public class Agent
         // no longer makes decisions
         _hasNewDecision = false;
     }
-    
-    public long getTimeToDestination(){
+
+    public long getTimeToDestination()
+    {
         return _timeToDestination;
     }
 
@@ -981,7 +984,7 @@ public class Agent
     {
         return _simState;
     }
-    
+
     public boolean isUninformed()
     {
         return _preferredDestination.getID().equals( "D-N" );
@@ -1059,15 +1062,17 @@ public class Agent
                     && temp.getGroup().getId() != _group.getId()
                     && temp.isAlive() )
             {
-                if ( !temp.getPreferredDestination().getID().equals( "D-N" ) )
+                if( !temp.getPreferredDestination().getID().equals( "D-N" ) )
                 {
                     possibleDecisions.add( new Follow( this, temp ) );
                 }
             }
         }
-        
-        if(possibleDecisions.size() == 0 && isUninformed()){
-            System.out.println("No decisions able to be made");// TODO observe this more
+
+        if( possibleDecisions.size() == 0 && isUninformed() )
+        {
+            System.out.println( "No decisions able to be made" );// TODO observe
+                                                                 // this more
             possibleDecisions.add( new DoNothing( this, _leader ) );
         }
 

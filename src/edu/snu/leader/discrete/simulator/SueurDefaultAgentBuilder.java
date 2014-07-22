@@ -35,13 +35,16 @@ import edu.snu.leader.util.MiscUtils;
  */
 public class SueurDefaultAgentBuilder implements AgentBuilder
 {
-
+    /** Starting locations */
     private List<Point2D> _locations = null;
 
+    /** The sim state */
     private SimulationState _simState = null;
 
+    /** Number of agents to build */
     private int _numAgents = 0;
 
+    /** The locations file */
     private String _locationsFile = null;
 
     @Override
@@ -49,6 +52,7 @@ public class SueurDefaultAgentBuilder implements AgentBuilder
     {
         _simState = simState;
 
+        // get values from properties file
         String numAgents = _simState.getProperties().getProperty(
                 "individual-count" );
         Validate.notEmpty( numAgents, "Individual count may not be empty" );

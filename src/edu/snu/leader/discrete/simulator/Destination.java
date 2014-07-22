@@ -19,22 +19,44 @@ import java.awt.Color;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 
+/**
+ * Destination Represents a destination that agents prefer to go to.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class Destination
 {
+    /** The id of the destination */
     private String _id = null;
 
+    /** Whether or not this is the starting area */
     private boolean _isStartingArea = false;
 
+    /** Whether or not this area is safe */
     private boolean _isSafe = false;
 
+    /** Coordinates of this destination */
     private Vector2D _coordinates = null;
 
+    /** Color of this destination */
     private Color _color = null;
 
+    /** Length of the radius of the destination */
     private double _radius = 0;
-    
+
+    /** Whether or not this destination is good */
     private boolean _isGood = false;
 
+    /**
+     * Builds this Destination object
+     * 
+     * @param id
+     * @param isSafe
+     * @param coordinates
+     * @param color
+     * @param radius
+     */
     public Destination( String id,
             boolean isSafe,
             Vector2D coordinates,
@@ -81,12 +103,12 @@ public class Destination
     {
         return _radius;
     }
-    
+
     public void setIsGood( boolean isGood )
     {
         _isGood = isGood;
     }
-    
+
     public boolean isGood()
     {
         return _isGood;

@@ -31,6 +31,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+/**
+ * PredationResultsAnalyzer A utility class that analyzes the results from
+ * predation
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class PredationResultsAnalyzer
 {
     public static void main( String[] args )

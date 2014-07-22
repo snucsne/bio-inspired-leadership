@@ -17,6 +17,13 @@ package edu.snu.leader.discrete.behavior;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * Decision All decisions will have this behavior, but it cannot be a decision
+ * in and of itself.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public abstract class Decision
 {
     /** The probability of this decision happening */
@@ -33,6 +40,13 @@ public abstract class Decision
 
     protected DecisionType _decisionType = null;
 
+    /**
+     * Builds this Decision object
+     * 
+     * @param type The type of decision
+     * @param agent The agent making this decision
+     * @param leader The leader this agent is looking at (can be itself)
+     */
     Decision( DecisionType type, Agent agent, Agent leader )
     {
         _decisionType = type;
@@ -116,6 +130,12 @@ public abstract class Decision
     }
 
     // ////////Nested enum\\\\\\\\\\
+    /**
+     * DecisionType All the types of decisions that can be made.
+     * 
+     * @author Tim Solum
+     * @version $Revision$ ($Author$)
+     */
     public enum DecisionType {
         INITIATION, FOLLOW, CANCELLATION, DO_NOTHING, REACHED
     }

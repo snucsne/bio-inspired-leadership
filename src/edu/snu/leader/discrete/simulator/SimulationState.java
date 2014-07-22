@@ -44,7 +44,7 @@ import edu.snu.leader.discrete.utils.Reporter;
 
 /**
  * The Simulation State for the simulator
- *
+ * 
  * @author Tim Solum
  */
 public class SimulationState
@@ -126,9 +126,9 @@ public class SimulationState
     private boolean _isGraphical = false;
 
     private List<Vector2D> _destinationVectors = null;
-    
+
     private boolean _shouldStopAtAnyDestination = false;
-    
+
     // previously static variables are below
     public int successCount = 0;
 
@@ -140,7 +140,7 @@ public class SimulationState
     public int numReachedDestination = 0;
 
     public int numInitiating = 0;
-    
+
     /** Total number of groups. */
     public int totalNumGroups = 1;
 
@@ -195,22 +195,23 @@ public class SimulationState
     /** The Starting Destination */
     public final Destination startingDestination = new Destination( "D-S",
             true, Vector2D.ZERO, Color.BLACK, 10 );
-    
+
     /** For agents that do not have a preferred destination */
-    public final Destination noneDestination = new Destination( "D-N", false, Vector2D.ZERO, Color.BLACK, 10 );
+    public final Destination noneDestination = new Destination( "D-N", false,
+            Vector2D.ZERO, Color.BLACK, 10 );
 
     /** Unique id count for groups */
     public int uniqueGroupIdCount = 0;
-    
-    /** 
-     * Whether or not agents that never left the starting place
-     * should be counted as survivors.
+
+    /**
+     * Whether or not agents that never left the starting place should be
+     * counted as survivors.
      */
     private boolean _shouldCountNonMoverAsSurvivor = false;
 
     /**
      * Initialize the simulation state
-     *
+     * 
      * @param props
      */
     public void initialize( Properties props )
@@ -221,7 +222,7 @@ public class SimulationState
         _props = props;
 
         _destinationVectors = new LinkedList<Vector2D>();
-        
+
         String useRandomRandomSeedStr = _props.getProperty( "use-random-random-seed" );
         Validate.notEmpty( useRandomRandomSeedStr,
                 "use-random-random-seed required" );
@@ -247,9 +248,9 @@ public class SimulationState
         String simulationRunCount = _props.getProperty( "simulation-count" );
         Validate.notEmpty( simulationRunCount, "Simulation run count required" );
         _simulationRunCount = Integer.parseInt( simulationRunCount );
-        
+
         String stringShouldStopAtAnyDestination = _props.getProperty( "stop-at-any-destination" );
-        Validate.notEmpty( stringShouldStopAtAnyDestination, 
+        Validate.notEmpty( stringShouldStopAtAnyDestination,
                 "Should Stop At Any Destination required" );
         _shouldStopAtAnyDestination = Boolean.parseBoolean( stringShouldStopAtAnyDestination );
 
@@ -291,12 +292,11 @@ public class SimulationState
         Validate.notEmpty( stringShouldReportPredation,
                 "Predation results required" );
         _shouldReportPredation = Boolean.parseBoolean( stringShouldReportPredation );
-        
-        String stringShouldCountNonMoverAsSurvivor = 
-                _props.getProperty( "count-non-movers-as-survivors" );
+
+        String stringShouldCountNonMoverAsSurvivor = _props.getProperty( "count-non-movers-as-survivors" );
         Validate.notEmpty( stringShouldCountNonMoverAsSurvivor,
                 "Should Count Non Mover As Survivor required" );
-        _shouldCountNonMoverAsSurvivor = Boolean.parseBoolean( stringShouldCountNonMoverAsSurvivor);
+        _shouldCountNonMoverAsSurvivor = Boolean.parseBoolean( stringShouldCountNonMoverAsSurvivor );
 
         String stringPredatorEnabled = _props.getProperty( "enable-predator" );
         Validate.notEmpty( stringPredatorEnabled, "Enable predator required" );
@@ -347,13 +347,13 @@ public class SimulationState
     public void setupNextSimulationRun()
     {
         // report some stuff
-//        System.out.println( "Cleaning up sim run " + _currentSimulationRun );
+        // System.out.println( "Cleaning up sim run " + _currentSimulationRun );
 
         if( _currentSimulationRun < _simulationRunCount )
         {
             // create the output fitness
             _simulationOutputFitness = createSimulationOutputFitness();
-            
+
             _simulationTime = 0;
 
             // reset the NONE group and clear the rest of the groups
@@ -377,8 +377,6 @@ public class SimulationState
             _predator.setupNextRun();
 
             // report the all run information and clear it for next run
-//            System.out.println( "Finished sim run " + _currentSimulationRun );
-//            System.out.println( "==========================================" );
             // increment current simulation run (in reporters too for directory
             // management)
             _currentSimulationRun++;
@@ -409,7 +407,7 @@ public class SimulationState
                 addPredationResultsToPredationReporter();
                 _predationEventsReporter.report( _shouldReportPredation );
 
-//                System.out.println( "Done" );
+                // System.out.println( "Done" );
             }
         }
     }
@@ -433,7 +431,7 @@ public class SimulationState
 
     /**
      * Returns the number of simulation runs
-     *
+     * 
      * @return The number of simulation runs
      */
     public int getSimulationRunCount()
@@ -443,7 +441,7 @@ public class SimulationState
 
     /**
      * Returns the maximum number of simulation time steps per run
-     *
+     * 
      * @return Max number of time steps
      */
     public long getMaxSimulationTimeSteps()
@@ -453,7 +451,7 @@ public class SimulationState
 
     /**
      * Returns the current simulation run
-     *
+     * 
      * @return The current simulation run
      */
     public int getCurrentSimulationRun()
@@ -463,7 +461,7 @@ public class SimulationState
 
     /**
      * Returns the current simulation time
-     *
+     * 
      * @return The time of the simulation
      */
     public int getSimulationTime()
@@ -473,7 +471,7 @@ public class SimulationState
 
     /**
      * Returns simulation properties
-     *
+     * 
      * @return The properties for this simulation
      */
     public Properties getProperties()
@@ -483,7 +481,7 @@ public class SimulationState
 
     /**
      * Returns random generator
-     *
+     * 
      * @return The random generator used
      */
     public MersenneTwisterFast getRandomGenerator()
@@ -503,7 +501,7 @@ public class SimulationState
 
     /**
      * Adds the specified agent to the simulation
-     *
+     * 
      * @param agent The agent to add
      */
     public void addAgent( Agent agent )
@@ -515,12 +513,12 @@ public class SimulationState
     {
         _groups.add( group );
     }
-    
+
     public void addDestination( Vector2D destination )
     {
         _destinationVectors.add( destination );
     }
-    
+
     public Iterator<Vector2D> getDestinationsIterator()
     {
         return _destinationVectors.iterator();
@@ -528,7 +526,7 @@ public class SimulationState
 
     /**
      * Returns an iterator over all the simulated agents
-     *
+     * 
      * @return An iterator over all the simulated agents
      */
     public Iterator<Agent> getAgentIterator()
@@ -560,7 +558,7 @@ public class SimulationState
     {
         return _predatorEnabled;
     }
-    
+
     public boolean shouldStopAnywhere()
     {
         return _shouldStopAtAnyDestination;
@@ -1003,52 +1001,55 @@ public class SimulationState
             totalTimeTravelledAwayFromPreferred += temp.getTimeMovingAwayFromDestination();
             // if agent is in start zone at end of simulation then it dies if
             // we don't want to count non-movers
-            if( !_shouldCountNonMoverAsSurvivor && 
-                    temp.getCurrentLocation().distance1( 
-                    startingDestination.getVector() ) < startingDestination.getRadius())
+            if( !_shouldCountNonMoverAsSurvivor
+                    && temp.getCurrentLocation().distance1(
+                            startingDestination.getVector() ) < startingDestination.getRadius() )
             {
                 temp.kill();
-                
+
             }
-            
+
             if( temp.isAlive() )
             {
                 agentsAlive++;
             }
-            
+
             if( temp.getReachedGoodDestination() )
             {
                 totalToGoodDestination++;
             }
-            
+
             totalInitiations += temp.getTotalInitiations();
             totalCancellations += temp.getTotalCancellations();
             totalTimeToDestination += temp.getTimeToDestination();
             totalRunningTimeSteps += getSimulationTime();
             totalTimesteps += getMaxSimulationTimeSteps();
-            
+
             if( !temp.getPreferredDestinationId().equals( "D-N" ) )
             {
                 totalWithPreferred++;
             }
-            
-            if( temp.getCurrentLocation().distance( temp.getPreferredDestination().getVector() ) < temp.getPreferredDestination().getRadius()
-                    && temp.hasReachedDestination() 
+
+            if( temp.getCurrentLocation().distance(
+                    temp.getPreferredDestination().getVector() ) < temp.getPreferredDestination().getRadius()
+                    && temp.hasReachedDestination()
                     && !temp.getPreferredDestinationId().equals( "D-N" ) )
             {
                 totalToPreferredDestination++;
             }
-            
+
             if( !temp.hasReachedDestination() )
             {
                 if( !temp.getPreferredDestination().getID().equals( "D-N" ) )
                 {
-                    totalDistance += temp.getCurrentLocation().distance( temp.getPreferredDestination().getVector() );
+                    totalDistance += temp.getCurrentLocation().distance(
+                            temp.getPreferredDestination().getVector() );
                 }
             }
             if( !temp.getPreferredDestination().getID().equals( "D-N" ) )
             {
-                totalDistanceFromStart += temp.getInitialLocation().distance( temp.getPreferredDestination().getVector() );
+                totalDistanceFromStart += temp.getInitialLocation().distance(
+                        temp.getPreferredDestination().getVector() );
             }
         }
 
@@ -1059,15 +1060,18 @@ public class SimulationState
                 / totalInitiations;
         float percentTimeAway = (float) totalTimeTravelledAwayFromPreferred
                 / totalAgentLife;
-        float percentTimeToDestination = (float) totalTimeToDestination / totalTimesteps;
-        float percentDistanceToDestination = (float)(totalDistance / totalDistanceFromStart);
+        float percentTimeToDestination = (float) totalTimeToDestination
+                / totalTimesteps;
+        float percentDistanceToDestination = (float) ( totalDistance / totalDistanceFromStart );
         float percentTimeAlive = (float) totalAgentLife / totalTimesteps;
-        float percentGoodDestination = (float) totalToGoodDestination / getAgentCount();
-        float percentToPreferredDestination = (float) totalToPreferredDestination / totalWithPreferred;
+        float percentGoodDestination = (float) totalToGoodDestination
+                / getAgentCount();
+        float percentToPreferredDestination = (float) totalToPreferredDestination
+                / totalWithPreferred;
 
         return new EvolutionOutputFitness( percentTime, percentSurvive,
                 percentSuccess, percentTimeAway, percentTimeToDestination,
                 percentDistanceToDestination, percentTimeAlive,
-                percentGoodDestination, percentToPreferredDestination);
+                percentGoodDestination, percentToPreferredDestination );
     }
 }

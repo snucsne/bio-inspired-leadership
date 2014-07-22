@@ -17,12 +17,19 @@ package edu.snu.leader.discrete.behavior;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * DefaultPersonalityTrait The default personality that is always 0.5
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class DefaultPersonalityTrait implements PersonalityTrait
 {
 
     @Override
     public float getPersonality()
     {
+        // .5 is the defualt personality
         return .5f;
     }
 

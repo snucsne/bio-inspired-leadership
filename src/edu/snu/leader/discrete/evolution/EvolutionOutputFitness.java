@@ -1,20 +1,15 @@
 /*
- *  The Bio-inspired Leadership Toolkit is a set of tools used to
- *  simulate the emergence of leaders in multi-agent systems.
- *  Copyright (C) 2014 Southern Nazarene University
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The Bio-inspired Leadership Toolkit is a set of tools used to simulate the
+ * emergence of leaders in multi-agent systems. Copyright (C) 2014 Southern
+ * Nazarene University This program is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or at your option) any later version. This program is distributed in the hope
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package edu.snu.leader.discrete.evolution;
@@ -22,14 +17,16 @@ package edu.snu.leader.discrete.evolution;
 /**
  * EvolutionOutputFitness The output fitness from a simulation used for
  * evolution
- *
+ * 
  * @author Tim Solum
  * @version $Revision$ ($Author$)
  */
 public class EvolutionOutputFitness
 {
-    /** Percentage of time alive that agents move toward their preferred
-     * destination */
+    /**
+     * Percentage of time alive that agents move toward their preferred
+     * destination
+     */
     private float percentTime = 0.0f;
 
     /** Percentage of agents that survive */
@@ -38,20 +35,20 @@ public class EvolutionOutputFitness
     /** Percent of success as defined by (inits - cancels)/inits */
     private float percentSuccess = 0.0f;
 
-    /** Percentage of time alive that agents move away from their preferred
+    /**
+     * Percentage of time alive that agents move away from their preferred
      * destination
      */
     private float percentTimeAway = 0.0f;
 
     /**
-     * The time taken to make it to the preferred destination relative
-     * to the maximum amount of time steps
+     * The time taken to make it to the preferred destination relative to the
+     * maximum amount of time steps
      */
     private float percentTimeToDestination = 0.0f;
 
     /**
-     * The percentage of distance away from the agent's preferred
-     * destination
+     * The percentage of distance away from the agent's preferred destination
      */
     private float percentDistanceToDestination = 0.0f;
 
@@ -63,14 +60,15 @@ public class EvolutionOutputFitness
     /** The percent of agents that made it to a good destination */
     private float percentGoodDestination = 0.0f;
 
-    /** The percent of agents that made it to their preferred destination
-     * if they had one.
+    /**
+     * The percent of agents that made it to their preferred destination if they
+     * had one.
      */
     private float percentToPreferredDestination = 0.0f;
 
     /**
      * Builds this EvolutionOutputFitness object
-     *
+     * 
      * @param percentTime
      * @param percentSurvive
      * @param percentSuccess
@@ -83,7 +81,7 @@ public class EvolutionOutputFitness
             float percentDistanceToDestination,
             float percentTimeAlive,
             float percentGoodDestination,
-            float percentToPreferredDestination)
+            float percentToPreferredDestination )
     {
         this.percentTime = percentTime;
         this.percentSurvive = percentSurvive;
@@ -97,9 +95,8 @@ public class EvolutionOutputFitness
     }
 
     /**
-     * Returns percentage of time moving towards
-     * preferred destination
-     *
+     * Returns percentage of time moving towards preferred destination
+     * 
      * @return
      */
     public float getPercentTime()
@@ -109,7 +106,7 @@ public class EvolutionOutputFitness
 
     /**
      * Returns percentage of survival
-     *
+     * 
      * @return
      */
     public float getPercentSurvive()
@@ -119,7 +116,7 @@ public class EvolutionOutputFitness
 
     /**
      * Returns percentage of success
-     *
+     * 
      * @return
      */
     public float getPercentSuccess()
@@ -128,9 +125,9 @@ public class EvolutionOutputFitness
     }
 
     /**
-     * Returns the percentage of time alive that agents move away from
-     * their preferred destination
-     *
+     * Returns the percentage of time alive that agents move away from their
+     * preferred destination
+     * 
      * @return
      */
     public float getPercentTimeAway()
@@ -139,8 +136,9 @@ public class EvolutionOutputFitness
     }
 
     /**
-     * The time taken to make it to the preferred destination relative
-     * to the maximum amount of time steps
+     * The time taken to make it to the preferred destination relative to the
+     * maximum amount of time steps
+     * 
      * @return
      */
     public float getPercentTimeToDestination()
@@ -151,7 +149,7 @@ public class EvolutionOutputFitness
     /**
      * Returns the percentage of distance away from the agent's preferred
      * destination
-     *
+     * 
      * @return
      */
     public float getPercentDistanceToDestination()
@@ -161,7 +159,7 @@ public class EvolutionOutputFitness
 
     /**
      * Returns the percentage of time steps alive
-     *
+     * 
      * @return
      */
     public float getPercentTimeAlive()
@@ -178,39 +176,4 @@ public class EvolutionOutputFitness
     {
         return percentToPreferredDestination;
     }
-
-    /**
-     * TODO Method description
-     *
-     * @return
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString()
-    {
-        StringBuilder builder = new StringBuilder( this.getClass().getCanonicalName() );
-        builder.append( ": percentTime=[" );
-        builder.append( percentTime );
-        builder.append( "] percentSurvive=[" );
-        builder.append( percentSurvive );
-        builder.append( "] percentSuccess=[" );
-        builder.append( percentSuccess );
-        builder.append( "] percentTimeAway=[" );
-        builder.append( percentTimeAway );
-        builder.append( "] percentTimeToDestination=[" );
-        builder.append( percentTimeToDestination );
-        builder.append( "] percentDistanceToDestination=[" );
-        builder.append( percentDistanceToDestination );
-        builder.append( "] percentTimeAlive=[" );
-        builder.append( percentTimeAlive );
-        builder.append( "] percentGoodDestination=[" );
-        builder.append( percentGoodDestination );
-        builder.append( "] percentToPreferredDestination=[" );
-        builder.append( percentToPreferredDestination );
-        builder.append( "]" );
-
-        return builder.toString();
-    }
-
-
 }

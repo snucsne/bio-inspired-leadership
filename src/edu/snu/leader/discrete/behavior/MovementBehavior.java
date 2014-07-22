@@ -17,6 +17,13 @@ package edu.snu.leader.discrete.behavior;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * MovementBehavior Interface that describes what movement behaviors will look
+ * like. Movement behaviors are how an agent moves.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public interface MovementBehavior
 {
     /**

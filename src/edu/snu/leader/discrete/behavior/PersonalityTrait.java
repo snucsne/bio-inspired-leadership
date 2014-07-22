@@ -17,6 +17,13 @@ package edu.snu.leader.discrete.behavior;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * PersonalityTrait Personality trait interface. Describes what a class will
+ * need to be a personality trait.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public interface PersonalityTrait
 {
     /**
