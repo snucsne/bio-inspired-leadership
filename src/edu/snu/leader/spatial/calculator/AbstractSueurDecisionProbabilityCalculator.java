@@ -300,7 +300,7 @@ public abstract class AbstractSueurDecisionProbabilityCalculator
             float k = calculateK( 1.0f - personality, DecisionType.CANCEL );
             alphaC *= k;
             betaC *= k;
-            sC *= ( (k-1.0f)*-0.34f )+1.0f;
+//            sC *= ( (k-1.0f)*-0.34f )+1.0f;
             _LOG.debug( "p=[" + personality + "] k=[" + k + "]" );
         }
 

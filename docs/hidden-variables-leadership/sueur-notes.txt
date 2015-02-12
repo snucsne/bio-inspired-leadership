@@ -1,0 +1,73 @@
+alpha    [0, 0.010]
+beta      [0, 0.015]
+S           [0, 20]   
+q           [0, 5]
+alpha-c [0, 0.010]
+beta-c   [-0.010, 0]
+
+
+
+alpha {1/162.3}  0.006161429
+beta {1/74.5, (0.013422819)   0.001, 0.002, 0.003, 0.004}
+S {2, 9, 5, 4, 8, 20}
+q {2.3, 1, 5, 1.03}
+group-size {10, 20, 30, 40, 50}
+
+
+alpha-c {0.009}
+beta-c {-0.009}
+
+
+lambda_init = 0.006
+lambda_follow(1) = 0.006 + 0.0134*1^1/(9^1+1^1)
+                 = 0.006 + 0.001342282
+lambda_follow(1)_bold = 0.006*1.8 + 0.001342282*0.2
+                      = 0.0108 + 0.000268456
+                      = 0.011068456
+lambda_follow(1)_shy  = 0.006*0.2 + 0.001342282*1.8
+                      = 0.0012 + 0.002416108
+                      = 0.003616108
+
+lambda_follow(3) = 0.006 + 0.0134*3/(7+1)
+                 = 0.006 + 0.005025
+
+set xrange [0:9]
+plot (1/162.3) + (1/74.5)*x/(10) title "Default"
+replot 1.8 * (1/162.3) + 0.2* (1/74.5)*x/(10) title "Bold"
+replot 0.2 * (1/162.3) + 1.8* (1/74.5)*x/(10) title "Shy"
+
+plot 1/(162.3+75.4*(10-x)/x) title "Follow"
+replot 0.001*(x**2.3)/((4)**2.3+x**2.3) title "Sueur"
+replot 0.000775+0.008*(x**1.5)/(((6)**1.5+x**1.5)) title "Sueur corrected"
+replot 1.8*0.000775+0.2*0.008*(x**1.5)/(((6)**1.5+x**1.5)) title "Bold - Sueur corrected"
+replot 0.2*0.000775+1.8*0.008*(x**1.5)/(((6)**1.5+x**1.5)) title "Shy - Sueur corrected"
+
+replot 0.009 - 0.009 * x**(2.3)/(2**2.3+x**2.3) title "Cancel"
+
+
+
+alpha = 0.000775194
+lambda(1) = 0.000775194 + beta * 1/(s^q+1) = 0.001189202
+beta = 0.000414008*(s^q+1)
+
+
+I decided to do another test but include the results without predation as well. Here are the fitness levels with no predation and a seed of 1.
+
+Time Towards: 0.5815455
+Survivals: 1.0
+Success: 0.8940523
+Time Away: 0.29527265
+Mean Time to Destination: 0.13384601
+Distance: 0.0
+Time Alive: 1.0
+
+
+Here they are with predation enabled and a seed of 1.
+
+Time Towards: 0.56992966
+Survivals: 0.87999994
+Success: 0.888477
+Time Away: 0.30654702
+Mean Time to Destination: 0.23853998
+Distance: 0.039247748
+Time Alive: 0.9614655

@@ -84,8 +84,9 @@ my $fixedTmpEPSFile = "/tmp/fixed-tmp.eps";
 foreach my $epsFile (@epsFiles)
 {
     `cp $epsFile $tmpEPSFile`;
-    `./replace-fonts-in-eps.pl $tmpEPSFile $fixedTmpEPSFile`;
-    `/usr/bin/epstool --copy --bbox $fixedTmpEPSFile $epsFile`;
+#    `./replace-fonts-in-eps.pl $tmpEPSFile $fixedTmpEPSFile`;
+#    `/usr/bin/epstool --copy --bbox $fixedTmpEPSFile $epsFile`;
+    `/usr/bin/epstool --copy --bbox $tmpEPSFile $epsFile`;
     `epstopdf $epsFile`;
 }
 
@@ -135,6 +136,9 @@ sub createRInput
     print INPUT "library('Matching')\n";
     print INPUT "library('igraph')\n";
     print INPUT "library('Hmisc')\n";
+
+    print INPUT "library(extrafont)\n";
+    print INPUT "loadfonts(device = \"postscript\")\n";
 
     # Build a standard error function
     print INPUT "stderr <- function(x) sd(x)/sqrt(length(x))\n\n";
@@ -247,9 +251,10 @@ sub createRInput
         push( @epsFiles, $epsFile );
 
         # Build the plot
-        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-        print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
-        print INPUT "par(mgp=c(3,1,0))\n";
+#        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
+        print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
+        print INPUT "par(mgp=c(3,0.8,0))\n";
         print INPUT "boxplot( $allDataIDStr, col=\"$boxColor\",ylim=c($yMin,$yMax),\n",
                 "    ylab=\"Leadership success percentage\", names=c($labelStr),\n",
                 "    xlab=\"Group size\", yaxt='n', at=$dataPositionsIDStr, boxwex=0.5, srt=-40)\n";
@@ -274,13 +279,15 @@ sub createRInput
     push( @epsFiles, $combinedEpsFile );
     print INPUT "groupsizes = (c($dataPositionsStr) + 1)*5\n";
     print INPUT "groupsizes\n";
-    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-    print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
-    print INPUT "par(mgp=c(3,1,0))\n";
+#    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
+    print INPUT "par(mgp=c(3,0.8,0))\n";
     my $index = 0;
     $legendPosition = "bottom";
 #    my @colors = (  "#999933", "#117733", "#332288", "#882255", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
-    my @colors = (  "#999933", "#117733", "#332288", "#9C0A2E", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
+#    my @colors = (  "#999933", "#117733", "#332288", "#9C0A2E", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
+    my @colors = (  "#999933", "#9C0A2E", "#332288", "#117733", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
     my @plotSymbols = ( 1, 2, 5, 6, 0, 9, 3, 4, 7, 8 );
     my $dataSetNames = "";
     my $colorsStr = "";
@@ -408,9 +415,10 @@ sub createRInput
         push( @epsFiles, $epsFile );
 
         # Build the plot
-        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-        print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
-        print INPUT "par(mgp=c(3,1,0))\n";
+#        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
+        print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
+        print INPUT "par(mgp=c(3,0.8,0))\n";
         print INPUT "boxplot( $allDataIDStr, col=\"$boxColor\",ylim=c($yMin,$yMax),\n",
                 "    ylab=\"Leadership success percentage\", names=c($labelStr),\n",
                 "    xlab=\"$dataTypeTitle\", yaxt='n')\n";
@@ -427,9 +435,10 @@ sub createRInput
     my $combinedEpsFile = $epsFilePrefix."-$dataType-by-indcount-combined.eps";
     push( @epsFiles, $combinedEpsFile );
     print INPUT "datasets = (c($dataPositionsStr) + 1)\n";
-    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-    print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
-    print INPUT "par(mgp=c(3,1,0))\n";
+#    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
+    print INPUT "par(mgp=c(3,0.8,0))\n";
     my $index = 0;
     $dataSetNames = "";
     $colorsStr = "";

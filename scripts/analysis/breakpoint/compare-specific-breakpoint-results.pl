@@ -75,8 +75,9 @@ my $fixedTmpEPSFile = "/tmp/fixed-tmp.eps";
 foreach my $epsFile (@epsFiles)
 {
     `cp $epsFile $tmpEPSFile`;
-    `./replace-fonts-in-eps.pl $tmpEPSFile $fixedTmpEPSFile`;
-    `/usr/bin/epstool --copy --bbox $fixedTmpEPSFile $epsFile`;
+#    `./replace-fonts-in-eps.pl $tmpEPSFile $fixedTmpEPSFile`;
+#    `/usr/bin/epstool --copy --bbox $fixedTmpEPSFile $epsFile`;
+    `/usr/bin/epstool --copy --bbox $tmpEPSFile $epsFile`;
     `epstopdf $epsFile`;
 }
 
@@ -163,6 +164,9 @@ sub createRInput
     print INPUT "library('Matching')\n";
     print INPUT "library('igraph')\n";
     print INPUT "library('Hmisc')\n";
+
+    print INPUT "library(extrafont)\n";
+    print INPUT "loadfonts(device = \"postscript\")\n";
 
     # Build a standard error function
     print INPUT "stderr <- function(x) sd(x)/sqrt(length(x))\n\n";
@@ -407,9 +411,12 @@ sub createRInput
         push( @epsFiles, $comparisonEPSFile );
 
         # Send the plot to the specified file and organize the layout
-        print INPUT "postscript( file=\"$comparisonEPSFile\", height=6, width=7.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-        print INPUT "par(mar=c(8,8,3,5)+0.1)\n";
-        print INPUT "par(mgp=c(4,1,0))\n";
+#        print INPUT "postscript( file=\"$comparisonEPSFile\", height=6, width=7.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+#        print INPUT "par(mar=c(8,8,3,5)+0.1)\n";
+#        print INPUT "par(mgp=c(4,1,0))\n";
+        print INPUT "postscript( file=\"$comparisonEPSFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
+        print INPUT "par(mar=c(4,5,1,3)+0.1)\n";
+        print INPUT "par(mgp=c(3,0.8,0))\n";
 
         # Get the plot formats
         my $yMin = 0;

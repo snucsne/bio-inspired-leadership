@@ -51,12 +51,16 @@ public class DebugSimObserver extends AbstractSimObserver
     @Override
     public void initialize( SimulationState simState, String keyPrefix )
     {
+        _LOG.trace( "Entering initialize( simState, keyPrefix )" );
+
         // Call the superclass instantiation
         super.initialize( simState, keyPrefix );
 
         _LOG.debug( "Initializing sim observer with key prefix ["
                 + keyPrefix
                 + "]" );
+
+        _LOG.trace( "Leaving simSetup()" );
     }
 
     /**

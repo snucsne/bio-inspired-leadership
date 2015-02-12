@@ -23,7 +23,7 @@ single-initiator-only = true
 # =========================================================
 # Agent building parameters
 agent-builder = edu.snu.leader.spatial.builder.PersonalityAgentBuilder
-initial-personality = 0.1
+initial-personality = 0.9
 communication-type = global
 cancel-threshold = 1.0
 initiate-movement-behavior-class = edu.snu.leader.spatial.movement.StationaryMovementBehavior
@@ -49,8 +49,8 @@ winner-reward = 1
 loser-penalty = 0
 min-personality = 0.1
 max-personality = 0.9
-true-winner-effects-active = false
-true-loser-effects-active = false
+true-winner-effects-active = true
+true-loser-effects-active = true
 bystander-winner-effects-active = false
 bystander-loser-effects-active = false
 

@@ -117,6 +117,9 @@ my $rOutputFile = "/tmp/personality.r.out";
 
 open( INPUT, "> $rInputFile" ) or die "Unable to open input file [$rInputFile]: $!\n";
 
+print INPUT "library(extrafont)\n";
+print INPUT "loadfonts(device = \"postscript\")\n";
+
 print INPUT "library(ggplot2)\n";
 print INPUT "gg_color_hue <- function(n) {\n";
 print INPUT "  hues = seq(15, 375, length=n+1)\n";
@@ -204,14 +207,17 @@ if( $bothPlots )
 
 if( $bothPlots )
 {
-    print INPUT "postscript( file=\"$personalityEPSFile\", height=4, width=10, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-    print INPUT "par(mfrow=c(1,2))\n";
+#    print INPUT "postscript( file=\"$personalityEPSFile\", height=4, width=10, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    # For PLOS One
+    print INPUT "postscript( file=\"$personalityEPSFile\", height=2.6, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=10.5, horizontal=FALSE, paper=\"special\" )\n";
+#    print INPUT "par(mfrow=c(1,2),mar=c(5,4,4,4)+0.1 )\n";
+    print INPUT "par(mfrow=c(1,2),mar=c(4,4,2,3)+0.1 )\n";
 
     print INPUT "h <- hist( personality$runID, plot=FALSE, breaks=seq(0.025,0.975,0.05) )\n";
 #    print INPUT "d <- density( personality$runID )\n";
 #    print INPUT "d\n";
     print INPUT "h\$density = h\$counts/sum(h\$counts)\n";
-    print INPUT "plot( h, border=NA, freq=FALSE, xlab=\"Personality\", ylab=\"Frequency\", ylim=c(0,1), main=\"\" )\n";
+    print INPUT "plot( h, border=NA, freq=FALSE, xlab=\"Personality\", ylab=\"Frequency\", ylim=c(0,1), main=\"\", yaxt='n' )\n";
     print INPUT "usr <- par(\"usr\")\n";
     print INPUT "ncolors <- 100\n";
     print INPUT "dy <- (usr[4] - usr[3])/ncolors\n";
@@ -226,18 +232,26 @@ if( $bothPlots )
 #    print INPUT "lines( d, lwd=4, col=\"#22222288\" )\n";
     print INPUT "rug( personality$runID, col=\"#000000\" )\n";
     print INPUT "box()\n";
+    print INPUT "axis( 3, las=0, at=c(0.1,0.5,0.9), labels=c(\"Shy\", \"Moderate\", \"Bold\"))\n";
+    print INPUT "ticklocations <- axTicks(2)\n";
+    print INPUT "templabels <- ticklocations * 100\n";
+    print INPUT "percentagelabels <- paste(templabels, \"%\", sep=\"\" )\n";
+    print INPUT "axis( 2, las=2, at=ticklocations, labels=percentagelabels )\n";
+    print INPUT "axis( 4, las=2, at=ticklocations, labels=percentagelabels )\n";
 #    print INPUT "hist( personality$runID, breaks=seq(0,1,0.05), xlim=c(0,1), ylim=c(0,5), col=heat.colors(20), main=\"Run [$runID]\" );\n";
 
     print INPUT "opt <- options(scipen = 10)\n";
 }
 else
 {
-    print INPUT "postscript( file=\"$personalityEPSFile\", height=4, width=5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+#    print INPUT "postscript( file=\"$personalityEPSFile\", height=4, width=5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "postscript( file=\"$personalityEPSFile\", height=5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=18, horizontal=FALSE, paper=\"special\" )\n";
 }
     print INPUT "par(xaxp=c(0,".$data{"total-simulations"}.",6))\n";
+    print INPUT "par(mar=c(4,4,2,2)+0.1 )\n";
     print INPUT "opt <- options(scipen = 10)\n";
     print INPUT "plot( c(0,".$data{"total-simulations"}."), c(0,1), type=\"n\", xlab=\"Attempts\",\n";
-    print INPUT "    ylab=\"Personality\", yaxt=\"n\", xaxp=c(0,".$data{"total-simulations"}.",4) )\n";
+    print INPUT "    ylab=\"\", yaxt=\"n\", xaxp=c(0,".$data{"total-simulations"}.",4) )\n";
     print INPUT "colors <- sample(rainbow(".($currentInd - 1).",v=0.6),".($currentInd - 1).",replace=FALSE,prob=NULL)\n";
 #    print INPUT "colors <- sample(gg_color_hue(".($currentInd - 1)."),".($currentInd - 1).",replace=FALSE,prob=NULL)\n";
     print INPUT "abline( h=axTicks(2), col=\"gray\", lwd=0.5)\n";
@@ -245,9 +259,10 @@ else
     for( my $i = 1; $i < $currentInd; $i++ )
     {
         print INPUT "lines( personalityhistoryIndices".$runID."ind".$i.", personalityhistoryValues".$runID."ind".$i.",\n";
-        print INPUT "  type=\"l\", col=colors[$i] )\n";
+        print INPUT "  type=\"l\", col=colors[$i], lwd=2 )\n";
     }
 
+    print INPUT "mtext( side=2, text=\"Personality\", line=2.5 )\n";
     print INPUT "axis( 2, las=1)\n";
     print INPUT "axis( 4, las=0, at=c(0.1,0.5,0.9), labels=c(\"Shy\", \"Moderate\", \"Bold\"))\n";
 

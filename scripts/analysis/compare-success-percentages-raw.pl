@@ -6,11 +6,11 @@ use POSIX;
 # Get the root data directory
 my $rootDataDir = shift( @ARGV );
 
-# Get the optimal data file
-#my $optimalDataFile = shift( @ARGV );
-
 # Get the data type
 my $dataType = shift( @ARGV );
+
+# Get the data type title
+my $dataTypeTitle = shift( @ARGV );
 
 # Get the data output file prefix
 my $outputFilePrefix = shift( @ARGV );
@@ -20,71 +20,58 @@ my $epsFilePrefix = shift( @ARGV );
 
 
 # -------------------------------------------------------------------
+# What kind of data are we dealing with?
+
+
 # Get all the data directories in the data directory
 opendir( DIR, $rootDataDir ) or die "Unable to open root data directory [$rootDataDir]: $!\n";
 my @dataDirs = sort( grep { /$dataType/ } readdir( DIR ) );
 closedir( DIR );
 
+# Is there a baseline?
+if( -d "$rootDataDir/baseline/" )
+{
+    unshift( @dataDirs, "baseline" );
+}
+
 
 # -------------------------------------------------------------------
-# Get the bold percentages from each data directory
+# Get the success percentages from each data directory
 my %data;
 my @dataSetOrder;
 foreach my $dataDir (@dataDirs)
 {
     # Get the data set identifier
-    $dataDir =~ /$dataType-(.*)/;
-    my $dataSet = $1;
+    my $dataSet = "None";
+    if( $dataDir =~ m/$dataType-(.*)/ )
+    {
+#        $dataDir =~ /$dataType-(.*)/;
+         $dataSet = $1;
+    }
+#    if( ($dataSet eq "") && ($dataDir =~ /baseline/) )
+#    {
+#        $dataSet = "None";
+#    }
 
-    # Read all the bold percentages from the analysis directory
+    # Read all the success percentages from the analysis directory
     $dataDir = $rootDataDir.$dataDir."/analysis/";
 #print "dir=[$dataDir]  dataType=[$dataType]  dataSet=[$dataSet]\n";
-    readBoldPercentages( $dataDir, \%data, $dataSet );
+    readSuccessPercentages( $dataDir, \%data, $dataSet );
     push( @dataSetOrder, $dataSet );
 }
 
-# -------------------------------------------------------------------
-# Get the optimal bold percentages
-my %optimalData;
-
-# Open the file
-#open( OPTIMAL, "$optimalDataFile" ) or die "Unable to open optimal data file [$optimalDataFile]: $!\n";
-
-# Read each line
-#while( <OPTIMAL> )
-#{
-#        # Remove any other comments or whitespace
-#        s/#.*//;
-#        s/^\s+//;
-#        s/\s+$//;
-#        next unless length;
-#
-#        # Split the line into key and value
-#        my ($key,$value) = split( /\s+=\s+/, $_ );
-#        $key =~ m/group-size-(\d+).*optimal-bold-(\w+)/;
-#        my $indCount = $1;
-#        my $dataType = $2;
-#
-#        if( $key =~ /bold-percentage/ )
-#        {
-#            $optimalData{$indCount} = $value;
-#        }
-#}
-
-# Close the file
-#close( OPTIMAL );
 
 # -------------------------------------------------------------------
 # Create the R input file
-my $rInputFile = "/tmp/compare-bold-percentages.r";
+my $rInputFile = "/tmp/compare-success-percentages.r";
 my $rOutputFile = $rInputFile.".out";
 my @epsFiles = createRInput( $rInputFile,
         $outputFilePrefix."-results.dat",
         $epsFilePrefix,
         $dataType,
+        $dataTypeTitle,
         \@dataSetOrder,
-        \%data,
-        \%optimalData );
+        \%data );
 
 # -------------------------------------------------------------------
 # Run it
@@ -96,39 +83,35 @@ my $tmpEPSFile = "/tmp/tmp.eps";
 my $fixedTmpEPSFile = "/tmp/fixed-tmp.eps";
 foreach my $epsFile (@epsFiles)
 {
-    my $pdfFile = $epsFile;
-    $pdfFile =~ s/eps$/pdf/;
     `cp $epsFile $tmpEPSFile`;
 #    `./replace-fonts-in-eps.pl $tmpEPSFile $fixedTmpEPSFile`;
 #    `/usr/bin/epstool --copy --bbox $fixedTmpEPSFile $epsFile`;
     `/usr/bin/epstool --copy --bbox $tmpEPSFile $epsFile`;
     `epstopdf $epsFile`;
-    my $title = `basename $pdfFile`;
-    `exiftool -Title="$title" -Author="Brent E. Eskridge" $pdfFile`;
 }
 
 
 # ===================================================================
-sub readBoldPercentages
+sub readSuccessPercentages
 {
     my ($dir, $dataRef, $dataSet) = @_;
 
-    # Open the directory and find all the bold percentages files
-    opendir( DIR, $dir ) or die "Unable to open analysis directory [$dir]: $!\n";
-    my @boldFiles = sort( grep { /bold-personality-percentages/ } readdir( DIR ) );
+    # Open the directory and find all the success percentages files
+    opendir( DIR, $dir ) or die "Unable to open success percentage directory [$dir]: $!\n";
+    my @successFiles = sort( grep { /all-success-percentages/ } readdir( DIR ) );
     closedir( DIR );
 
-#print "Reading bold percentages dir=[$dir] dataset=[$dataSet] ...\n";
+#print "Reading success percentages dir=[$dir] dataset=[$dataSet] ...\n";
 
     # Process each file
-    foreach my $boldFile (@boldFiles)
+    foreach my $successFile (@successFiles)
     {
         # Get the number of individuals
-        $boldFile =~ /indcount-(\d+)/;
+        $successFile =~ /indcount-(\d+)/;
         my $indCount = $1;
 
         # Store the data
-        $dataRef->{$dataSet}{$indCount} = `cat $dir$boldFile`;
+        $dataRef->{$dataSet}{$indCount} = `cat $dir$successFile`;
     }
 
 }
@@ -136,17 +119,16 @@ sub readBoldPercentages
 # ===================================================================
 sub createRInput
 {
-    my ($rInputFile,
-            $resultsFile,
-            $epsFilePrefix,
-            $dataType,
-            $dataSetOrderRef,
-            $dataRef,
-            $optimalDataRef) = @_;
+    my ($rInputFile, $resultsFile, $epsFilePrefix, $dataType, $dataTypeTitle, $dataSetOrderRef, $dataRef) = @_;
 
     # ---------------------------------------------------------------
     # Handy variables
     my $rSpacer = "cat(\"# =====================================\\n\")\n";
+
+    # Sanitize the datatype
+    my $cleanDataType = $dataType;
+    $cleanDataType =~ s/\.//g;
+    $cleanDataType =~ s/-//g;
 
     # ---------------------------------------------------------------
     # Create the file
@@ -154,55 +136,16 @@ sub createRInput
     print INPUT "library('Matching')\n";
     print INPUT "library('igraph')\n";
     print INPUT "library('Hmisc')\n";
+
     print INPUT "library(extrafont)\n";
     print INPUT "loadfonts(device = \"postscript\")\n";
-
-    # Build a relative difference function
-    print INPUT "reldiff <- function(x,y)\n";
-    print INPUT "{\n";
-    print INPUT "    return( abs( (x-y) / (max( abs(x), abs(y) ) ) ) )\n";
-    print INPUT "}\n\n";
 
     # Build a standard error function
     print INPUT "stderr <- function(x) sd(x)/sqrt(length(x))\n\n";
 
-    # Build a function to handle the t-test error in case the data is constant
-    print INPUT "try_default <- function (expr, default = NA) {\n";
-    print INPUT "  result <- default\n";
-    print INPUT "  tryCatch(result <- expr, error = function(e) {})\n";
-    print INPUT "  result\n";
-    print INPUT "}\n";
-
-    print INPUT "failwith <- function(default = NULL, f, ...) {\n";
-    print INPUT "  function(...) try_default(f(...), default)\n";
-    print INPUT "}\n";
-
-    print INPUT "tryttest <- function(...) failwith(NA, t.test(...))\n";
-    print INPUT "tryttestpvalue <- function(...) {\n";
-    print INPUT "    obj<-try(t.test(...), silent=TRUE)\n";
-    print INPUT "    if (is(obj, \"try-error\")) return(NA) else return(obj\$p.value)\n";
-    print INPUT "}\n";
-
-
-    # ---------------------------------------------------------------
-    # Add the optimal values
-#    my $fullOptimalData;
-#    foreach my $indCount (sort (keys %{$optimalDataRef} ) )
-#    {
-#        my $id = "optimal".$indCount;
-#        print INPUT "$id <- scan()\n";
-#        print INPUT $optimalDataRef->{$indCount},"\n\n";
-#        $fullOptimalData .= $optimalDataRef->{$indCount}." ";
-#    }
-    
-#    print INPUT "optimal <- scan()\n";
-#    print INPUT $fullOptimalData,"\n\n";
-
-
     # ---------------------------------------------------------------
     # Add the data
     my %dataIDs;
-    my %relDiffDataIDs;
     my @allDataIDs;
     my %dataSetHash;
     my %indCountHash;
@@ -215,14 +158,11 @@ sub createRInput
 
         foreach my $indCount (sort (keys %{$dataRef->{$dataSet}} ) )
         {
-            my $id = $dataType.$cleanDataSet."indcount".$indCount;
-            my $relDiffID = "reldiff".$id;
+            my $id = $cleanDataType.$cleanDataSet."indcount".$indCount;
             print INPUT "$id <- scan()\n";
             print INPUT $dataRef->{$dataSet}{$indCount},"\n\n";
-#            print INPUT "$relDiffID = reldiff( optimal$indCount, mean($id) )\n\n";
             $dataIDs{$dataSet}{$indCount} = $id;
             push( @allDataIDs, $id );
-            $relDiffDataIDs{$dataSet}{$indCount} = $relDiffID;
             $indCountHash{$indCount} = 1;
         }
         $dataSetHash{$dataSet} = 1;
@@ -230,23 +170,21 @@ sub createRInput
     my @dataSets = @{$dataSetOrderRef};
     my @indCounts = sort( keys( %indCountHash ) );
 
-    print INPUT "indcounts <- scan()\n @indCounts\n\n";
-
     # ---------------------------------------------------------------
     # Add the plots
     my @epsFiles;
     
     # Have a plot for each data set
     my $yMin = 0.0;
-    my $yMax = 0.5;
-    my $yDiff = 0.1;
+    my $yMax = 1.0;
+    my $yDiff = 0.25;
     my $lineColor = "#882255";
     my $boxColor = "#DDCC77";
+    my $legendPosition = "top";
 #    my $lineColor = "blue";
 #    my $boxColor = "orange";
     my $dataPositionsStr = "";
     my @meansIDStrings;
-    my @relDiffIDStrings;
     my @sdIDStrings;
     my @seIDStrings;
     foreach my $dataSet (@dataSets)
@@ -257,47 +195,38 @@ sub createRInput
         my $sdStr = "";
         my $seStr = "";
         my $labelStr = "";
-        my $relDiffStr = "";
         $dataPositionsStr = "";
         my $dataCount = 0;
         foreach my $indCount (sort (keys %{$dataIDs{$dataSet}} ) )
         {
             my $id = $dataIDs{$dataSet}{$indCount};
             $dataFrameStr .= "$id=$id, ";
-#            $meanStr .= "median($id), ";
             $meanStr .= "mean($id), ";
             $sdStr .= "sd($id), ";
             $seStr .= "stderr($id), ";
             my $indCountLabel = $indCount;
             $indCountLabel =~ s/^0+//;
             $labelStr .= "\"$indCountLabel\", ";
-            $relDiffStr .= $relDiffDataIDs{$dataSet}{$indCount}.", ";
             $dataPositionsStr .= (($indCount/5)-1).", ";
             
             $dataCount++;
         }
-        chop( $dataFrameStr );
-        chop( $dataFrameStr );
-        chop( $meanStr );
-        chop( $meanStr );
-        chop( $labelStr );
-        chop( $labelStr );
-        chop( $relDiffStr );
-        chop( $relDiffStr );
-        chop( $dataPositionsStr );
-        chop( $dataPositionsStr );
+        $dataFrameStr =~ s/, $//;
+        $meanStr =~ s/, $//;
         $sdStr =~ s/, $//g;
         $seStr =~ s/, $//g;
+        $labelStr =~ s/, $//;
+        $dataPositionsStr =~ s/, $//;
 
         # Create some handy R variables
         my $cleanDataSet = $dataSet;
         $cleanDataSet =~ s/\.//g;
         $cleanDataSet =~ s/-//g;
         print INPUT "# $dataType => $dataSet --------------------------\n";
-        my $allDataIDStr = "all".$dataType.$cleanDataSet."data";
+        my $allDataIDStr = "all".$cleanDataType.$cleanDataSet."data";
         print INPUT "$allDataIDStr = data.frame($dataFrameStr)\n";
 
-        my $meansIDStr = "all".$dataType.$cleanDataSet."means";
+        my $meansIDStr = "all".$cleanDataType.$cleanDataSet."means";
         print INPUT "$meansIDStr = c($meanStr)\n";
         push( @meansIDStrings, $meansIDStr );
 
@@ -309,12 +238,9 @@ sub createRInput
         push( @seIDStrings, $seIDStr );
         print INPUT "$seIDStr = c($seStr)\n";
 
-        my $labelsIDStr = "all".$dataType.$cleanDataSet."labels";
+        my $labelsIDStr = "all".$cleanDataType.$cleanDataSet."labels";
         print INPUT "$labelsIDStr = c($labelStr)\n";
-#        my $relDiffIDStr = "all".$dataType.$cleanDataSet."reldiffs";
-#        print INPUT "$relDiffIDStr = c($relDiffStr)\n";
-#        push( @relDiffIDStrings, $relDiffIDStr );
-        my $dataPositionsIDStr = "all".$dataType.$cleanDataSet."datapositions";
+        my $dataPositionsIDStr = "all".$cleanDataType.$cleanDataSet."datapositions";
         print INPUT "$dataPositionsIDStr = c(",$dataPositionsStr,")\n";
 
 
@@ -330,41 +256,45 @@ sub createRInput
         print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
         print INPUT "par(mgp=c(3,0.8,0))\n";
         print INPUT "boxplot( $allDataIDStr, col=\"$boxColor\",ylim=c($yMin,$yMax),\n",
-                "    ylab=\"Bold percentage\", names=c($labelStr),\n",
+                "    ylab=\"Leadership success percentage\", names=c($labelStr),\n",
                 "    xlab=\"Group size\", yaxt='n', at=$dataPositionsIDStr, boxwex=0.5, srt=-40)\n";
-        print INPUT "title( main=\"",ucfirst($dataType)," $dataSet\" )\n";
+        print INPUT "title( main=\"$dataTypeTitle $dataSet\" )\n";
         print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
         print INPUT "axis( 4, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
+
+#        print INPUT "mtext( \"Shy\", side=2, line=2, adj=0.0 )\n";
+#        print INPUT "mtext( \"Shy\", side=4, line=2, adj=0.0 )\n";
+#        print INPUT "mtext( \"Moderate\", side=2, line=2, adj=0.5 )\n";
+#        print INPUT "mtext( \"Moderate\", side=4, line=2, adj=0.5 )\n";
+#        print INPUT "mtext( \"Bold\", side=2, line=2, adj=1.0 )\n";
+#        print INPUT "mtext( \"Bold\", side=4, line=2, adj=1.0 )\n";
+
         print INPUT "lines($dataPositionsIDStr,$meansIDStr,col=\"$lineColor\",lwd=2)\n";
         print INPUT "dev.off()\n\n\n";
     }
 
     # ---------------------------------------------------------------
     # Build a combined plot
-    my $combinedEpsFile = $epsFilePrefix."-$dataType-combined.eps";
+    my $combinedEpsFile = $epsFilePrefix."-$dataType-by-$dataType-combined.eps";
     push( @epsFiles, $combinedEpsFile );
     print INPUT "groupsizes = (c($dataPositionsStr) + 1)*5\n";
     print INPUT "groupsizes\n";
-#    print INPUT "postscript( file=\"$combinedEpsFile\", height=5, width=5.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+#    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
     print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
     print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
     print INPUT "par(mgp=c(3,0.8,0))\n";
     my $index = 0;
-#    my @colors = ( "#332288", "#117733", "#999933" );
-#    my @colors = ( "#999933", "#882255", "#332288", "#117733" );
-#    my @colors = ( "#AAAAAA", "#332288", "#117733", "#999933" );
-    my @colors = (  "#9C0A2E", "#332288", "#117733", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
-    my @plotSymbols = ( 6, 1, 2, 5, 6 );
+#    $legendPosition = "bottom";
+#    my @colors = (  "#999933", "#117733", "#332288", "#882255", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
+#    my @colors = (  "#999933", "#117733", "#332288", "#9C0A2E", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
+    my @colors = (  "#882255", "#999933", "#AA4499", "#332288", "#114477", "#774411", "#117733", "#44AA99", "#DDCC77", "#000000" );
+    my @plotSymbols = ( 1, 6, 0, 2, 7, 3, 5, 4, 9, 8 );
     my $dataSetNames = "";
     my $colorsStr = "";
     my $plotSymbolsStr = "";
-    my @combinedDataSets = ();
-#    my @combinedDataSets = ( "optimal" );
-    push( @combinedDataSets, @dataSets );
-#    unshift( @meansIDStrings, "optimal" );
-    foreach my $dataSet (@combinedDataSets)
+    foreach my $dataSet (@dataSets)
     {
-        my $misc = "ylab=\"Bold Personality Percentage\",  xlab=\"Group Size\", \n".
+        my $misc = "ylab=\"Leadership success percentage\",  xlab=\"Group size\", \n".
                     "    ylim=c($yMin,$yMax), xlim=c((min(groupsizes)-5), (max(groupsizes)+5)), ";
         my $cmd = "plot";
         if( $index > 0 )
@@ -372,36 +302,25 @@ sub createRInput
             $misc = "";
             $cmd = "lines";
         }
-        print INPUT "$cmd( groupsizes, ",$meansIDStrings[$index],", type=\"o\", \n",
+        print INPUT "$cmd( (groupsizes), ",$meansIDStrings[$index],", type=\"o\", \n",
                     "    lwd=2, pch=",$plotSymbols[$index],",\n",
                     "    ",$misc," col=\"",$colors[$index],"\", yaxt='n' )\n";
 
         print INPUT "par(fg=\"",$colors[$index],"\")\n";
-        print INPUT "errbar( (groupsizes+$index*0.75-0.75), ",$meansIDStrings[$index],", \n",
+        print INPUT "errbar( (groupsizes), ",$meansIDStrings[$index],", \n",
                 "    (",$meansIDStrings[$index],"+",$seIDStrings[$index],"), \n",
                 "    (",$meansIDStrings[$index],"-",$seIDStrings[$index],"), \n",
                 "    add=TRUE, lwd=0.5, pch=",$plotSymbols[$index],",\n",
                 "    col=\"",$colors[$index],"\", yaxt='n' )\n";
         print INPUT "par(fg=\"black\")\n";
 
-
-        if( $dataSet =~ /optimal/i )
+        if( $dataSet =~ /None/i )
         {
-            $dataSetNames .= "\"Fixed distribution\", ";
+            $dataSetNames .= "\"None\", ";
         }
         else
         {
-            my $name = "bold";
-            if( $dataSet =~ /0.2/ )
-            {
-                $name = "shy";
-            }
-            elsif( $dataSet =~ /0.5/ )
-            {
-                $name = "moderate";
-            }
-            $dataSetNames .= "\"Initial $dataType $name\", ";
-#            $dataSetNames .= "\"".ucfirst($dataType)." $dataSet\", ";
+            $dataSetNames .= "\"$dataTypeTitle $dataSet\", ";
         }
         $colorsStr .= "\"".$colors[$index]."\", ";
         $plotSymbolsStr .= $plotSymbols[$index].", ";
@@ -414,10 +333,11 @@ sub createRInput
     chop( $colorsStr );
     chop( $plotSymbolsStr );
     chop( $plotSymbolsStr );
-    print INPUT "legend( \"bottomright\", c($dataSetNames), col=c($colorsStr), \n",
-        "    pch=c($plotSymbolsStr), lty=1, lwd=2, bty=\"n\", ncol=",(ceil($#dataSets / 2))," )\n";
-
-
+    print INPUT "legend( \"$legendPosition\", \n",
+        "    c($dataSetNames), \n",
+        "    col=c($colorsStr), \n",
+        "    pch=c($plotSymbolsStr), lty=1, lwd=2, bty=\"n\", ncol=",(ceil($#dataSets / 3))," )\n";
+#print "# dataSets=[$#dataSets] ceil=[",(ceil($#dataSets / 3)),"]\n";
     print INPUT "templabels <- c(seq($yMin,$yMax,$yDiff)) * 100\n";
     print INPUT "percentagelabels <- paste(templabels, \"%\", sep=\"\" )\n";
     print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)), labels=percentagelabels)\n";
@@ -425,136 +345,134 @@ sub createRInput
 #    print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
 #    print INPUT "axis( 4, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
 
+#    print INPUT "mtext( \"Shy\", side=2, line=, adj=0.0 )\n";
+#    print INPUT "mtext( \"Shy\", side=4, line=2, adj=0.0 )\n";
+#    print INPUT "mtext( \"Moderate\", side=2, line=2, adj=0.5 )\n";
+#    print INPUT "mtext( \"Moderate\", side=4, line=2, adj=0.5 )\n";
+#    print INPUT "mtext( \"Bold\", side=2, line=2, adj=1.0 )\n";
+#    print INPUT "mtext( \"Bold\", side=4, line=2, adj=1.0 )\n";
+
     print INPUT "dev.off()\n\n\n";
 
 
+    # ---------------------------------------------------------------
+    # Have a plot for each individual count
+    @meansIDStrings = ();
+    my $labelStr = "";
+    foreach my $indCount (@indCounts)
+    {
+        # Build the data
+        my $dataFrameStr = "";
+        my $meanStr = "";
+        $labelStr = "";
+        $dataPositionsStr = "";
+        my $dataCount = 0;
+        foreach my $dataSet (@dataSets)
+        {
+            my $id = $dataIDs{$dataSet}{$indCount};
+            $dataFrameStr .= "$id=$id, ";
+            $meanStr .= "median($id), ";
+            $labelStr .= "\"$dataSet\", ";
+            $dataPositionsStr .= $dataCount.", ";
+            $dataCount++;
+        }
+        chop( $dataFrameStr );
+        chop( $dataFrameStr );
+        chop( $meanStr );
+        chop( $meanStr );
+        chop( $labelStr );
+        chop( $labelStr );
+        chop( $dataPositionsStr );
+        chop( $dataPositionsStr );
+
+        # Create some handy R variables
+        print INPUT "# IndCount => $indCount --------------------------\n";
+        my $allDataIDStr = "allindcount".$indCount."data";
+        print INPUT "$allDataIDStr = data.frame($dataFrameStr)\n";
+        my $meansIDStr = "allindcount".$indCount."means";
+        print INPUT "$meansIDStr = c($meanStr)\n";
+        push( @meansIDStrings, $meansIDStr );
+        my $labelsIDStr = "allindcount".$indCount."labels";
+        print INPUT "$labelsIDStr = c($labelStr)\n";
+        my $dataPositionsIDStr = "allindcount".$indCount."datapositions";
+        print INPUT "$dataPositionsIDStr = seq(1,",$dataCount,")\n";
+
+        print INPUT "$dataPositionsIDStr\n";
+        print INPUT "$meansIDStr\n";
+
+        # Build the EPS filename
+        my $epsFile = $epsFilePrefix."-indcount-$indCount.eps";
+        push( @epsFiles, $epsFile );
+
+        # Build the plot
+#        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+        print INPUT "postscript( file=\"$epsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
+        print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
+        print INPUT "par(mgp=c(3,0.8,0))\n";
+        print INPUT "boxplot( $allDataIDStr, col=\"$boxColor\",ylim=c($yMin,$yMax),\n",
+                "    ylab=\"Leadership success percentage\", names=c($labelStr),\n",
+                "    xlab=\"$dataTypeTitle\", yaxt='n')\n";
+        print INPUT "title( main=\"Group size $indCount\" )\n";
+        print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
+        print INPUT "axis( 4, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
+        print INPUT "lines(seq(1,$dataCount),$meansIDStr,col=\"$lineColor\",lwd=2)\n";
+        print INPUT "dev.off()\n\n\n";
+    }
+
 
     # ---------------------------------------------------------------
-    # Build a combined plot of relative differences plot
-#    my $combinedEpsFile = $epsFilePrefix."-$dataType-rel-diff-combined.eps";
-#    push( @epsFiles, $combinedEpsFile );
-#    print INPUT "groupsizes = (c($dataPositionsStr) + 1)*5\n";
-#    print INPUT "groupsizes\n";
+    # Build another combined plot
+    my $combinedEpsFile = $epsFilePrefix."-$dataType-by-indcount-combined.eps";
+    push( @epsFiles, $combinedEpsFile );
+    print INPUT "datasets = (c($dataPositionsStr) + 1)\n";
 #    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-#    print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
-#    print INPUT "par(mgp=c(3,1,0))\n";
-#    $yMin = 0;
-#    $yMax = 1.0;
-#    $yDiff = 0.2;
-#    $index = 0;
-#    @colors = ( "#332288", "#117733", "#999933" );
-#    @plotSymbols = ( 2, 5, 6 );
-#    $dataSetNames = "";
-#    $colorsStr = "";
-#    $plotSymbolsStr = "";
-#    @combinedDataSets = ( "optimal" );
-#    push( @combinedDataSets, @dataSets );
-#    unshift( @meansIDStrings, "optimal" );
-#    foreach my $dataSet (@dataSets)
-#    {
-#        my $misc = "ylab=\"Absolute relative difference\", xlab=\"Group size\", \n".
-#                    "    ylim=c($yMin,$yMax), xlim=c((min(groupsizes)-5), (max(groupsizes)+5)), ";
-#        my $cmd = "plot";
-#        if( $index > 0 )
-#        {
-#            $misc = "";
-#            $cmd = "lines";
-#        }
-#        print INPUT "$cmd( groupsizes, ",$relDiffIDStrings[$index],", type=\"o\", \n",
-#                    "    lwd=2, pch=",$plotSymbols[$index],",\n",
-#                    "    ",$misc," col=\"",$colors[$index],"\", yaxt='n' )\n";
-#
-#        if( $dataSet =~ /optimal/i )
-#        {
-#            $dataSetNames .= "\"Fixed distribution\", ";
-#        }
-#        else
-#        {
-#            $dataSetNames .= "\"".ucfirst($dataType)." $dataSet\", ";
-#        }
-#        $colorsStr .= "\"".$colors[$index]."\", ";
-#        $plotSymbolsStr .= $plotSymbols[$index].", ";
-#
-#        $index++;
-#    }
-#    chop( $dataSetNames );
-#    chop( $dataSetNames );
-#    chop( $colorsStr );
-#    chop( $colorsStr );
-#    chop( $plotSymbolsStr );
-#    chop( $plotSymbolsStr );
-#    print INPUT "legend( \"top\", c($dataSetNames), col=c($colorsStr), \n",
-#        "    pch=c($plotSymbolsStr), lty=1, lwd=2, bty=\"n\", ncol=",(ceil($#dataSets / 2))," )\n";
-#    print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
-#    print INPUT "axis( 4, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
-#    print INPUT "dev.off()\n\n\n";
+    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
+    print INPUT "par(mgp=c(3,0.8,0))\n";
+    my $index = 0;
+    $dataSetNames = "";
+    $colorsStr = "";
+    $plotSymbolsStr = "";
+    foreach my $indCount (@indCounts)
+    {
+        my $misc = "ylab=\"Leadership success percentage\",  xlab=\"$dataTypeTitle\", \n".
+                    "    ylim=c($yMin,$yMax), ";
+        my $cmd = "plot";
+        if( $index > 0 )
+        {
+            $misc = "";
+            $cmd = "lines";
+        }
+        print INPUT "$cmd( datasets, ",$meansIDStrings[$index],", type=\"o\", \n",
+                    "    lwd=2, pch=",$plotSymbols[($index % ($#plotSymbols))],",\n",
+                    "    ",$misc," col=\"",$colors[($index % ($#colors))],"\", yaxt='n', xaxt='n' )\n";
 
+        my $cleanedIndCount = $indCount;
+        $cleanedIndCount =~ s/^0*//;
+        $dataSetNames .= "\"Size $cleanedIndCount\", ";
+        $colorsStr .= "\"".$colors[($index % ($#colors))]."\", ";
+        $plotSymbolsStr .= $plotSymbols[($index % ($#plotSymbols))].", ";
 
-    # ---------------------------------------------------------------
-    # Build a combined plot of the raw numbers
-#    my $combinedEpsFile = $epsFilePrefix."-$dataType-combined-raw.eps";
-#    push( @epsFiles, $combinedEpsFile );
-#    print INPUT "groupsizes = (c($dataPositionsStr) + 1)*5\n";
-#    print INPUT "groupsizes\n";
-#    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
-#    print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
-#    print INPUT "par(mgp=c(3,1,0))\n";
-#    $index = 0;
-#    $yMin = 0.0;
-#    $yMax = 80;
-#    $yDiff = 20;
-#    @colors = ( "#882255", "#332288", "#117733", "#999933" );
-##    @colors = ( "#AAAAAA", "#332288", "#117733", "#999933" );
-#    @plotSymbols = ( 1, 2, 5, 6 );
-#    $dataSetNames = "";
-#    $colorsStr = "";
-#    $plotSymbolsStr = "";
-#    @combinedDataSets = ( "optimal" );
-#    push( @combinedDataSets, @dataSets );
-##    unshift( @meansIDStrings, "optimal" );
-#    foreach my $dataSet (@combinedDataSets)
-#    {
-#        my $misc = "ylab=\"Bold personality count\",  xlab=\"Group size\", \n".
-#                    "    ylim=c($yMin,$yMax), xlim=c((min(groupsizes)-5), (max(groupsizes)+5)), ";
-#        my $cmd = "plot";
-#        if( $index > 0 )
-#        {
-#            $misc = "";
-#            $cmd = "lines";
-#        }
-#        print INPUT "$cmd( groupsizes, (",$meansIDStrings[$index]," * indcounts), type=\"o\", \n",
-#                    "    lwd=2, pch=",$plotSymbols[$index],",\n",
-#                    "    ",$misc," col=\"",$colors[$index],"\", yaxt='n' )\n";
-#
-#        if( $dataSet =~ /optimal/i )
-#        {
-#            $dataSetNames .= "\"Fixed distribution\", ";
-#        }
-#        else
-#        {
-#            $dataSetNames .= "\"".ucfirst($dataType)." $dataSet\", ";
-#        }
-#        $colorsStr .= "\"".$colors[$index]."\", ";
-#        $plotSymbolsStr .= $plotSymbols[$index].", ";
-#
-#        $index++;
-#    }
-#    chop( $dataSetNames );
-#    chop( $dataSetNames );
-#    chop( $colorsStr );
-#    chop( $colorsStr );
-#    chop( $plotSymbolsStr );
-#    chop( $plotSymbolsStr );
-#    print INPUT "legend( \"top\", c($dataSetNames), col=c($colorsStr), \n",
-#        "    pch=c($plotSymbolsStr), lty=1, lwd=2, bty=\"n\", ncol=",(ceil($#dataSets / 2))," )\n";
-#    print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
-#    print INPUT "axis( 4, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
-#    print INPUT "dev.off()\n\n\n";
+        $index++;
+    }
+    chop( $dataSetNames );
+    chop( $dataSetNames );
+    chop( $colorsStr );
+    chop( $colorsStr );
+    chop( $plotSymbolsStr );
+    chop( $plotSymbolsStr );
+    print INPUT "legend( \"$legendPosition\", c($dataSetNames), col=c($colorsStr), \n",
+        "    pch=c($plotSymbolsStr), lty=1, lwd=2, bty=\"n\", ncol=",(ceil($#indCounts / 4))," )\n";
+#print "# indcounts=[$#indCounts] ceil=[",(ceil($#indCounts / 3)),"]\n";
+    print INPUT "axis( 1, las=1, labels=c($labelStr), at=datasets)\n";
+    print INPUT "axis( 2, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
+    print INPUT "axis( 4, las=2, at=c(seq($yMin,$yMax,$yDiff)))\n";
+    print INPUT "dev.off()\n\n\n";
 
 
     # ---------------------------------------------------------------
     # Start sending output to the results file
-    print INPUT "sink(\"$resultsFile\")\n";
+#    print INPUT "sink(\"$resultsFile\")\n";
 
     # ---------------------------------------------------------------
     # Add the statistics
@@ -580,25 +498,6 @@ sub createRInput
         }
     }
 
-    # ---------------------------------------------------------------
-    # Add the relative difference between the optimum and each data set
-#    foreach my $dataSet (sort (keys %dataIDs) )
-#    {
-#        # Sanitize the data set
-#        my $cleanDataSet = $dataSet;
-#        $cleanDataSet =~ s/\.//g;
-#        $cleanDataSet =~ s/-//g;
-#
-#        print INPUT "cat(\"# =====================================\\n\")\n";
-#        print INPUT "cat(\"# Relative difference to optimum:  $dataType=[$dataSet]\\n\")\n";
-#
-#        foreach my $indCount (sort (keys %{$dataIDs{$dataSet}} ) )
-#        {
-#            my $relDiffID = $relDiffDataIDs{$dataSet}{$indCount};
-#            print INPUT "cat(\"rel-diff.$dataType-$cleanDataSet.indcount-$indCount =  \", format( $relDiffID ), \"\\n\")\n";
-#        }
-#        print INPUT "cat(\"\\n\")\n";
-#    }    
 
     # ---------------------------------------------------------------
     # Add the KS tests for data with the same individual count
@@ -663,7 +562,7 @@ sub createRInput
 
     # ---------------------------------------------------------------
     # Stop sending output to the results file
-    print INPUT "sink()\n";
+#    print INPUT "sink()\n";
 
     # ---------------------------------------------------------------
     # Close the input file
@@ -700,21 +599,21 @@ return;
                     ".vs.",
                     $secondKey,
                     ".statistic = \", format(ks\$ks\$statistic), \"\\n\")\n";
-            print INPUT "ttest.p.value <- tryttestpvalue(",
+            print INPUT "ttest <- t.test( ",
                     $firstID,
                     ",",
                     $secondID,
-                    ")\n";
+                    " )\n";
             print INPUT "cat(\"t-test.",
                     $firstKey,
                     ".vs.",
                     $secondKey,
-                    ".p-value =   \", format(ttest.p.value), \"\\n\")\n";
-#            print INPUT "cat(\"t-test.",
-#                    $firstKey,
-#                    ".vs.",
-#                    $secondKey,
-#                    ".statistic = \", format(ttest\$statistic), \"\\n\")\n";
+                    ".p-value =   \", format(ttest\$p.value), \"\\n\")\n";
+            print INPUT "cat(\"t-test.",
+                    $firstKey,
+                    ".vs.",
+                    $secondKey,
+                    ".statistic = \", format(ttest\$statistic), \"\\n\")\n";
             print INPUT "cat(\"\\n\")\n";
 
 }
