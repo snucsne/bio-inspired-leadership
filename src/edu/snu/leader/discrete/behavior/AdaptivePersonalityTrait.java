@@ -20,10 +20,18 @@ import edu.snu.leader.discrete.behavior.Decision.DecisionType;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * AdaptivePersonalityTrait Personality trait that changes over time.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class AdaptivePersonalityTrait implements PersonalityTrait
 {
+    /** Personality value */
     private float _p = .5f;
 
+    /** The agent that has this trait */
     private Agent _agent = null;
 
     @Override

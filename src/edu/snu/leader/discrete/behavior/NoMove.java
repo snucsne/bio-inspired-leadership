@@ -17,6 +17,12 @@ package edu.snu.leader.discrete.behavior;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * NoMove Agents with this movement behavior will not move at all.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class NoMove implements MovementBehavior
 {
 

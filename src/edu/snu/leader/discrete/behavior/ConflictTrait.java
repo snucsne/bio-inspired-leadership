@@ -14,6 +14,13 @@
 
 package edu.snu.leader.discrete.behavior;
 
+/**
+ * ConflictTrait The interface that describes what all conflict traits will look
+ * like.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public interface ConflictTrait
 {
     /**

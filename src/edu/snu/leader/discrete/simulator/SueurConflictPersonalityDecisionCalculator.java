@@ -23,6 +23,15 @@ import edu.snu.leader.discrete.behavior.Decision.DecisionType;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
+/**
+ * SueurConflictPersonalityDecisionCalculator Sueur calculator with personality
+ * and conflict
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
+@Deprecated
+// Uses an old calculation that should be avoided or updated in the future
 public class SueurConflictPersonalityDecisionCalculator implements
         DecisionProbabilityCalculator
 {

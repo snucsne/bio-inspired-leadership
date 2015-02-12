@@ -20,6 +20,13 @@ import edu.snu.leader.discrete.simulator.Agent;
 import edu.snu.leader.discrete.simulator.Group;
 
 
+/**
+ * Initiate The initiation decision. Agents will begin moving towards their
+ * preferred destination.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class Initiate extends Decision
 {
 
@@ -44,8 +51,7 @@ public class Initiate extends Decision
         {
             // set velocity to the the destination vector - current location
             // vector, normalized and multiplied by speed
-            _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract(
-                    _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
+            _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract( _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
                     _agent.getSpeed() ) );
         }
     }

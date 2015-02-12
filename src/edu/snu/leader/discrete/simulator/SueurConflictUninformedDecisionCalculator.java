@@ -22,8 +22,17 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import edu.snu.leader.discrete.behavior.Decision;
 import edu.snu.leader.discrete.utils.Reporter;
 
-public class SueurConflictUninformedDecisionCalculator implements 
-            DecisionProbabilityCalculator
+
+/**
+ * SueurConflictUninformedDecisionCalculator Uses the Sueur model and conflict
+ * for decision calculation. Also takes into account uninformed agents'
+ * decisions.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
+public class SueurConflictUninformedDecisionCalculator implements
+        DecisionProbabilityCalculator
 {
     /** The simulation state */
     private SimulationState _simState = null;
@@ -55,6 +64,7 @@ public class SueurConflictUninformedDecisionCalculator implements
     {
         _simState = simState;
 
+        // get values from properties
         String alpha = _simState.getProperties().getProperty( "alpha" );
         Validate.notEmpty( alpha, "Alpha may not be empty" );
         _alpha = Double.parseDouble( alpha );
@@ -100,13 +110,19 @@ public class SueurConflictUninformedDecisionCalculator implements
     @Override
     public void calcInitiateProb( Decision decision )
     {
-        if(decision.getAgent().isUninformed()){
+        // if agent is uninformed then it can't initiate
+        if( decision.getAgent().isUninformed() )
+        {
             decision.setProbability( 0 );
         }
-        else{
+        else
+        {
+            // calculate conflict
             double conflict = _defaultConflictValue;
             conflict = calculateConflict( decision );
+            // get k value
             double k = 1 / kValue( conflict );
+            // set probability to alpha over k
             decision.setProbability( _alpha / k );
         }
     }
@@ -119,11 +135,12 @@ public class SueurConflictUninformedDecisionCalculator implements
         // probability to join this group
         double lambda = 0.0;
         double conflict = 0;
+        // calculate conflict if agent is not uninformed
         if( !agent.isUninformed() )
         {
             conflict = calculateConflict( decision );
         }
-        
+
         // the number of agents currently in this group
         int X = 0;
 
@@ -141,8 +158,11 @@ public class SueurConflictUninformedDecisionCalculator implements
         lambda = _alpha
                 + ( ( _beta * Math.pow( X, _q ) ) / ( Math.pow( _S, _q ) + Math.pow(
                         X, _q ) ) );
-        
-        if(!agent.isUninformed()){
+
+        // if agent is not uninformed then apply conflict
+        if( !agent.isUninformed() )
+        {
+            // calculate k value and apply it
             double k = 1 / kValue( 1 - conflict );
             lambda *= 1 / k;
         }
@@ -181,11 +201,14 @@ public class SueurConflictUninformedDecisionCalculator implements
                     + ( ( _betaC * Math.pow( X, _q ) ) / ( Math.pow( _S, _q ) + Math.pow(
                             X, _q ) ) );
         }
-        
-        if(agent.isUninformed()){
+
+        // agents cannot cancel if the are uninformed
+        if( agent.isUninformed() )
+        {
             decision.setProbability( 0 );
         }
-        else{
+        else
+        {
             decision.setProbability( psiC );
         }
     }

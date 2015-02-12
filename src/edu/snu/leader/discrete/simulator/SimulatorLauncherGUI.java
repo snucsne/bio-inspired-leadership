@@ -65,9 +65,21 @@ public class SimulatorLauncherGUI extends JFrame {
 
     private static final long serialVersionUID = 1L;
     
+    /**
+     * Our simulation properties
+     */
     private Properties _simulatorProperties = null;
+    /**
+     * The all important content pane
+     */
     private JPanel contentPane;
+    /**
+     * The tabbed pane
+     */
     private JTabbedPane tabbedPane;
+    /**
+     * The jFrame containing error messages
+     */
     private JFrame jframeErrorMessages = null;
     
     private JFormattedTextField frmtdtxtfldRunCount;

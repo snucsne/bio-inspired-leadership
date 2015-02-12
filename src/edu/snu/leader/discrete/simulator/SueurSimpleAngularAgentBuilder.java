@@ -31,20 +31,34 @@ import edu.snu.leader.discrete.utils.Utils;
 import edu.snu.leader.util.MiscUtils;
 
 
+/**
+ * SueurSimpleAngularAgentBuilder Builds agents that use the Sueur model and
+ * simple angular movement.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class SueurSimpleAngularAgentBuilder implements AgentBuilder
 {
+    /** Starting locations */
     private List<Point2D> _locations = null;
 
+    /** Destinations */
     private Point2D[] _destinations = null;
 
+    /** The simstate */
     private SimulationState _simState = null;
 
+    /** Number of agents to create */
     private int _numAgents = 0;
 
+    /** The locations file used */
     private String _locationsFile = null;
 
+    /** The destinations file used */
     private String _destinationsFile = null;
 
+    /** The radius of destinations */
     private int _destinationRadius = 10;
 
     @Override
@@ -52,6 +66,7 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
     {
         _simState = simState;
 
+        // get values from properties file
         String numAgents = _simState.getProperties().getProperty(
                 "individual-count" );
         Validate.notEmpty( numAgents, "Individual count may not be empty" );
@@ -131,9 +146,13 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
                 new Color( 0xFF69B4 ), new Color( 0xFFD700 ),
                 new Color( 0x1E90FF ), new Color( 0x8FBC8F ) };
 
+        // holds the colors assigned to each destination
         Map<Vector2D, Color> destinationColors = new HashMap<Vector2D, Color>();
+        // holds the index for colors used to assign destination colors
         Map<Color, Integer> destinationIds = new HashMap<Color, Integer>();
+        // the current index for colors
         int colorCount = 0;
+
         // initialize them
         for( int i = 0; i < _numAgents; i++ )
         {
@@ -155,10 +174,13 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
             // assigned
             else
             {
+                // add new destination
                 _simState.addDestination( agentDestination );
+                // assign color
                 destinationColor = colors[colorCount];
                 destinationColors.put( agentDestination, destinationColor );
                 destinationIds.put( destinationColor, colorCount );
+                // increment color count
                 colorCount++;
             }
             String destinationID = "D-" + destinationIds.get( destinationColor );
@@ -168,12 +190,14 @@ public class SueurSimpleAngularAgentBuilder implements AgentBuilder
                     destinationID, true, agentDestination, destinationColor,
                     _destinationRadius );
             tempAgent.setPreferredDestination( agentPreferredDestination );
-            
+
+            // the agent name formatted for the position reporter
             String agentName = tempAgent.getId().toString();
             agentName = agentName.replaceAll( "Agent", "" );
             agentName = "Ind"
                     + String.format( "%05d", Integer.parseInt( agentName ) );
 
+            // the header for the position reporter
             tempAgent.setPositionReportHeader( "world-object-name=" + agentName
                     + "\n" + "team-name="
                     + tempAgent.getPreferredDestinationId() + "\n"

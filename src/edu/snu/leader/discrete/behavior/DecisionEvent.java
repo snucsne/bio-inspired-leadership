@@ -14,6 +14,13 @@
 
 package edu.snu.leader.discrete.behavior;
 
+/**
+ * DecisionEvent Contains information about the decision that was made as well
+ * as the time it was made.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class DecisionEvent
 {
     /** The Decision of this event */

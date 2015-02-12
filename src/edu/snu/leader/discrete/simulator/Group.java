@@ -23,6 +23,12 @@ import java.util.List;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 
+/**
+ * Group Represents a group of agents. Created by initiations from agents.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class Group
 {
     /** The ID of the Agent group */
@@ -58,12 +64,16 @@ public class Group
         // set the color of this group and increment group size
         for( int i = 0; i < _simState.colors.length; i++ )
         {
+            // find an unused color
             if( !_simState.colorsInUse[i] )
             {
+                // reserve and assign it a color
                 _groupColor = _simState.colors[i];
                 _colorIndex = i;
                 _simState.colorsInUse[i] = true;
+                // increment total number of groups
                 simState.totalNumGroups++;
+                // break out of this loop since we are done
                 break;
             }
         }

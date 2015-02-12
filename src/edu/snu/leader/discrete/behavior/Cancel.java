@@ -19,6 +19,13 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * Cancel The cancel decision. Agents will move towards the starting point and
+ * their group will be dissolved. The agent is added to the none group.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class Cancel extends Decision
 {
 
@@ -30,9 +37,13 @@ public class Cancel extends Decision
     @Override
     public void choose()
     {
+        // dissolve group
         _agent.getGroup().dissolve();
+        // set leader to self
         _agent.setLeader( _agent );
+        // set destination to starting location
         _agent.setCurrentDestination( _agent.getInitialLocation() );
+        // move towards the initial location
         if( !_agent.getCurrentDestination().subtract(
                 _agent.getCurrentLocation() ).equals( Vector2D.ZERO ) )
         {
@@ -40,6 +51,7 @@ public class Cancel extends Decision
                     _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
                     _agent.getSpeed() ) );
         }
+        // add group to the none group
         _agent.getSimState().noneGroup.addAgent( _agent, _agent.getTime() );
     }
 }

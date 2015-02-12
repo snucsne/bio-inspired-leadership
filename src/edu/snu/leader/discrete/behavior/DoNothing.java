@@ -19,6 +19,13 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * DoNothing The do nothing decision where agents will continue doing what they
+ * were doing before.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class DoNothing extends Decision
 {
 
@@ -34,8 +41,7 @@ public class DoNothing extends Decision
         if( !_agent.getCurrentDestination().subtract(
                 _agent.getCurrentLocation() ).equals( Vector2D.ZERO ) )
         {
-            _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract( 
-                    _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
+            _agent.setCurrentVelocity( ( _agent.getCurrentDestination().subtract( _agent.getCurrentLocation() ) ).normalize().scalarMultiply(
                     _agent.getSpeed() ) );
         }
     }

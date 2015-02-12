@@ -25,6 +25,12 @@ import java.util.List;
 import ec.util.MersenneTwisterFast;
 
 
+/**
+ * DestinationBuilder Builds destinations and saves them into a file
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class DestinationBuilder
 {
     /** Directory to store the destinations files in */
@@ -43,22 +49,10 @@ public class DestinationBuilder
 
     public static void main( String[] args )
     {
-        // int count = 10;
         for( int count = 10; count <= 70; count += 10 )
         {
             DestinationBuilder db = new DestinationBuilder( count, 1 );
-//            db.generatePoles( 50, 100, 1.0 );
-//            db.generateSplitNorth( 150, 72, 1.0 );
             db.generateSplitPoles( 150, 72, 0.75, 4 );
-//            db.generateSides( 25, 50, .50 );
-
-//            double[] horizontalPercentages = { 1 };
-//            db.generateHorizontalNorth( 60, 25, 1, horizontalPercentages );
-
-//            db.generateCircle( 55, count );
-
-//            db.generateOneNorth( 70 );
-//            db.generateDifferentDistance( 0, 200, 100, 75 );
         }
     }
 
@@ -68,7 +62,7 @@ public class DestinationBuilder
         _randomSeed = seed;
         _rng = new MersenneTwisterFast( _randomSeed );
     }
-    
+
     public void generateDifferentDistance( double percentNorth,
             double northY,
             double eastX,
@@ -245,21 +239,21 @@ public class DestinationBuilder
                 + _randomSeed + ".dat";
         saveToFile( filename );
     }
-    
+
     /**
      * Creates two sets of split destinations, one north and one south. They are
      * identical except for their y coordinates.
-     *
+     * 
      * @param distance Distance away from origin
      * @param angle Angle offset from origin
      * @param percentLeft Percent of destinations that are to the left
-     * @param destinationCount Number of destinations desired at one of the 
-     * poles (duplicated on the other side)
+     * @param destinationCount Number of destinations desired at one of the
+     *            poles (duplicated on the other side)
      */
     public void generateSplitPoles( double distance,
             double angle,
             double percentLeft,
-            int destinationCount)
+            int destinationCount )
     {
         int temp = _destinationCount;
         _destinationCount = destinationCount * 2;
@@ -287,7 +281,7 @@ public class DestinationBuilder
                 _destinations[i] = right;
             }
         }
-        
+
         numberLeft = (int) Math.round( destinationCount * percentLeft );
 
         // get the x and y coords
@@ -312,8 +306,9 @@ public class DestinationBuilder
             }
         }
 
-        String filename = directory + "destinations-split-poles-" + destinationCount
-                + "-dis-" + String.format( "%03.1f", distance ) + "-ang-"
+        String filename = directory + "destinations-split-poles-"
+                + destinationCount + "-dis-"
+                + String.format( "%03.1f", distance ) + "-ang-"
                 + String.format( "%03.2f", angle ) + "-per-"
                 + String.format( "%01.3f", percentLeft ) + "-seed-"
                 + _randomSeed + ".dat";

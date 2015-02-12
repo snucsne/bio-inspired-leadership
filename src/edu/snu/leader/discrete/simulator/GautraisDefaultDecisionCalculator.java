@@ -22,6 +22,13 @@ import edu.snu.leader.discrete.behavior.Decision;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
+/**
+ * GautraisDefaultDecisionCalculator Uses the Gautrais model for decision
+ * calculation
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class GautraisDefaultDecisionCalculator implements
         DecisionProbabilityCalculator
 {

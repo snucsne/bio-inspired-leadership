@@ -161,7 +161,7 @@ public class Utils
         scanner.close();
         return locations;
     }
-    
+
     public static ArrayList<Point2D> readPoints( String filename )
     {
         // array list of points

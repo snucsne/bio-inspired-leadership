@@ -22,6 +22,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 
+/**
+ * Reporter Used to output things into a file
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class Reporter
 {
     /** Root directory of all reporters */

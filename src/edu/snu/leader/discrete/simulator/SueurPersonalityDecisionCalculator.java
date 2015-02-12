@@ -23,6 +23,12 @@ import edu.snu.leader.discrete.behavior.Decision.DecisionType;
 import edu.snu.leader.discrete.utils.Reporter;
 
 
+/**
+ * SueurPersonalityDecisionCalculator Sueur model with personality
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class SueurPersonalityDecisionCalculator implements
         DecisionProbabilityCalculator
 {
@@ -53,6 +59,7 @@ public class SueurPersonalityDecisionCalculator implements
     {
         _simState = simState;
 
+        // get values from properties
         String alpha = _simState.getProperties().getProperty( "alpha" );
         Validate.notEmpty( alpha, "Alpha may not be empty" );
         _alpha = Double.parseDouble( alpha );
@@ -91,6 +98,7 @@ public class SueurPersonalityDecisionCalculator implements
     @Override
     public void calcInitiateProb( Decision decision )
     {
+        // set probability to k * alpha
         decision.setProbability( kValue( decision ) * _alpha );
     }
 
@@ -119,6 +127,7 @@ public class SueurPersonalityDecisionCalculator implements
         lambda = _alpha
                 + ( ( _beta * Math.pow( X, _q ) ) / ( Math.pow( _S, _q ) + Math.pow(
                         X, _q ) ) );
+        // modify it by k
         lambda *= kValue( decision );
 
         decision.setProbability( lambda );

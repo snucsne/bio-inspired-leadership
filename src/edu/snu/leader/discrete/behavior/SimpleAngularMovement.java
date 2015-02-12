@@ -21,6 +21,13 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import edu.snu.leader.discrete.simulator.Agent;
 
 
+/**
+ * SimpleAngularMovement Simple movement behavior for agents. They will move
+ * straight to their target destination. No collision detection.
+ * 
+ * @author Tim Solum
+ * @version $Revision$ ($Author$)
+ */
 public class SimpleAngularMovement implements MovementBehavior
 {
     private Agent _agent;
@@ -29,22 +36,30 @@ public class SimpleAngularMovement implements MovementBehavior
     public void move()
     {
         boolean isInDestination = false;
+
         // if agents should stop at any destination
-        if( _agent.getSimState().shouldStopAnywhere())
+        if( _agent.getSimState().shouldStopAnywhere() )
         {
+            // iterate through all the destinations
             Iterator<Vector2D> destinations = _agent.getSimState().getDestinationsIterator();
-            while(destinations.hasNext()){
+            while( destinations.hasNext() )
+            {
+                // get next destination to check
                 Vector2D temp = destinations.next();
+                // if the agent is inside this destination
                 if( _agent.getCurrentLocation().distance( temp ) < _agent.getPreferredDestination().getRadius() )
                 {
+                    // agent reached the destination
                     _agent.reachedDestination();
+                    // set whether it was good or not
                     _agent.setReachedGoodDestination( _agent.getLeader().getPreferredDestination().isGood() );
+                    // agent is now in a destination
                     isInDestination = true;
                 }
             }
         }
-        
-        if( isInDestination ) 
+
+        if( isInDestination )
         {
             // nothing to do here
         }
@@ -52,7 +67,7 @@ public class SimpleAngularMovement implements MovementBehavior
         // reached their destination
         else if( !_agent.getPreferredDestination().getID().equals( "D-N" )
                 && _agent.getCurrentLocation().distance1(
-                _agent.getPreferredDestination().getVector() ) < _agent.getPreferredDestination().getRadius() )
+                        _agent.getPreferredDestination().getVector() ) < _agent.getPreferredDestination().getRadius() )
         {
             _agent.reachedDestination();
         }
