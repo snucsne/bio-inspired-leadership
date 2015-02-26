@@ -27,7 +27,7 @@ replot \"$PERSONALITY05\" using 1:2 title \"Personality=[0.5]\" with lines lw 3 
 replot \"$PERSONALITY09\" using 1:2 title \"Personality=[0.8]\" with lines lw 3 lc rgb \"#FF3333\"
 replot \"$BASELINE\" using 1:2 title \"Baseline\" with lines lw 3 lc rgb \"#000000\"
 
-set terminal postscript eps enhanced color \"NimbusSanL-Regu,17\" fontfile \"/usr/share/texmf-texlive/fonts/type1/urw/helvetic/uhvr8a.pfb\"
+set terminal postscript eps enhanced color \"Arial,17\" fontfile \"/usr/share/fonts/truetype/msttcorefonts/Arial.ttf\"
 set output \"/tmp/tmp.eps\"
 replot"
 
@@ -35,4 +35,7 @@ echo -e "$plotcmd" > /tmp/success-percentages.plot
 gnuplot /tmp/success-percentages.plot
 eps2eps /tmp/tmp.eps $OUTPUT_EPS_FILE
 epstopdf $OUTPUT_EPS_FILE
+
+
+#set terminal postscript eps enhanced color \"NimbusSanL-Regu,17\" fontfile \"/usr/share/texmf-texlive/fonts/type1/urw/helvetic/uhvr8a.pfb\"
 
