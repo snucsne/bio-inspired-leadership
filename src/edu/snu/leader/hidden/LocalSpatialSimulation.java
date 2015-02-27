@@ -168,9 +168,9 @@ public class LocalSpatialSimulation
         setUpSimulation();
 
         // Run the simulation a number of times
-        for( int i = 0; i< _simulationCount; i++ )
+        for( int i = 0; i < _simulationCount; i++ )
         {
-            _LOG.debug( "Simulation ["
+            _LOG.warn( "Simulation ["
                     + i
                     + "]" );
 
@@ -402,8 +402,8 @@ public class LocalSpatialSimulation
             else if( DepartureEvent.Type.CANCEL.equals( earliestType ) )
             {
                 // Yup, grab all the initiator's followers and delete their time
-                SpatialIndividual cancellor = earliestEvent.getDeparted();
-                Iterator<Neighbor> followerIter = cancellor.getAllFollowers().iterator();
+                SpatialIndividual canceler = earliestEvent.getDeparted();
+                Iterator<Neighbor> followerIter = canceler.getAllFollowers().iterator();
                 while( followerIter.hasNext() )
                 {
                     Neighbor current = followerIter.next();
@@ -423,11 +423,11 @@ public class LocalSpatialSimulation
                 }
 
                 // Process the cancellation
-                _simState.cancelInitiation( cancellor );
-                initiators.remove( cancellor );
-                departureTimes.remove( cancellor.getID() );
+                _simState.cancelInitiation( canceler );
+                initiators.remove( canceler );
+                departureTimes.remove( canceler.getID() );
                 _LOG.debug( "Cancelling ["
-                        + cancellor.getID()
+                        + canceler.getID()
                         + "]" );
             }
             // I have no idea
@@ -533,7 +533,7 @@ public class LocalSpatialSimulation
                 {
                     cancelTime = eventTimeCalc.calculateCancelTime(
                             ind,
-                            ind.getImmediateFollowerCount() + 1 );
+                            ind.getNearestNeighborsFollowingCount() + 1 );
                 }
                 else
                 {

@@ -20,7 +20,7 @@ import edu.snu.leader.discrete.behavior.Decision;
 /**
  * DecisionProbabilityCalculator Defines what a probability calculator will look
  * like
- * 
+ *
  * @author Tim Solum
  * @version $Revision$ ($Author$)
  */
@@ -28,28 +28,28 @@ public interface DecisionProbabilityCalculator
 {
     /**
      * Initializes the calculator
-     * 
+     *
      * @param simState The simulation state
      */
     public void initialize( SimulationState simState );
 
     /**
      * Calculates the probability for an initiation decision
-     * 
+     *
      * @param decision The initiation decision
      */
     public void calcInitiateProb( Decision decision );
 
     /**
      * Calculates the probability for a follow decision
-     * 
+     *
      * @param decision The follow decision
      */
     public void calcFollowProb( Decision decision );
 
     /**
      * Calculates the probability for a cancellation decision
-     * 
+     *
      * @param decision The cancellation decision
      */
     public void calcCancelProb( Decision decision );
@@ -57,18 +57,20 @@ public interface DecisionProbabilityCalculator
     /**
      * Returns an array of all the possible follow probabilities. Will be null
      * if pre-generation was not specified in properties file.
-     * 
+     *
      * @return
      */
-    @Deprecated
+// BEE - Removed deprecation to get rid of compile errors.  Need to clean this up.
+//    @Deprecated
     public double[] getPreCalculatedFollowProbabilities();
 
     /**
      * Returns an array of all the possible cancel probabilities. Will be null
      * if pre-generation was not specified in properties file.
-     * 
+     *
      * @return
      */
-    @Deprecated
+ // BEE - Removed deprecation to get rid of compile errors.  Need to clean this up.
+//    @Deprecated
     public double[] getPreCalculatedCancelProbabilities();
 }

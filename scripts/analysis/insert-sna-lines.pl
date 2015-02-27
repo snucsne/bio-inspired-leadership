@@ -17,12 +17,12 @@ open( INPUT, "$inputFile" ) or die "Unable to open input file [$inputFile]: $!\n
 while( <INPUT> )
 {
     # Does it contain the sna-todo key?
-#    if( /sna-todo/ )
-    if( /betweenness/ )
+    if( /sna-todo/ )
+#    if( /betweenness/ )
     {
         # Yup, grab the individual ID
-#        $_ =~ /^individual\.(.+)\.sna-todo/;
-        $_ =~ /^individual\.(.+)\.betweenness/;
+        $_ =~ /^individual\.(.+)\.sna-todo/;
+#        $_ =~ /^individual\.(.+)\.betweenness/;
         my $id = $1;
 
 # Replace the bogus ID in the TAG
@@ -34,11 +34,14 @@ print OUTPUT $_;
         print OUTPUT "individual.$id.alpha-centrality = %%%$id-ALPHA-CENTRALITY%%%\n";
         print OUTPUT "individual.$id.degree = %%%$id-DEGREE%%%\n";
         print OUTPUT "individual.$id.closeness = %%%$id-CLOSENESS%%%\n";
+        print OUTPUT "individual.$id.normalized-closeness = %%%$id-NORMALIZED-CLOSENESS%%%\n";
         print OUTPUT "individual.$id.transitivity = %%%$id-TRANSITIVITY%%%\n";
         print OUTPUT "individual.$id.pagerank = %%%$id-PAGERANK%%%\n";
         print OUTPUT "individual.$id.kleinberg = %%%$id-KELINBERG%%%\n";
         print OUTPUT "individual.$id.out-degree = %%%$id-OUT-DEGREE%%%\n";
         print OUTPUT "individual.$id.in-degree = %%%$id-IN-DEGREE%%%\n";
+        print OUTPUT "individual.$id.mean-shortest-path = %%%$id-MEAN-SHORTEST-PATH%%%\n";
+        print OUTPUT "individual.$id.shortest-paths = %%%$id-SHORTEST-PATHS%%%\n";
     }
     elsif( /EIGENVECTOR/ )
     {

@@ -59,7 +59,7 @@ public class InversePersonalityPositionSimulationObserver
             {
                 // Get the current individuals number of mimics
                 current = iter.next();
-                int currentMimics = current.getMimicingNeighborCount();
+                int currentMimics = current.getMimickingNeighborCount();
 
                 // Is it smaller than the current minimum?
                 if( currentMimics < minMimics )
@@ -85,7 +85,7 @@ public class InversePersonalityPositionSimulationObserver
             {
                 // Get the current individual and their number of mimics
                 current = iter.next();
-                int currentMimics = current.getMimicingNeighborCount();
+                int currentMimics = current.getMimickingNeighborCount();
 
                 /* Calculate the personality by using the number of mimics
                  * to scale the value and then ensure that it is between

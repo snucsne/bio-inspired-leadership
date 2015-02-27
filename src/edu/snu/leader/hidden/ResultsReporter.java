@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import edu.snu.leader.hidden.event.DepartureEvent;
 import edu.snu.leader.hidden.event.EventTimeCalculator;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -59,6 +60,9 @@ public class ResultsReporter
 
     /** Key for the simulation log file flag */
     private static final String _USE_SIM_LOG_FILE_FLAG_KEY = "use-sim-log-file-flag";
+
+    /** Key for the location log file flag */
+    private static final String _USE_LOCATION_LOG_FILE_FLAG_KEY = "use-location-log-file-flag";
 
     /** Stats file spacer comment */
     private static final String _SPACER =
@@ -101,8 +105,14 @@ public class ResultsReporter
     /** The writer to which simulation logs are reported */
     private PrintWriter _logWriter = null;
 
+    /** The writer to which location logs are reported */
+    private PrintWriter _locationWriter = null;
+
     /** Flag denoting whether or not to use the sim log file */
     private boolean _useSimLogFile = false;
+
+    /** Flag denoting whether or not to use the location log file */
+    private boolean _useLocationLogFile = false;
 
     /** The simulation state */
     private SimulationState _simState = null;
@@ -226,11 +236,48 @@ public class ResultsReporter
             }
             catch( IOException ioe )
             {
-                _LOG.error( "Unable to open log file ["
+                _LOG.error( "Unable to open simulation log file ["
                         + simLogFile
                         + "]", ioe );
-                throw new RuntimeException( "Unable to open log file ["
-                        + resultsFile
+                throw new RuntimeException( "Unable to open simulation log file ["
+                        + simLogFile
+                        + "]", ioe );
+            }
+        }
+
+        // Do we log locations?
+        String useLocationLogFileStr = props.getProperty( _USE_LOCATION_LOG_FILE_FLAG_KEY );
+        if( null != useLocationLogFileStr )
+        {
+            _useLocationLogFile = Boolean.parseBoolean( useLocationLogFileStr );
+            _LOG.info( "Using _useLocationLogFile=["
+                    + _useLocationLogFile
+                    + "]" );
+        }
+
+        if( _useLocationLogFile )
+        {
+            // Build the compressed location log file
+            int lastDotIdx = resultsFile.lastIndexOf( '.' );
+            String simLocationFile = resultsFile.substring( 0, lastDotIdx )
+                    + ".locations.gz";
+            _LOG.warn( "Sending location log to [" + simLocationFile + "]" );
+
+            // Build the location log writer
+            try
+            {
+                _locationWriter = new PrintWriter( new BufferedWriter(
+                        new OutputStreamWriter(
+                                new GZIPOutputStream(
+                                        new FileOutputStream( simLocationFile ) ) ) ) );
+            }
+            catch( IOException ioe )
+            {
+                _LOG.error( "Unable to open location log file ["
+                        + simLocationFile
+                        + "]", ioe );
+                throw new RuntimeException( "Unable to open location log file ["
+                        + simLocationFile
                         + "]", ioe );
             }
         }
@@ -300,6 +347,40 @@ public class ResultsReporter
 
             // Print it
             _logWriter.println( builder.toString() );
+        }
+
+        if( _useLocationLogFile )
+        {
+            // Dump a log of all the locations
+            StringBuilder builder = new StringBuilder();
+            builder.append( (successful ? "S " : "F " ) );
+
+            // Get all the individuals
+            Iterator<SpatialIndividual> indIter = _simState.getAllIndividuals().iterator();
+            while( indIter.hasNext() )
+            {
+                SpatialIndividual ind = indIter.next();
+
+                // Get the individual's location
+                Point2D location = ind.getLocation();
+                builder.append( " [" );
+                builder.append( ind.getID() );
+                builder.append( String.format( ":(%+08.3f,%+08.3f)",
+                        location.getX(),
+                        location.getY()) );
+
+                // Get the individual's nearest neighbors
+                Iterator<Neighbor> neighborIter =  ind.getNearestNeighbors().iterator();
+                while( neighborIter.hasNext() )
+                {
+                    builder.append( ":" );
+                    builder.append( neighborIter.next().getIndividual().getID() );
+                }
+                builder.append( "]" );
+            }
+
+            // Print it
+            _locationWriter.println( builder.toString() );
         }
     }
 

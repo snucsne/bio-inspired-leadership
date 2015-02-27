@@ -331,6 +331,26 @@ public class SimulationState
     }
 
     /**
+     * Updates the nearest neighbors for all the individuals
+     */
+    public void updateAllNearestNeighbors()
+    {
+        // Reset all the neighbor information for all individuals
+        Iterator<SpatialIndividual> indIter = _allIndividuals.iterator();
+        while( indIter.hasNext() )
+        {
+            indIter.next().resetNearestNeighbors();
+        }
+
+        // Have the individuals find their neighbors
+        indIter = _allIndividuals.iterator();
+        while( indIter.hasNext() )
+        {
+            indIter.next().findNearestNeighbors( this );
+        }
+    }
+
+    /**
      * Return the number of individuals remaining
      *
      * @return The number of individuals remaining
@@ -839,9 +859,9 @@ public class SimulationState
             {
                 // Yup
                 lonelyInds.add( ind );
-//                _LOG.warn( "Ind ["
-//                        + ind.getID()
-//                        + "] has no neighbors" );
+                _LOG.warn( "Ind ["
+                        + ind.getID()
+                        + "] has no neighbors" );
             }
         }
 
@@ -854,6 +874,19 @@ public class SimulationState
                     + lonely.getID()
                     + "]" );
             _allIndividuals.remove( lonely );
+        }
+
+        // Find out if any individuals have no mimicing neighbors
+        indIter = _allIndividuals.iterator();
+        while( indIter.hasNext() )
+        {
+            SpatialIndividual ind = indIter.next();
+            if( 0 >= ind.getMimickingNeighborCount() )
+            {
+                _LOG.warn( "Individual ["
+                        + ind.getID()
+                        + "] has no mimicing neighbors" );
+            }
         }
 
         _LOG.trace( "Leaving createIndividuals()" );

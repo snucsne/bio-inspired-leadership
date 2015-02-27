@@ -5,6 +5,9 @@ use strict;
 # Get the input file
 my $inputFile = shift( @ARGV );
 
+# Get the output SNA file
+my $snaFile = shift( @ARGV );
+
 # -------------------------------------------------------------------
 # Read the input file
 my %data;
@@ -51,7 +54,6 @@ close( INPUT );
 # Create an Rinput file
 my $rInputFile = "/tmp/sna-calcs.r";
 my $rOutputFile = "/tmp/sna-calcs.r.out";
-my $tmpOutputFile = "/tmp/sna-calcs.results";
 
 open( RINPUT, "> $rInputFile" ) or die "Unable to open input file [$rInputFile]: $!\n";
 print RINPUT "library('Matching')\n";
@@ -111,10 +113,31 @@ print RINPUT "indegree <- degree( graph, mode=\"in\" )\n\n";
 print RINPUT "graphcommunity <- edge.betweenness.community( graph, directed=TRUE, merges=TRUE, modularity=TRUE )\n";
 #print RINPUT "memberships <- community.to.membership( graph, graphcommunity\$merges, steps=which.max(graphcommunity\$modularity)-1)\n\n";
 
+# Calculate the shortest paths
+print RINPUT "shortestpaths <- shortest.paths( graph, mode=c(\"in\") )\n\n";
+#print RINPUT "shortestpaths\n\n";
+print RINPUT "meanshortestpaths <- rowMeans( shortestpaths )\n\n";
+
+# Calculate the closeness
+print RINPUT "closenessallnodes <- closeness( graph, vids=V(graph), mode=c(\"in\"), normalized=TRUE )\n\n";
+#print RINPUT "closenessallnodes\n\n";
+print RINPUT "customnormalizedcloseness <- closenessallnodes / max(closenessallnodes)\n\n";
+#print RINPUT "mynormalizedcloseness\n\n";
+
+# Calculate the diameter
+print RINPUT "farthestnodes <- farthest.nodes( graph, directed = TRUE )\n\n";
+#print RINPUT "farthestnodes\n\n";
+
 
 # -------------------------------------------------------------------
 # Output the values
-print RINPUT "sink(\"$tmpOutputFile\")\n";
+print RINPUT "sink(\"$snaFile\")\n";
+
+print RINPUT "cat(\"# Data file [$inputFile]\\n\")\n";
+my $nowString = localtime;
+print RINPUT "cat(\"# $nowString\\n\")\n";
+
+print RINPUT "cat(\"\\n\")\n";
 
 print RINPUT "cat(\"# Eigenvector centrality values\\n\")\n";
 print RINPUT "for( i in 1:length(eigen\$vector)) {\n";
@@ -175,7 +198,38 @@ print RINPUT "cat(\"\\n\")\n";
 print RINPUT "cat(\"# Modularity\\n\")\n";
 #print RINPUT "cat(\"communities \",length(memberships\$csize),\"\\n\")\n";
 print RINPUT "cat(\"modularity 0\",max(graphcommunity\$modularity),\"\\n\")\n";
+print RINPUT "cat(\"\\n\")\n";
+print RINPUT "cat(\"\\n\")\n";
 
+print RINPUT "cat(\"# Shortest paths\\n\")\n";
+print RINPUT "for( i in 1:nrow(shortestpaths)) {\n";
+print RINPUT "for( j in 1:ncol(shortestpaths)) {\n";
+print RINPUT "cat(\"shortestpath\",(i-1),(j-1),shortestpaths[i,j],\"\\n\")\n";
+print RINPUT "}\n";
+print RINPUT "cat(\"\\n\")\n";
+print RINPUT "}\n";
+print RINPUT "cat(\"\\n\")\n";
+
+print RINPUT "cat(\"# Mean shortest paths\\n\")\n";
+print RINPUT "for( i in 1:length(meanshortestpaths)) {\n";
+print RINPUT "cat(\"meanshortestpath\",(i-1),meanshortestpaths[i],\"\\n\")\n";
+print RINPUT "}\n";
+print RINPUT "cat(\"\\n\")\n";
+print RINPUT "cat(\"\\n\")\n";
+
+print RINPUT "cat(\"# Standard normalized closeness\\n\")\n";
+print RINPUT "for( i in 1:length(closenessallnodes)) {\n";
+print RINPUT "cat(\"closeness\",(i-1),closenessallnodes[i],\"\\n\")\n";
+print RINPUT "}\n";
+print RINPUT "cat(\"\\n\")\n";
+print RINPUT "cat(\"\\n\")\n";
+
+print RINPUT "cat(\"# Custom normalized closeness\\n\")\n";
+print RINPUT "for( i in 1:length(customnormalizedcloseness)) {\n";
+print RINPUT "cat(\"customcloseness\",(i-1),customnormalizedcloseness[i],\"\\n\")\n";
+print RINPUT "}\n";
+print RINPUT "cat(\"\\n\")\n";
+print RINPUT "cat(\"\\n\")\n";
 
 
 # -------------------------------------------------------------------
@@ -186,103 +240,4 @@ close( RINPUT );
 # Run it
 `R --no-save < $rInputFile > $rOutputFile 2>&1`;
 
-
-# -------------------------------------------------------------------
-# Read the R output file
-my %eigValues;
-my %betValues;
-my %values;
-
-# Open the file
-open( ROUTPUT, "$tmpOutputFile" ) or die "Unable to open R output file [$tmpOutputFile] for input file [$inputFile]: $!\n";
-
-# Read each line
-my $gatherEigValues = 0;
-my $gatherBetValues = 0;
-while( <ROUTPUT> )
-{
-    # Remove any other comments or whitespace
-    s/#.*//;
-    s/^\s+//;
-    s/\s+$//;
-    next unless length;
-
-    /^(\w+)\s(\d+)\s(.*)$/;
-    my $type = $1;
-    my $id = "Ind".sprintf("%05d", $2);
-    my $value = $3;
-
-    if( $type =~ /modularity/ )
-    {
-        $values{$type} = $value;
-    }
-    else
-    {
-        $values{$type}{$id} = $value;
-    }
-
-#    print "[$type]-[$id]=[$value]\n";
-
-}
-close( ROUTPUT );
-
-#exit;
-
-# -------------------------------------------------------------------
-# Read the input file again
-my $tmpOutputFile = "/tmp/temp-insert.dat";
-
-# Open the input file
-open( INPUT, "$inputFile" ) or die "Unable to open input file [$inputFile]: $!\n";
-
-# Open the temp output file
-open( OUTPUT, "> $tmpOutputFile" ) or die "Unable to open tmp output file [$tmpOutputFile]: $!\n";
-
-# Read each line
-while( <INPUT> )
-{
-    # Replace the eigenvector centrality placeholder
-    s/%%%(Ind\d+)-EIGENVECTOR-CENTRALITY%%%/$values{eigenvector}{$1}/;
-
-    # Replace the betweenness placeholder
-    s/%%%(Ind\d+)-BETWEENNESS%%%/$values{betweenness}{$1}/;
-
-    # Replace the  placeholder
-    s/%%%(Ind\d+)-ALPHA-CENTRALITY%%%/$values{alpha}{$1}/;
-
-    # Replace the degree placeholder
-    s/%%%(Ind\d+)-DEGREE%%%/$values{degree}{$1}/;
-
-    # Replace the  placeholder
-#    s/%%%(Ind\d+)-CLOSENESS%%%/$values{}{$1}/;
-
-    # Replace the  placeholder
-#    s/%%%(Ind\d+)-TRANSITIVITY%%%/$values{}{$1}/;
-
-    # Replace the pagerank placeholder
-    s/%%%(Ind\d+)-PAGERANK%%%/$values{pagerank}{$1}/;
-
-    # Replace the kleinberg placeholder
-    s/%%%(Ind\d+)-KELINBERG%%%/$values{klein}{$1}/;
-
-    # Replace the out degree placeholder
-    s/%%%(Ind\d+)-OUT-DEGREE%%%/$values{outdegree}{$1}/;
-
-    # Replace the in degree placeholder
-    s/%%%(Ind\d+)-IN-DEGREE%%%/$values{indegree}{$1}/;
-
-    # Replace the modularity placeholder
-    s/%%%MODULARITY%%%/$values{modularity}/;
-
-    # Print it to the output file
-    print OUTPUT $_;
-}
-
-close( OUTPUT );
-close( INPUT );
-
-
-# Move it over
-`mv $inputFile $inputFile.bak`;
-`mv $tmpOutputFile $inputFile`;
 

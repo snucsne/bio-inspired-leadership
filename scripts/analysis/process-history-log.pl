@@ -116,9 +116,20 @@ while( <INPUT> )
         # Save the time
         my $orderStr = sprintf( "%03d", $order );
         push( @{$data{"time"}{$orderStr}}, $time );
+#print "Added time: [$orderStr]=>[$time]\tevent=[$event]\n";
 
         # Decrement the order of the event (as related to the final hierarchy)
         $order--;
+    }
+
+    # Calculate the total elapsed time for following events
+    my $totalElapsedTime = 0;
+    foreach my $order ( sort keys %{$data{"time"}} )
+    {
+        $totalElapsedTime += $data{"time"}{$order}[-1];
+        push( @{$data{"elapsed-time"}{$order}}, $totalElapsedTime );
+#        print "Order=[$order]  Raw [",${$data{"time"}{$order}}[-1],"]  Elapsed=[$totalElapsedTime]\n";
+#        print "\tTime array [",join(" ", @{$data{"time"}{$order}}),"]\n";
     }
 
     # Process the hierarchy
@@ -260,10 +271,62 @@ foreach my $order ( sort( keys %{$data{"time"}} ) )
 
     my $prefix = "time.$order";
 
+    if( 0 == $order )
+    {
+        print OUTPUT "# Time for initiator\n";
+    }
+    else
+    {
+        print OUTPUT "# Time for follower ",sprintf( "%3d", $order),"\n";
+    }
+
     if( $fullDataFlag )
     {
         print OUTPUT $prefix,".data = ",
             join( " ", @{$data{"time"}{$order}} ),
+            "\n";
+    }
+    print OUTPUT $prefix,".count = ",
+        $stats->count(),
+        "\n";
+    print OUTPUT $prefix,".mean = ",
+        $stats->mean(),
+        "\n";
+    print OUTPUT $prefix,".std-dev = ",
+        $stats->standard_deviation(),
+        "\n";
+    print OUTPUT $prefix,".max = ",
+        $stats->max(),
+        "\n";
+    print OUTPUT $prefix,".min = ",
+        $stats->min(),
+        "\n";
+    print OUTPUT "\n";
+}
+
+# -------------------------------------------------------------------
+# Print out the elapsed times
+print OUTPUT "# ===================================================\n";
+foreach my $order ( sort( keys %{$data{"elapsed-time"}} ) )
+{
+    my $stats = Statistics::Descriptive::Full->new();
+    $stats->add_data( @{$data{"elapsed-time"}{$order}} );
+
+    my $prefix = "elapsed-time.$order";
+
+    if( 0 == $order )
+    {
+        print OUTPUT "# Elapsed time for initiator\n";
+    }
+    else
+    {
+        print OUTPUT "# Elapsed time for follower ",sprintf( "%3d", $order),"\n";
+    }
+
+    if( $fullDataFlag )
+    {
+        print OUTPUT $prefix,".data = ",
+            join( " ", @{$data{"elapsed-time"}{$order}} ),
             "\n";
     }
     print OUTPUT $prefix,".count = ",
@@ -291,6 +354,7 @@ $maxDepthStats->add_data( @{$data{"maxdepth"}} );
 
 # Print out the max depth information
 print OUTPUT "# ===================================================\n";
+print OUTPUT "# Max depth data\n";
 if( $fullDataFlag )
 {
     print OUTPUT "max-depth.data = ",

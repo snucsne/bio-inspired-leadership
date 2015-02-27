@@ -18,7 +18,10 @@ do
 
     GROUP_SIZE=`echo $DATA_DIR | sed -r 's/^.*indcount-([0-9]+).*$/\1/'`
 
-    for LOG_FILE in $DATA_DIR/*.log.gz;
+for MAP_DIR in $DATA_DIR/map*
+do
+
+    for LOG_FILE in $MAP_DIR/*.log.gz;
     do
 
 #        echo Processing [$LOG_FILE]...
@@ -36,7 +39,11 @@ do
         gunzip $TEMP_LOG_GZ
 
         # Process it
-        ./process-history-log.pl $TEMP_LOG $LOG_FILE $OUTPUT_FILE $GROUP_SIZE $ALL_DATA_FLAG
+        if [ -e $TEMP_LOG ]
+        then
+            ./process-history-log.pl $TEMP_LOG $LOG_FILE $OUTPUT_FILE $GROUP_SIZE $ALL_DATA_FLAG
+        fi
 
     done
+done
 done

@@ -18,8 +18,8 @@
  */
 package edu.snu.leader.hidden.event;
 
+//Imports
 import edu.snu.leader.hidden.SpatialIndividual;
-// Imports
 import edu.snu.leader.util.MathUtils;
 
 

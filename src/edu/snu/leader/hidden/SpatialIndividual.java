@@ -159,6 +159,9 @@ public class SpatialIndividual
     /** Flag indicating that the initiation history should be described */
     protected boolean _describeInitiationHistory = false;
 
+    /** All the failed initiators in the current simulation */
+    protected List<Neighbor> _failedLeaders = new LinkedList<Neighbor>();
+
 
     /**
      * Builds this SpatialIndividual object
@@ -240,6 +243,15 @@ public class SpatialIndividual
     }
 
     /**
+     * Resets all the nearest neighbor information for this individual
+     */
+    public void resetNearestNeighbors()
+    {
+        _nearestNeighbors.clear();
+        _mimicingNeighbors.clear();
+    }
+
+    /**
      * TODO Method description
      *
      * @param ind
@@ -266,7 +278,7 @@ public class SpatialIndividual
      *
      * @return
      */
-    public int getMimicingNeighborCount()
+    public int getMimickingNeighborCount()
     {
         return _mimicingNeighbors.size();
     }
@@ -374,6 +386,10 @@ public class SpatialIndividual
                 + "] is cancelling" );
 
         // If we have a leader, stop following
+        if( null != _leader )
+        {
+            _failedLeaders.add( _leader );
+        }
         _leader = null;
 
         // Reset our group ID
@@ -403,6 +419,7 @@ public class SpatialIndividual
         _groupID = null;
         _followers.clear();
         _firstMover = null;
+        _failedLeaders.clear();
     }
 
     /**
@@ -441,6 +458,34 @@ public class SpatialIndividual
     public int getImmediateFollowerCount()
     {
         return _followers.size();
+    }
+
+    public int getNearestNeighborsFollowingCount()
+    {
+        int count = 0;
+
+        Iterator<Neighbor> nearestIter = _nearestNeighbors.iterator();
+        while( nearestIter.hasNext() )
+        {
+            // Is it following us?
+            Neighbor neighbor = nearestIter.next();
+
+            // Get their leader
+            Neighbor leader = neighbor.getIndividual().getLeader();
+            while( null != leader )
+            {
+                // Is it us?
+                if( leader.getIndividual().getID().equals( getID() ) )
+                {
+                    // Yup
+                    ++count;
+                    continue;
+                }
+            }
+
+        }
+
+        return count;
     }
 
     /**
@@ -798,7 +843,7 @@ public class SpatialIndividual
         // Add the number of individuals with this individual as a neighbor
         builder.append( prefix );
         builder.append( "mimicing-neighbor-count = " );
-        builder.append( getMimicingNeighborCount() );
+        builder.append( getMimickingNeighborCount() );
         builder.append( _NEWLINE );
 
         // Add placeholders for the social network analysis data

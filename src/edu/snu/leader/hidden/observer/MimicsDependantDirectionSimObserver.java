@@ -130,7 +130,7 @@ public class MimicsDependantDirectionSimObserver extends
         int[] mimickingNeighborCounts = new int[ allInds.size() ];
         for( int i = 0; i < allInds.size(); i++ )
         {
-            mimickingNeighborCounts[i] = allInds.get(i).getMimicingNeighborCount();
+            mimickingNeighborCounts[i] = allInds.get(i).getMimickingNeighborCount();
         }
 
         // Sort it
@@ -149,7 +149,7 @@ public class MimicsDependantDirectionSimObserver extends
         {
             // Get the current individual and their number of mimics
             current = iter.next();
-            int currentMimics = current.getMimicingNeighborCount();
+            int currentMimics = current.getMimickingNeighborCount();
 
             /* If it is below the median add the low offset.  Otherwise,
              * add the high offset */

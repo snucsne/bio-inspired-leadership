@@ -55,8 +55,8 @@ public class LimitedPersonalityReversalSimObserver
         public int compare( SpatialIndividual ind1, SpatialIndividual ind2 )
         {
             // Get the number of mimics for each
-            int ind1Mimics = ind1.getMimicingNeighborCount();
-            int ind2Mimics = ind2.getMimicingNeighborCount();
+            int ind1Mimics = ind1.getMimickingNeighborCount();
+            int ind2Mimics = ind2.getMimickingNeighborCount();
 
             // Compare them
             int result = ind1Mimics - ind2Mimics;
@@ -156,7 +156,7 @@ public class LimitedPersonalityReversalSimObserver
                 current = sortedInds[i];
 
                 _LOG.debug( "Reversing: mimics=["
-                        + current.getMimicingNeighborCount()
+                        + current.getMimickingNeighborCount()
                         + "] personality=["
                         + current.getPersonality()
                         + "] id=["
