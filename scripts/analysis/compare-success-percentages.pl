@@ -279,6 +279,7 @@ sub createRInput
     push( @epsFiles, $combinedEpsFile );
     print INPUT "groupsizes = (c($dataPositionsStr) + 1)*5\n";
     print INPUT "groupsizes\n";
+    print INPUT "length(groupsizes)\n";
 #    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
     print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
     print INPUT "par(mar=c(4,4.5,1,3)+0.1)\n";
@@ -302,6 +303,7 @@ sub createRInput
             $misc = "";
             $cmd = "lines";
         }
+print INPUT "length(",$meansIDStrings[$index],")\n";
         print INPUT "$cmd( (groupsizes+$index*0.75-0.75), ",$meansIDStrings[$index],", type=\"o\", \n",
                     "    lwd=2, pch=",$plotSymbols[$index],",\n",
                     "    ",$misc," col=\"",$colors[$index],"\", yaxt='n' )\n";
@@ -482,7 +484,7 @@ sub createRInput
 
     # ---------------------------------------------------------------
     # Start sending output to the results file
-#    print INPUT "sink(\"$resultsFile\")\n";
+    print INPUT "sink(\"$resultsFile\")\n";
 
     # ---------------------------------------------------------------
     # Add the statistics
@@ -588,7 +590,7 @@ sub printKSTestText
 {
     local *INPUT = shift;
     my ($firstID, $firstKey, $secondID, $secondKey) = @_;
-return;
+#return;
             print INPUT "ks <- ks.boot( ",
                     $firstID,
                     ",",
