@@ -20,13 +20,11 @@ package edu.snu.leader.hidden;
 
 // Imports
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
-
 import edu.snu.leader.hidden.personality.PersonalityCalculator;
 import edu.snu.leader.hidden.personality.PersonalityUpdateType;
-
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -85,7 +83,7 @@ public class SpatialIndividual
     protected Object _groupID = null;
 
     /** The individual's location */
-    protected Point2D _location = null;
+    protected Vector2D _location = null;
 
     /** The individual's personality (ranking on bold/shy).  A value of 1.0
      * denotes maximum boldness, while 0.0 denotes maximum shyness. */
@@ -175,7 +173,7 @@ public class SpatialIndividual
      * @param describeInitiationHistory
      */
     public SpatialIndividual( Object id,
-            Point2D location,
+            Vector2D location,
             float personality,
             float assertiveness,
             float preferredDirection,
@@ -237,6 +235,11 @@ public class SpatialIndividual
             Neighbor neighbor = sortedNeighbors.poll();
             _nearestNeighbors.add( neighbor );
             neighbor.getIndividual().signalNearestNeighborStatus( this );
+//            _LOG.debug( "Nearest neighbor: id=["
+//                    + getID()
+//                    + "] neighbor=["
+//                    + neighbor.getIndividual().getID()
+//                    + "]" );
         }
 
         _LOG.trace( "Leaving findNearestNeighbors( simState )" );
@@ -259,6 +262,11 @@ public class SpatialIndividual
     public void signalNearestNeighborStatus( SpatialIndividual ind )
     {
         _mimicingNeighbors.put( ind.getID(), ind );
+        _LOG.debug( "Mimic: watched=["
+                + getID()
+                + "] watcher=["
+                + ind.getID()
+                + "]" );
     }
 
     /**
@@ -472,15 +480,17 @@ public class SpatialIndividual
 
             // Get their leader
             Neighbor leader = neighbor.getIndividual().getLeader();
-            while( null != leader )
+            boolean done = false;
+            while( ( null != leader ) && !done )
             {
                 // Is it us?
                 if( leader.getIndividual().getID().equals( getID() ) )
                 {
                     // Yup
                     ++count;
-                    continue;
+                    done = true;
                 }
+                leader = leader.getIndividual().getLeader();
             }
 
         }
@@ -550,16 +560,6 @@ public class SpatialIndividual
         return _groupID;
     }
 
-
-    /**
-     * Returns the location for this object
-     *
-     * @return The location
-     */
-    public Point2D getLocation()
-    {
-        return _location;
-    }
 
     /**
      * Returns the nearestNeighbors for this object
@@ -892,6 +892,26 @@ public class SpatialIndividual
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Returns the location for this individual
+     *
+     * @return The location
+     */
+    public Vector2D getLocation()
+    {
+        return _location;
+    }
+
+    /**
+     * Sets the location for this individual
+     *
+     * @param location The new location
+     */
+    public void setLocation( Vector2D location )
+    {
+        _location = location;
     }
 
     /**

@@ -7,9 +7,11 @@ use-nearest-neighbor-group-size = true
 max-location-radius = 10
 results-file = data/spatial-hidden-variables-leadership-personality-local-reversal.dat
 use-sim-log-file-flag = true
+use-location-log-file-flag = false
 
 event-time-calculator-class = edu.snu.leader.hidden.event.RestrictedInitiatorEventTimeCalculator
 initiator-id = Ind00000
+restrict-canceling = false
 modify-initiation-rate = false
 modify-following-rate = false
 modify-cancellation-rate = false

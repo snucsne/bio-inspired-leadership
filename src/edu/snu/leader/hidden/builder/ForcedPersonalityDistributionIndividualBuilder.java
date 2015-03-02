@@ -20,12 +20,12 @@ package edu.snu.leader.hidden.builder;
 
 // Imports
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.log4j.Logger;
 
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
 
-import java.awt.geom.Point2D;
 import java.util.Properties;
 
 
@@ -135,7 +135,7 @@ public class ForcedPersonalityDistributionIndividualBuilder
         }
 
         // Create a valid location
-        Point2D location = createValidLocation( index );
+        Vector2D location = createValidLocation( index );
 
         // Create the individual
         SpatialIndividual ind = new SpatialIndividual(

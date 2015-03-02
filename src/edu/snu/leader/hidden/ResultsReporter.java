@@ -20,12 +20,12 @@ package edu.snu.leader.hidden;
 
 // Imports
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.log4j.Logger;
 
 import edu.snu.leader.hidden.event.DepartureEvent;
 import edu.snu.leader.hidden.event.EventTimeCalculator;
 
-import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -62,7 +63,8 @@ public class ResultsReporter
     private static final String _USE_SIM_LOG_FILE_FLAG_KEY = "use-sim-log-file-flag";
 
     /** Key for the location log file flag */
-    private static final String _USE_LOCATION_LOG_FILE_FLAG_KEY = "use-location-log-file-flag";
+    private static final String _USE_LOCATION_LOG_FILE_FLAG_KEY =
+            "use-location-log-file-flag";
 
     /** Stats file spacer comment */
     private static final String _SPACER =
@@ -260,7 +262,8 @@ public class ResultsReporter
             // Build the compressed location log file
             int lastDotIdx = resultsFile.lastIndexOf( '.' );
             String simLocationFile = resultsFile.substring( 0, lastDotIdx )
-                    + ".locations.gz";
+                    + ".locations";
+//                    + ".locations.gz";
             _LOG.warn( "Sending location log to [" + simLocationFile + "]" );
 
             // Build the location log writer
@@ -268,8 +271,9 @@ public class ResultsReporter
             {
                 _locationWriter = new PrintWriter( new BufferedWriter(
                         new OutputStreamWriter(
-                                new GZIPOutputStream(
-                                        new FileOutputStream( simLocationFile ) ) ) ) );
+//                                new GZIPOutputStream(
+                                        new FileOutputStream( simLocationFile ) ) ) );
+                // );
             }
             catch( IOException ioe )
             {
@@ -295,12 +299,13 @@ public class ResultsReporter
      * @param departureHistory
      */
     public void gatherSimulationResults( boolean successful,
-            int finalInitiatorCount,
+            Set<SpatialIndividual> finalInitiators,
             int maxInitiatorCount,
             List<DepartureEvent> departureHistory )
     {
         // Get the total number of individuals that departed
         _movementCounts[ _simState.getMaxDepartedCount() ]++;
+        int finalInitiatorCount = finalInitiators.size();
         _finalInitiatorCounts[ finalInitiatorCount ]++;
         _maxInitiatorCounts[ maxInitiatorCount ]++;
 
@@ -353,7 +358,19 @@ public class ResultsReporter
         {
             // Dump a log of all the locations
             StringBuilder builder = new StringBuilder();
-            builder.append( (successful ? "S " : "F " ) );
+            builder.append( (successful ? "S [" : "F [" ) );
+
+            // List all the successful initiator IDs
+            Iterator<SpatialIndividual> initiatorIDIter = finalInitiators.iterator();
+            while( initiatorIDIter.hasNext() )
+            {
+                builder.append( initiatorIDIter.next().getID() );
+                if( initiatorIDIter.hasNext() )
+                {
+                    builder.append( ":" );
+                }
+            }
+            builder.append( "] " );
 
             // Get all the individuals
             Iterator<SpatialIndividual> indIter = _simState.getAllIndividuals().iterator();
@@ -362,10 +379,10 @@ public class ResultsReporter
                 SpatialIndividual ind = indIter.next();
 
                 // Get the individual's location
-                Point2D location = ind.getLocation();
+                Vector2D location = ind.getLocation();
                 builder.append( " [" );
                 builder.append( ind.getID() );
-                builder.append( String.format( ":(%+08.3f,%+08.3f)",
+                builder.append( String.format( ":(%+010.5f,%+010.5f)",
                         location.getX(),
                         location.getY()) );
 
@@ -381,6 +398,7 @@ public class ResultsReporter
 
             // Print it
             _locationWriter.println( builder.toString() );
+            _locationWriter.flush();
         }
     }
 

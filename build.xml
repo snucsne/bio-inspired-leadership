@@ -82,7 +82,8 @@
 				debug="on"
 				excludes="**/*.xml"
 				fork="true"
-				deprecation="on">
+				deprecation="on"
+                includeantruntime="false">
 			<classpath refid="project.classpath" />
 		</javac>
 	</target>
@@ -138,11 +139,14 @@
 				<include name="**/*.sh" />
 				<include name="*.pl" />
 				<include name="**/*.pl" />
+                <exclude name="**/.*.sh" />
+                <exclude name="**/.*.pl" />
 			</tarfileset>
 			<tarfileset dir="${dist}" username="ant" group="ant" >
 				<include name="**" />
 				<exclude name="*.sh" />
 				<exclude name="**/*.sh" />
+                <exclude name="**/.*" />
 			</tarfileset>
 		</tar>
 		<gzip zipfile="${tmp}/${tar-file}.gz" src="${tmp}/${tar-file}" />

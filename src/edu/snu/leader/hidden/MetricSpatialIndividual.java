@@ -19,8 +19,9 @@
 package edu.snu.leader.hidden;
 
 // Imports
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.log4j.Logger;
-import java.awt.geom.Point2D;
+
 import java.util.Iterator;
 import java.util.PriorityQueue;
 
@@ -54,7 +55,7 @@ public class MetricSpatialIndividual extends SpatialIndividual
      * @param describeInitiationHistory
      */
     public MetricSpatialIndividual( Object id,
-            Point2D location,
+            Vector2D location,
             float personality,
             float assertiveness,
             float preferredDirection,

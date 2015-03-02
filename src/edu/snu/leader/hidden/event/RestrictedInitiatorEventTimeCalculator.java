@@ -6,8 +6,10 @@ package edu.snu.leader.hidden.event;
 // Imports
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
+
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+
 import java.util.Properties;
 
 
@@ -27,11 +29,17 @@ public class RestrictedInitiatorEventTimeCalculator
             RestrictedInitiatorEventTimeCalculator.class.getName() );
 
     /** Key for the initiating individual's ID */
-    protected static final String _INITIATOR_ID = "initiator-id";
+    protected static final String _INITIATOR_ID_KEY = "initiator-id";
+
+    /** Key for the flag to restrict canceling */
+    protected static final String _RESTRICT_CANCELING_KEY = "restrict-canceling";
 
 
     /** The ID of the initiating individual */
-    private Object _initiatorID = null;
+    protected Object _initiatorID = null;
+
+    /** Flag to restrict canceling */
+    protected boolean _restrictCanceling = false;
 
 
     /**
@@ -52,14 +60,26 @@ public class RestrictedInitiatorEventTimeCalculator
         Properties props = simState.getProps();
 
         // Get the ID of the initiating individual
-        String initiatorIDStr = props.getProperty( _INITIATOR_ID );
+        String initiatorIDStr = props.getProperty( _INITIATOR_ID_KEY );
         Validate.notEmpty( initiatorIDStr,
                 "Initiating ID (key="
-                + _INITIATOR_ID
+                + _INITIATOR_ID_KEY
                 + ") may not be empty" );
         _initiatorID = initiatorIDStr;
         _LOG.info( "Using _initiatorID=[" + _initiatorID + "]" );
 
+        // Get the flag to restrict canceling
+        String restrictCancelingStr = props.getProperty(
+                _RESTRICT_CANCELING_KEY );
+        Validate.notEmpty( restrictCancelingStr,
+                "Flag to restrict canceling (key="
+                + _RESTRICT_CANCELING_KEY
+                + ") may not be empty" );
+        _restrictCanceling = Boolean.parseBoolean(
+                restrictCancelingStr );
+        _LOG.info( "Using _restrictCanceling=["
+                + _restrictCanceling
+                + "]" );
 
         _LOG.trace( "Leaving initialize( simState )" );
     }
@@ -98,7 +118,17 @@ public class RestrictedInitiatorEventTimeCalculator
     @Override
     public float calculateCancelTime( SpatialIndividual ind, int departed )
     {
-        return Float.POSITIVE_INFINITY;
+        // Default to restricting since it involves no calculations
+        float cancelTime = Float.POSITIVE_INFINITY;
+
+        // Do we restrict canceling?
+        if( !_restrictCanceling )
+        {
+            // Nope, get the real canceling time
+            cancelTime = super.calculateCancelTime( ind, departed );
+        }
+
+        return cancelTime;
     }
 
 }

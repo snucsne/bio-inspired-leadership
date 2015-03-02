@@ -348,6 +348,21 @@ public class SimulationState
         {
             indIter.next().findNearestNeighbors( this );
         }
+
+        // Have the individuals find their neighbors
+        indIter = _allIndividuals.iterator();
+        while( indIter.hasNext() )
+        {
+            SpatialIndividual current = indIter.next();
+            _LOG.debug( "Ind=["
+                    + current.getID()
+                    + "] mimics=["
+                    + current.getMimickingNeighborCount()
+                    + "] neighbors=["
+                    + current.getNearestNeighborCount()
+                    + "]" );
+        }
+
     }
 
     /**

@@ -19,10 +19,9 @@
 package edu.snu.leader.hidden.builder;
 
 // Imports
-import java.awt.geom.Point2D;
-
 import edu.snu.leader.hidden.MetricSpatialIndividual;
 import edu.snu.leader.hidden.SpatialIndividual;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 
 /**
@@ -47,7 +46,7 @@ public class MetricIndividualBuilder extends AbstractIndividualBuilder
     public SpatialIndividual build( int index )
     {
         // Create a valid location
-        Point2D location = createValidLocation( index );
+        Vector2D location = createValidLocation( index );
 
         // Create the individual
         MetricSpatialIndividual ind = new MetricSpatialIndividual(

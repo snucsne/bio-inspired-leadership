@@ -268,8 +268,8 @@ public class LocalSpatialSimulation
         Map<Object,Float> departureTimes = new HashMap<Object, Float>();
 
         // Maintain a map of initiators
-        Map<Object, InitiatorData> initiators =
-                new HashMap<Object, InitiatorData>();
+        Map<SpatialIndividual, InitiatorData> initiators =
+                new HashMap<SpatialIndividual, InitiatorData>();
         int maxInitiatorCount = 0;
 
         // Keep track of the previous event's time
@@ -295,6 +295,9 @@ public class LocalSpatialSimulation
             {
                 // Get the current individual
                 SpatialIndividual currentInd = individualsIter.next();
+                _LOG.debug( "Processing currentInd=["
+                        + currentInd.getID()
+                        + "]" );
 
                 /* If they are already following, then ignore them.
                  * Note that this would need to change if they can change their
@@ -312,6 +315,7 @@ public class LocalSpatialSimulation
 
                 // Do they have a current event?
                 DepartureEvent currentEvent = indEvents.get( currentInd.getID() );
+                _LOG.debug( "CurrentEvent=[" + currentEvent + "]" );
                 if( null != currentEvent )
                 {
                     // Yup, process it using the last event's time
@@ -355,6 +359,13 @@ public class LocalSpatialSimulation
                 }
             }
 
+            if( null == earliestEvent )
+            {
+                // Something went foobar
+
+                throw new RuntimeException( "No earliest event found!" );
+            }
+
             // Log the earliest event
             _LOG.debug( "Earliest event: departed=["
                     + earliestEvent.getDeparted().getID()
@@ -396,6 +407,10 @@ public class LocalSpatialSimulation
                         new Float( earliestEvent.getTime() + totalSimulationTime ) );
                 _LOG.debug( "New follower ["
                         + earliestEvent.getDeparted().getID()
+                        + "] leader=["
+                        + earliestEvent.getLeader().getID()
+                        + "] total=["
+                        + earliestEvent.getLeader().getTotalFollowerCount()
                         + "]" );
             }
             // How about a cancel?
@@ -487,7 +502,7 @@ public class LocalSpatialSimulation
 
         // Gather the results from this run
         _reporter.gatherSimulationResults( successful,
-                initiators.size(),
+                initiators.keySet(),
                 maxInitiatorCount,
                 departureHistory );
 
@@ -516,7 +531,11 @@ public class LocalSpatialSimulation
     private DepartureEvent buildDepartureEvent( SpatialIndividual ind,
             Map<Object,Float> departureTimes )
     {
+        _LOG.trace( "Entering buildDepartureEvent( ind, departureTimes )" );
+
         DepartureEvent event = null;
+
+        _LOG.debug( "Building departure event ind=[" + ind.getID() + "]" );
 
         // Get the event time calculator
         EventTimeCalculator eventTimeCalc = _simState.getEventTimeCalculator();
@@ -527,10 +546,17 @@ public class LocalSpatialSimulation
             // Yup, check if they are a leader
             if( null == ind.getLeader() )
             {
+                _LOG.debug( "Individual is a leader" );
+
                 // Yup, they are a leader, get their cancellation time
                 float cancelTime = Float.POSITIVE_INFINITY;
                 if( ind.getImmediateFollowerCount() < ind.getNearestNeighborCount() )
                 {
+                    _LOG.debug( "immediateFollowerCount=["
+                            + ind.getImmediateFollowerCount()
+                            + "] < nearestNeighborCount=["
+                            + ind.getNearestNeighborCount()
+                            + "]" );
                     cancelTime = eventTimeCalc.calculateCancelTime(
                             ind,
                             ind.getNearestNeighborsFollowingCount() + 1 );
@@ -549,6 +575,10 @@ public class LocalSpatialSimulation
                         null,
                         DepartureEvent.Type.CANCEL,
                         cancelTime );
+
+                _LOG.debug( "Built new event ["
+                        + event
+                        + "]" );
             }
             else
             {
@@ -582,11 +612,11 @@ public class LocalSpatialSimulation
                     // Add it to the list
                     groupNeighbors.add( currentNeighbor );
 
-//                    _LOG.debug( "Neighbor ["
-//                            + currentNeighbor.getIndividual().getID()
-//                            + "] is a member of group ["
-//                            + groupID
-//                            + "]" );
+                    _LOG.debug( "Neighbor ["
+                            + currentNeighbor.getIndividual().getID()
+                            + "] is a member of group ["
+                            + groupID
+                            + "]" );
                 }
             }
 
@@ -671,6 +701,8 @@ public class LocalSpatialSimulation
                 }
             }
         }
+
+        _LOG.trace( "Leaving buildDepartureEvent( ind, departureTimes )" );
 
         return event;
     }

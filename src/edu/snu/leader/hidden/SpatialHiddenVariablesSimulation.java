@@ -27,10 +27,12 @@ import edu.snu.leader.util.MiscUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 
 /**
@@ -428,10 +430,17 @@ public class SpatialHiddenVariablesSimulation
 //                    + _simState.getRemainingCount()
 //                    + "]" );
 //        }
+        // Build a set of initiator IDs
+        Iterator<InitiatorData> initiatorDataIter = initiators.iterator();
+        Set<SpatialIndividual> initiatorIDs = new HashSet<SpatialIndividual>();
+        while( initiatorDataIter.hasNext() )
+        {
+            initiatorIDs.add( initiatorDataIter.next().initiator );
+        }
 
         // Gather the results from this run
         _reporter.gatherSimulationResults( successful,
-                initiators.size(),
+                initiatorIDs,
                 maxInitiatorCount,
                 departureHistory );
 

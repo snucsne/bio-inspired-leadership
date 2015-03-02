@@ -20,11 +20,11 @@ package edu.snu.leader.hidden.builder;
 
 // Imports
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.log4j.Logger;
 
 import edu.snu.leader.hidden.SimulationState;
 
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.LinkedList;
@@ -72,7 +72,7 @@ public abstract class AbstractIndividualBuilder implements IndividualBuilder
     protected SimulationState _simState = null;
 
     /** The predefined locations for individuals */
-    private List<Point2D> _locations = new LinkedList<Point2D>();
+    private List<Vector2D> _locations = new LinkedList<Vector2D>();
 
     /** The maximum radius for generated locations */
     private float _maxRadius = 1.0f;
@@ -132,9 +132,9 @@ public abstract class AbstractIndividualBuilder implements IndividualBuilder
      * @param index The index of the individual
      * @return The valid location
      */
-    protected Point2D createValidLocation( int index )
+    protected Vector2D createValidLocation( int index )
     {
-        Point2D location = null;
+        Vector2D location = null;
 
         // If we have a location, use it
         if( index < _locations.size() )
@@ -155,7 +155,7 @@ public abstract class AbstractIndividualBuilder implements IndividualBuilder
             float x = radius * (float) Math.cos( angle );
             float y = radius * (float) Math.sin( angle );
 
-            location = new Point2D.Float( x, y );
+            location = new Vector2D( x, y );
         }
 
         return location;
@@ -196,7 +196,7 @@ public abstract class AbstractIndividualBuilder implements IndividualBuilder
                 float y = Float.parseFloat( parts[1] );
 
                 // Build the location and add it to the list
-                _locations.add( new Point2D.Float( x, y ) );
+                _locations.add( new Vector2D( x, y ) );
             }
 
             // Close the file
