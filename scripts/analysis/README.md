@@ -1,3 +1,6 @@
+# Overview of Analysis Scripts
+This is a basic overview of the scripts used to analyze the results produced by the simulations.  Note that this is a basic overview and a work in progress.  Many of the scripts are customized to work in our development environment and naming conventions, and will require work to be used elsewhere.  We hope to add more documentation describing both in the future.
+
 ## Base directory
 The base directory is the root directory containing all the results.  To simplify the remaining commands, a shell variable containing the directory is used.  The path can either be absolute or relative
 ```bash
@@ -22,4 +25,8 @@ This script parses the results, calculates values such as individual and group l
 ./analyze-all-personality-spatial-hidden-vars-results.sh $BASE_DIR/
 ```
 
-
+## Analyze the history logs
+If history logs of all the simulations performed were generated, this script analyzes them.  It uncompresses a single log at a time and processes it.
+```bash
+./process-all-history-logs.sh $BASE_DIR/ 
+```
