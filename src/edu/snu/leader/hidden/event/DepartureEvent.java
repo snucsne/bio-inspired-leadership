@@ -18,7 +18,10 @@
  */
 package edu.snu.leader.hidden.event;
 
+import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
+
+import org.apache.log4j.Logger;
 
 /**
  * DepartureEvent
@@ -30,6 +33,9 @@ import edu.snu.leader.hidden.SpatialIndividual;
  */
 public class DepartureEvent
 {
+
+    /** Our logger */
+    private static final Logger _LOG = Logger.getLogger( DepartureEvent.class.getName() );
 
     public static enum Type
     {
@@ -63,6 +69,12 @@ public class DepartureEvent
     /** The time of the departure */
     private float _time = 0.0f;
 
+    /** The total number of followers of the leader */
+    private int _followerCount = 0;
+
+    /** The total number of potential followers of the leader */
+    private int _potentialFollowerCount = 0;
+
 
     /**
      * Builds this DepartureEvent object
@@ -81,6 +93,11 @@ public class DepartureEvent
         _leader = leader;
         _type = type;
         _time = time;
+
+        if( null == _leader )
+        {
+            _leader = departed;
+        }
     }
 
     /**
@@ -147,4 +164,37 @@ public class DepartureEvent
     {
         _time = time;
     }
+
+    public void calculateCounts( SimulationState simState )
+    {
+        _followerCount = simState.getDepartedCount();
+
+        _potentialFollowerCount = simState.getPotentialFollowerCount( getLeader() );
+        _LOG.debug( "followerCount=["
+                + _followerCount
+                + "] potentialFollowerCount=["
+                + _potentialFollowerCount
+                + "]" );
+    }
+
+    /**
+     * Returns the followerCount for this object
+     *
+     * @return The followerCount
+     */
+    public int getFollowerCount()
+    {
+        return _followerCount;
+    }
+
+    /**
+     * Returns the potentialFollowerCount for this object
+     *
+     * @return The potentialFollowerCount
+     */
+    public int getPotentialFollowerCount()
+    {
+        return _potentialFollowerCount;
+    }
+
 }

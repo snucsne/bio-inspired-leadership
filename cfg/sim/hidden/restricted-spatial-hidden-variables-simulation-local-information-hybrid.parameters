@@ -1,13 +1,15 @@
 simulation-count = 2000
 random-seed = 42
 individual-count = 30
-nearest-neighbor-count = 100
+nearest-neighbor-count = 10
+nearest-neighbor-distance = 4
 rebuild-individuals = false
 use-nearest-neighbor-group-size = true
 max-location-radius = 10
 results-file = data/spatial-hidden-variables-leadership-personality-local-reversal.dat
 use-sim-log-file-flag = true
 use-location-log-file-flag = false
+
 
 event-time-calculator-class = edu.snu.leader.hidden.event.RestrictedInitiatorEventTimeCalculator
 initiator-id = Ind00000
@@ -18,8 +20,7 @@ modify-following-rate = false
 modify-cancellation-rate = false
 
 
-individual-builder-class = edu.snu.leader.hidden.builder.DefaultIndividualBuilder
-
+individual-builder-class = edu.snu.leader.hidden.builder.HybridMetricTopoIndividualBuilder
 
 locations-file = cfg/sim/locations/complex-formation-binary-few.loc
 

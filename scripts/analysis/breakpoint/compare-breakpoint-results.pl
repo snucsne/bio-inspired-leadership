@@ -377,43 +377,43 @@ print "Sending results to [$resultsFile]\n";
     my %dataFormat = (
         "bold-differentiation" => { "y-min" => 0,
                                    "y-max" => 50000,
-                                   "y-title" => "Mean differentiation point\\n of bold personalities",
+                                   "y-title" => "Mean differentiation point\\n of high LT values",
                                    "legend-loc" => "top" },
         "bold-differentiation-percentage" => { "y-min" => 0.0,
                                    "y-max" => 0.25,
-                                   "y-title" => "Mean differentiation point\\n of bold personalities (percentage)",
+                                   "y-title" => "Mean differentiation point\\n of high LT values (percentage)",
                                    "legend-loc" => "top" },
         "bold-sim-percentage" => { "y-min" => 0.75,
                                    "y-max" => 1.0,
-                                   "y-title" => "Percentage of simulations at bold",
+                                   "y-title" => "Percentage of simulations with high LT values",
                                    "legend-loc" => "bottom" },
         "bold-update-percentage" => { "y-min" => 0.75,
                                       "y-max" => 1.0,
-                                      "y-title" => "Percentage of updates at bold",
+                                      "y-title" => "Percentage of updates with high LT values",
                                       "legend-loc" => "bottom" },
         "bold-update-count" => { "y-min" => 2500,
                                  "y-max" => 17500,
-                                 "y-title" => "Number of updates at bold",
+                                 "y-title" => "Number of updates with high LT values",
                                  "legend-loc" => "top" },
         "bold-then-shy-percentage" => { "y-min" => 0,
                                  "y-max" => 0.02,
-                                 "y-title" => "Percentage of population with personality\\n transition from bold to shy",
+                                 "y-title" => "Percentage of population with LT value\\n transition from high to low",
                                  "legend-loc" => "top" },
         "shy-then-bold-percentage" => { "y-min" => 0,
                                  "y-max" => 0.1,
-                                 "y-title" => "Mean percentage of population with\\n personality transition from shy to bold",
+                                 "y-title" => "Mean percentage of population with\\n LT value transition from low to high",
                                  "legend-loc" => "top" },
         "shy-sim-percentage" => { "y-min" => 0.3,
                                   "y-max" => 1.0,
-                                  "y-title" => "Percentage of simulations at shy",
+                                  "y-title" => "Percentage of simulations with low LT value",
                                   "legend-loc" => "top" },
         "shy-update-percentage" => { "y-min" => 0.25,
                                      "y-max" => 0.75,
-                                     "y-title" => "Percentage of updates at shy",
+                                     "y-title" => "Percentage of updates with low LT value",
                                      "legend-loc" => "top" },
         "shy-update-count" => { "y-min" => 0,
                                 "y-max" => 1100,
-                                "y-title" => "Number of updates at shy",
+                                "y-title" => "Number of updates with low LT value",
                                 "legend-loc" => "bottom" } );
 
     foreach my $dataKey (@dataKeys)
@@ -542,16 +542,21 @@ print "Sending results to [$resultsFile]\n";
             print INPUT "par(fg=\"black\")\n";
 
             # Add the current name, color and symbol
-            my $name = "bold";
+            my $dataTitle = $dataType;
+            if( $dataType =~ /personality/i )
+            {
+                $dataTitle = "LT value";
+            }
+            my $name = "high";
             if( $dataSet =~ /0.2/ )
             {
-                $name = "shy";
+                $name = "low";
             }
             elsif( $dataSet =~ /0.5/ )
             {
                 $name = "moderate";
             }
-            $dataSetNames .= "\"Initial $dataType $name\", ";
+            $dataSetNames .= "\"Initially $name $dataTitle\", ";
             $colorsStr .= "\"".$colors[$index]."\", ";
             $plotSymbolsStr .= $plotSymbols[$index].", ";
 

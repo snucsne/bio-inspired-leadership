@@ -142,7 +142,7 @@ public class InitiatorGephiNetworkBuilder
                         Transformer.RENDERABLE_COLOR );
         colorTransformer.setColors( new Color[] {
                 new Color( 0xFFAA00 ),
-                new Color( 0xFFFFFF ),
+                new Color( 0x00AA00 ),
                 new Color( 0x0000FF ) } );
         colorTransformer.setColorPositions( new float[] {
                 0.0f,

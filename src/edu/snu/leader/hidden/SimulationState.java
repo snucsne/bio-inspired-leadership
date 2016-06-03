@@ -141,6 +141,10 @@ public class SimulationState
     private Map<Object, SpatialIndividual> _eligibleInitiators =
             new HashMap<Object, SpatialIndividual>();
 
+    /** Initiators that canceled */
+    private Map<Object, SpatialIndividual> _canceledInitiators =
+            new HashMap<Object, SpatialIndividual>();
+
     /** Flag indicating that individual's should be rebuilt */
     private boolean _rebuildIndividuals = false;
 
@@ -302,6 +306,7 @@ public class SimulationState
         _eligibleInitiators.clear();
         _departed.clear();
         _maxDepartedCount = 0;
+        _canceledInitiators.clear();
 
         // Do we build new individuals?
         if( _rebuildIndividuals )
@@ -487,6 +492,26 @@ public class SimulationState
     }
 
     /**
+     * Returns the number of potential followers of the initiator
+     *
+     * @param initiator
+     * @return
+     */
+    public int getPotentialFollowerCount( SpatialIndividual initiator )
+    {
+        int potentialFollowerCount = 0;
+        if( null != initiator )
+        {
+            List<SpatialIndividual> potentialFollowers =
+                    findPotentialFollowers( initiator );
+
+            potentialFollowerCount = potentialFollowers.size();
+        }
+
+        return potentialFollowerCount;
+    }
+
+    /**
      * Returns a flag denoting whether or not the individual has departed
      *
      * @param indID
@@ -570,6 +595,9 @@ public class SimulationState
                     + individual.getTotalFollowerCount()
                     + "]" );
         }
+
+        // Save it
+        _canceledInitiators.put( individual.getID(), individual );
 
         // Send it a signal so it can log some information
         individual.signalInitiationFailure( this );
@@ -801,6 +829,16 @@ public class SimulationState
     }
 
     /**
+     * Returns all the canceled initiators
+     *
+     * @return All the canceled initiators
+     */
+    public List<SpatialIndividual> getCanceledInitiators()
+    {
+        return new LinkedList<SpatialIndividual>( _canceledInitiators.values() );
+    }
+
+    /**
      * Returns a flag denoting whether or not all the departed individuals
      * should be used in rate calculations.
      *
@@ -990,55 +1028,81 @@ public class SimulationState
      */
     private List<SpatialIndividual> findPotentialFollowers( SpatialIndividual initiator )
     {
+        _LOG.trace( "Entering findPotentialFollowers( initiator )" );
+
         List<SpatialIndividual> potentialFollowers =
                 new LinkedList<SpatialIndividual>();
 
         // Get the initiator's group ID
         Object initiatorGroupID = initiator.getGroupID();
+        _LOG.debug( "Checking followers for initiator group ID ["
+                + initiatorGroupID
+                + "]" );
 
-        StringBuilder builder = new StringBuilder();
-
-        // Iterate through all the remaining individuals
-        Iterator<SpatialIndividual> remainingIter =
-                _remaining.values().iterator();
-        while( remainingIter.hasNext() )
+        if( null == initiatorGroupID )
         {
-            SpatialIndividual currentRemaining = remainingIter.next();
+            // Not an active initiator.  Just use the mimicking neighbors.
+            potentialFollowers.addAll( initiator.getMimickingNeighbors() );
+            _LOG.debug( "Not an active initiator: potentialFollowers=["
+                    + potentialFollowers.size()
+                    + "]" );
+        }
+        else
+        {
+            StringBuilder builder = new StringBuilder();
 
-            // Does any of this individual's neighbors belong to the same group?
-            boolean foundSameGroup = false;
-            Iterator<Neighbor> neighborIter =
-                    currentRemaining.getNearestNeighbors().iterator();
-            while( !foundSameGroup && neighborIter.hasNext() )
+            // Iterate through all the remaining individuals
+            Iterator<SpatialIndividual> remainingIter =
+                    _remaining.values().iterator();
+            while( remainingIter.hasNext() )
             {
-                Neighbor neighbor = neighborIter.next();
+                SpatialIndividual currentRemaining = remainingIter.next();
 
-                // Do the group ID's match?
-                if( initiatorGroupID.equals( neighbor.getIndividual().getGroupID() ) )
+                // Does any of this individual's neighbors belong to the same group?
+                boolean foundSameGroup = false;
+                Iterator<Neighbor> neighborIter =
+                        currentRemaining.getNearestNeighbors().iterator();
+                while( !foundSameGroup && neighborIter.hasNext() )
                 {
-                    // Yup, note it
-                    foundSameGroup = true;
+                    Neighbor neighbor = neighborIter.next();
+                    _LOG.debug( "neighborGroupID=["
+                            + neighbor.getIndividual().getGroupID()
+                            + "] initiatorGroupID=["
+                            + initiatorGroupID
+                            + "]  neighborID=["
+                            + neighbor.getIndividual().getID()
+                            + "]" );
+
+                    // Do the group ID's match?
+                    if( initiatorGroupID.equals( neighbor.getIndividual().getGroupID() ) )
+                    {
+                        // Yup, note it
+                        foundSameGroup = true;
+                        _LOG.debug( "MATCH!" );
+                    }
+                }
+
+                if( foundSameGroup )
+                {
+                    // The current individual is a potential follower
+                    potentialFollowers.add( currentRemaining );
+                    builder.append( currentRemaining.getID() );
+                    builder.append( " " );
                 }
             }
 
-            if( foundSameGroup )
+            if( _LOG.isDebugEnabled() )
             {
-                // The current individual is a potential follower
-                potentialFollowers.add( currentRemaining );
-                builder.append( currentRemaining.getID() );
-                builder.append( " " );
+                _LOG.debug( "Initiator=["
+                        + initiator.getID()
+                        + "] has ["
+                        + potentialFollowers.size()
+                        + "] potential followers: "
+                        + builder.toString() );
             }
         }
 
-//        if( _LOG.isDebugEnabled() )
-//        {
-//            _LOG.debug( "Initiator=["
-//                    + initiator.getID()
-//                    + "] has ["
-//                    + potentialFollowers.size()
-//                    + "] potential followers: "
-//                    + builder.toString() );
-//        }
+        _LOG.trace( "Leaving findPotentialFollowers( initiator )" );
 
         return potentialFollowers;
     }

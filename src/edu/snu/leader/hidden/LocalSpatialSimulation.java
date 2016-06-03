@@ -359,11 +359,12 @@ public class LocalSpatialSimulation
                 }
             }
 
-            if( null == earliestEvent )
+            if( ( null == earliestEvent ) || Float.isInfinite( earliestEvent.getTime() ) )
             {
                 // Something went foobar
-
-                throw new RuntimeException( "No earliest event found!" );
+                initiators.clear();
+                break;
+//                throw new RuntimeException( "No earliest event found!" );
             }
 
             // Log the earliest event
@@ -454,9 +455,6 @@ public class LocalSpatialSimulation
                 throw new RuntimeException( "Invalid event type" );
             }
 
-            // Log the event
-            departureHistory.add( earliestEvent );
-
             /* All the events for the individuals observing the decision-making
              * individual need to be recalculated from scratch. */
             Iterator<SpatialIndividual> mimickingNeighborsIter =
@@ -465,7 +463,7 @@ public class LocalSpatialSimulation
             {
                 SpatialIndividual mimickingNeighbor = mimickingNeighborsIter.next();
                 indEvents.remove( mimickingNeighbor.getID() );
-                _LOG.debug( "Reseting event time for ind=["
+                _LOG.debug( "Reseting event time for neighbor ind=["
                         + mimickingNeighbor.getID()
                         + "]" );
             }
@@ -479,10 +477,21 @@ public class LocalSpatialSimulation
             // Save the event's time
             previousEventsTime = earliestEvent.getTime();
             totalSimulationTime += earliestEvent.getTime();
+
+            _LOG.debug( "Continue? remainingCount=["
+                    + _simState.getRemainingCount()
+                    + "] departedCount=["
+                    + _simState.getDepartedCount()
+                    + "]" );
+
+            // Log the event
+            earliestEvent.calculateCounts( _simState );
+            departureHistory.add( earliestEvent );
         }
 
         // Was the simulation successful?
         boolean successful = false;
+        _LOG.debug( "remainingCount=[" + _simState.getRemainingCount() + "]" );
         if( 0 == _simState.getRemainingCount() )
         {
             // Yup, notify all the initiators

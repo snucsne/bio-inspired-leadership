@@ -31,9 +31,11 @@ import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.layout.plugin.scale.Expand;
 import org.gephi.layout.plugin.scale.ScaleLayout;
+import org.gephi.preview.api.ManagedRenderer;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
+import org.gephi.preview.plugin.renderers.NodeRenderer;
 import org.gephi.preview.types.EdgeColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
@@ -154,12 +156,13 @@ public class GephiNetworkBuilder
         colorTransformer.setColors( new Color[] {
                 new Color( 0xFFAA00 ),
                 new Color( 0xFFFFFF ),
+//                new Color( 0x0000FF ),
                 new Color( 0x0000FF ) } );
         colorTransformer.setColorPositions( new float[] {
                 0.0f,
                 0.5f,
                 1.0f } );
-        rankingController.transform( successRanking, colorTransformer );
+        rankingController.transform( mimickingRanking, colorTransformer );
 
 
         // Scale it up
@@ -176,10 +179,44 @@ public class GephiNetworkBuilder
                 PreviewController.class ).getModel();
         previewModel.getProperties().putValue(
                 PreviewProperty.EDGE_THICKNESS,
-                10.0f );
+                15.0f );
         previewModel.getProperties().putValue(
                 PreviewProperty.EDGE_COLOR,
+//                new EdgeColor( new Color( 0xFFAA00 ) ) );
                 new EdgeColor( EdgeColor.Mode.MIXED ) );
+        previewModel.getProperties().putValue(
+                PreviewProperty.EDGE_CURVED,
+                false );
+        previewModel.getProperties().putValue(
+                PreviewProperty.ARROW_SIZE,
+                4.0f );
+
+        // Dump the renderers
+        ManagedRenderer[] renderers = previewModel.getManagedRenderers();
+        ManagedRenderer[] updatedRenderers = new ManagedRenderer[ renderers.length + 1 ];
+        System.out.println( "original["
+                + renderers.length
+                + "] updated["
+                + updatedRenderers.length
+                + "]" );
+        for( int i = 0; i < renderers.length; ++i )
+        {
+//            System.out.println( "[" + i + "]: " + renderers[i].getRenderer()
+//                    + "{" + renderers[i].isEnabled() + "}" );
+            updatedRenderers[i] = renderers[i];
+        }
+        updatedRenderers[0] =
+                new ManagedRenderer( new NodeRenderer(), true );
+        updatedRenderers[updatedRenderers.length - 1] =
+                new ManagedRenderer( new NodeRenderer(), true );
+        for( int i = 0; i < updatedRenderers.length; ++i )
+        {
+            System.out.println( "[" + i + "]: " + updatedRenderers[i].getRenderer()
+                    + "} {"
+                    + updatedRenderers[i].getRenderer().getDisplayName()
+                    + "} {"
+                    + updatedRenderers[i].isEnabled() + "}" );
+        }
 
         // Export the network
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);

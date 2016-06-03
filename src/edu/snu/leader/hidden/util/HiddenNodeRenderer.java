@@ -12,8 +12,6 @@ import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.api.RenderTarget;
 import org.gephi.preview.api.SVGTarget;
 import org.gephi.preview.plugin.renderers.NodeRenderer;
-import org.gephi.preview.spi.Renderer;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * HiddenNodeRenderer
@@ -23,7 +21,7 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Brent Eskridge
  * @version $Revision$ ($Author$)
  */
-@ServiceProvider(service=Renderer.class, position=1)
+//@ServiceProvider(service=Renderer.class, position=5)
 public class HiddenNodeRenderer extends NodeRenderer
 {
 

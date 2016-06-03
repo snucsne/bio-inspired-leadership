@@ -23,10 +23,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
-import edu.snu.leader.hidden.personality.PersonalityCalculator;
-import edu.snu.leader.hidden.personality.PersonalityUpdateType;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -88,8 +85,8 @@ public class SpatialIndividualWithTraits
 
     /** The individual's personality (ranking on bold/shy).  A value of 1.0
      * denotes maximum boldness, while 0.0 denotes maximum shyness. */
-    protected Map<PersonalityTrait, Float> _personalityTraits = 
-            new EnumMap<PersonalityTrait.class, Float>();
+//    protected Map<PersonalityTrait, Float> _personalityTraits =
+//            new EnumMap<PersonalityTrait.class, Float>();
 
     /** The individual's initial personality */
     protected float _initialPersonality = 0.0f;
@@ -174,25 +171,25 @@ public class SpatialIndividualWithTraits
      * @param conflict
      * @param describeInitiationHistory
      */
-    public SpatialIndividual( Object id,
-            Vector2D location,
-            //How would this work?
-            PersonaltyTrait<>,
-            float assertiveness,
-            float preferredDirection,
-            float conflict,
-            boolean describeInitiationHistory )
-    {
-        _id = id;
-        _location = location;
-        _personality = PersonalityTrait;
-        _initialPersonality = personality;
-        _personalityAfterLastInitiation = personality;
-        _assertiveness = assertiveness;
-        _preferredDirection = preferredDirection;
-        _conflict = conflict;
-        _describeInitiationHistory = describeInitiationHistory;
-    }
+//    public SpatialIndividual( Object id,
+//            Vector2D location,
+//            //How would this work?
+//            PersonaltyTrait<>,
+//            float assertiveness,
+//            float preferredDirection,
+//            float conflict,
+//            boolean describeInitiationHistory )
+//    {
+//        _id = id;
+//        _location = location;
+//        _personality = PersonalityTrait;
+//        _initialPersonality = personality;
+//        _personalityAfterLastInitiation = personality;
+//        _assertiveness = assertiveness;
+//        _preferredDirection = preferredDirection;
+//        _conflict = conflict;
+//        _describeInitiationHistory = describeInitiationHistory;
+//    }
 
     /**
      * Finds the nearest neighbors for this individual
@@ -237,7 +234,7 @@ public class SpatialIndividualWithTraits
         {
             Neighbor neighbor = sortedNeighbors.poll();
             _nearestNeighbors.add( neighbor );
-            neighbor.getIndividual().signalNearestNeighborStatus( this );
+//            neighbor.getIndividual().signalNearestNeighborStatus( this );
 //            _LOG.debug( "Nearest neighbor: id=["
 //                    + getID()
 //                    + "] neighbor=["
@@ -352,7 +349,7 @@ public class SpatialIndividualWithTraits
         _groupID = neighbor.getIndividual().getGroupID();
 
         // Tell the leader it is being followed
-        neighbor.getIndividual().addFollower( this );
+//        neighbor.getIndividual().addFollower( this );
     }
 
     /**
@@ -662,8 +659,8 @@ public class SpatialIndividualWithTraits
 
         if( _describeInitiationHistory )
         {
-            _currentInitiationEvent = new InitiationEvent( simState.getSimIndex(),
-                    _personality );
+//            _currentInitiationEvent = new InitiationEvent( simState.getSimIndex(),
+//                    _personality );
             _initiationHistory.add( _currentInitiationEvent );
         }
     }
@@ -684,7 +681,7 @@ public class SpatialIndividualWithTraits
         /*
         // Update the personality
         PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
-        
+
         if( null != personalityCalc )
         {
             _personality = personalityCalc.calculatePersonality(
@@ -724,46 +721,44 @@ public class SpatialIndividualWithTraits
      */
     public void signalInitiationFailure( SimulationState simState )
     {
-
         // Log our total number of followers
 //        _failedFollowers.add( getTotalFollowerCount() );
 //        _failedFollowersStats.addValue( getTotalFollowerCount() );
 
         // Update the personality
-        /*
-        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
-        if( null != personalityCalc )
-        {
-            _personality = personalityCalc.calculatePersonality(
-                    this,
-                    PersonalityUpdateType.TRUE_LOSER,
-                    getTotalFollowerCount() );
-
-            // Allow for bystander effects
-            for( Neighbor neighbor : _nearestNeighbors )
-            {
-                SpatialIndividual ind = neighbor.getIndividual();
-                ind._personality = personalityCalc.calculatePersonality(
-                        ind,
-                        PersonalityUpdateType.BYSTANDER_LOSER,
-                        getTotalFollowerCount() );
-            }
-        }
-
-        // Save the individual's personality and the simulation index
-        _personalityAfterLastInitiation = _personality;
-        _lastInitiationAttempt = simState.getSimIndex();
-
-        // Are we keeping track of these things?
-        if( _describeInitiationHistory )
-        {
-            _currentInitiationEvent.successful = false;
-            _currentInitiationEvent.followers = getTotalFollowerCount();
-            _currentInitiationEvent.newPersonality = _personality;
-        }
+//        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
+//        if( null != personalityCalc )
+//        {
+//            _personality = personalityCalc.calculatePersonality(
+//                    this,
+//                    PersonalityUpdateType.TRUE_LOSER,
+//                    getTotalFollowerCount() );
+//
+//            // Allow for bystander effects
+//            for( Neighbor neighbor : _nearestNeighbors )
+//            {
+//                SpatialIndividual ind = neighbor.getIndividual();
+//                ind._personality = personalityCalc.calculatePersonality(
+//                        ind,
+//                        PersonalityUpdateType.BYSTANDER_LOSER,
+//                        getTotalFollowerCount() );
+//            }
+//        }
+//
+//        // Save the individual's personality and the simulation index
+//        _personalityAfterLastInitiation = _personality;
+//        _lastInitiationAttempt = simState.getSimIndex();
+//
+//        // Are we keeping track of these things?
+//        if( _describeInitiationHistory )
+//        {
+//            _currentInitiationEvent.successful = false;
+//            _currentInitiationEvent.followers = getTotalFollowerCount();
+//            _currentInitiationEvent.newPersonality = _personality;
+//        }
     }
 
-    */
+
     /**
      * Describes this individual
      *
@@ -786,7 +781,7 @@ public class SpatialIndividualWithTraits
         // Add the personality
         builder.append( prefix );
         builder.append( "personality = " );
-        builder.append( _personality );
+//        builder.append( _personality );
         builder.append( _NEWLINE );
 
         // Add the assertiveness
@@ -998,7 +993,7 @@ public class SpatialIndividualWithTraits
      * Returns the personality for this object
      *
      * @return The personality
-     
+
     public float getPersonality()
     {
         return _personality;

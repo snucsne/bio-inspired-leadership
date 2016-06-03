@@ -2,6 +2,7 @@
 
 LOCFILE=$1
 OUTPUTPREFIX=$2
+PREFERREDINITIATOR=$3
 
 STEPS=`wc -l $LOCFILE | sed -E 's/([0-9]+).*/\1/'`
 
@@ -19,7 +20,8 @@ do
     ./build-gexf-from-locations-log.pl \
             $LOCFILE \
             $STEP \
-            $TEMPGEXF
+            $TEMPGEXF \
+            $PREFERREDINITIATOR
 
     if [ ! -f $TEMPGEXF ];
     then

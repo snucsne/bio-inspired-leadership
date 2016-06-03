@@ -318,20 +318,25 @@ print INPUT "length(",$meansIDStrings[$index],")\n";
 
         if( $dataSet =~ /None/i )
         {
-            $dataSetNames .= "\"None\", ";
+            $dataSetNames .= "\"Original model\", ";
         }
         else
         {
-            my $name = "bold";
+            my $dataTitle = $dataType;
+            if( $dataType =~ /personality/i )
+            {
+                $dataTitle = "LT value";
+            }
+            my $name = "high";
             if( $dataSet =~ /0.2/ )
             {
-                $name = "shy";
+                $name = "low";
             }
             elsif( $dataSet =~ /0.5/ )
             {
                 $name = "moderate";
             }
-            $dataSetNames .= "\"Initial $dataType $name\", ";
+            $dataSetNames .= "\"Initially $name $dataTitle\", ";
 #            $dataSetNames .= "\"$dataTypeTitle $dataSet\", ";
         }
         $colorsStr .= "\"".$colors[$index]."\", ";

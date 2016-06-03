@@ -2,7 +2,7 @@ simulation-count = 1000
 random-seed = 42
 individual-count = 30
 nearest-neighbor-count = 10
-#nearest-neighbor-distance = 4
+nearest-neighbor-distance = 4
 rebuild-individuals = false
 use-nearest-neighbor-group-size = true
 max-location-radius = 10
@@ -21,8 +21,8 @@ modify-following-rate = false
 modify-cancellation-rate = false
 
 
-individual-builder-class = edu.snu.leader.hidden.builder.DefaultIndividualBuilder
-#individual-builder-class = edu.snu.leader.hidden.builder.MetricIndividualBuilder
+#individual-builder-class = edu.snu.leader.hidden.builder.DefaultIndividualBuilder
+individual-builder-class = edu.snu.leader.hidden.builder.MetricIndividualBuilder
 
 locations-file = cfg/sim/locations/complex-formation-binary-few.loc
 

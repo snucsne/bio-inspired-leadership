@@ -42,6 +42,7 @@ do
         if [ -e $TEMP_LOG ]
         then
             ./process-history-log.pl $TEMP_LOG $LOG_FILE $OUTPUT_FILE $GROUP_SIZE $ALL_DATA_FLAG
+
         fi
 
     done

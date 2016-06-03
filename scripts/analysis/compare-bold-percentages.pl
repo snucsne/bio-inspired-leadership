@@ -364,7 +364,7 @@ sub createRInput
 #    unshift( @meansIDStrings, "optimal" );
     foreach my $dataSet (@combinedDataSets)
     {
-        my $misc = "ylab=\"Bold Personality Percentage\",  xlab=\"Group Size\", \n".
+        my $misc = "ylab=\"High LT value percentage\",  xlab=\"Group size\", \n".
                     "    ylim=c($yMin,$yMax), xlim=c((min(groupsizes)-5), (max(groupsizes)+5)), ";
         my $cmd = "plot";
         if( $index > 0 )
@@ -385,22 +385,29 @@ sub createRInput
         print INPUT "par(fg=\"black\")\n";
 
 
+        my $dataTitle = $dataType;
+        if( $dataType =~ /personality/i )
+        {
+            $dataTitle = "LT value";
+        }
+
         if( $dataSet =~ /optimal/i )
         {
             $dataSetNames .= "\"Fixed distribution\", ";
         }
         else
         {
-            my $name = "bold";
+            my $name = "high";
             if( $dataSet =~ /0.2/ )
             {
-                $name = "shy";
+                $name = "low";
             }
             elsif( $dataSet =~ /0.5/ )
             {
                 $name = "moderate";
             }
-            $dataSetNames .= "\"Initial $dataType $name\", ";
+            $dataSetNames .= "\"Initial $name $dataTitle\", ";
+#            $dataSetNames .= "\"Initial $dataType $name\", ";
 #            $dataSetNames .= "\"".ucfirst($dataType)." $dataSet\", ";
         }
         $colorsStr .= "\"".$colors[$index]."\", ";

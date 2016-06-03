@@ -6,27 +6,26 @@ package edu.snu.leader.hidden.event;
 // Imports
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
-
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-
 import java.util.Properties;
 
 
 /**
- * RestrictedInitiatorEventTimeCalculator
+ * RestrictedSueurEventTimeCalculator
  *
  * TODO Class description
  *
  * @author Brent Eskridge
  * @version $Revision$ ($Author$)
  */
-public class RestrictedInitiatorEventTimeCalculator
-        extends DefaultEventTimeCalculator
+public class RestrictedSueurEventTimeCalculator
+        extends SueurEventTimeCalculator
 {
+
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
-            RestrictedInitiatorEventTimeCalculator.class.getName() );
+            RestrictedSueurEventTimeCalculator.class.getName() );
 
     /** Key for the initiating individual's ID */
     protected static final String _INITIATOR_ID_KEY = "initiator-id";
@@ -47,12 +46,11 @@ public class RestrictedInitiatorEventTimeCalculator
     /** Flag to restrict canceling */
     protected boolean _restrictCanceling = false;
 
-
     /**
      * Initializes the calculator
      *
      * @param simState The simulation's state
-     * @see edu.snu.leader.hidden.event.AbstractEventTimeCalculator#initialize(edu.snu.leader.hidden.SimulationState)
+     * @see edu.snu.leader.hidden.event.SueurEventTimeCalculator#initialize(edu.snu.leader.hidden.SimulationState)
      */
     @Override
     public void initialize( SimulationState simState )
@@ -108,7 +106,7 @@ public class RestrictedInitiatorEventTimeCalculator
      *
      * @param ind The individual
      * @return The initiation time
-     * @see edu.snu.leader.hidden.event.DefaultEventTimeCalculator#calculateInitiationTime(edu.snu.leader.hidden.SpatialIndividual)
+     * @see edu.snu.leader.hidden.event.SueurEventTimeCalculator#calculateInitiationTime(edu.snu.leader.hidden.SpatialIndividual)
      */
     @Override
     public float calculateInitiationTime( SpatialIndividual ind )
@@ -141,7 +139,7 @@ public class RestrictedInitiatorEventTimeCalculator
     * @param ind The individual
     * @param departed The number of individuals who have already departed
     * @return The cancellation time
-     * @see edu.snu.leader.hidden.event.DefaultEventTimeCalculator#calculateCancelTime(edu.snu.leader.hidden.SpatialIndividual, int)
+     * @see edu.snu.leader.hidden.event.SueurEventTimeCalculator#calculateCancelTime(edu.snu.leader.hidden.SpatialIndividual, int)
      */
     @Override
     public float calculateCancelTime( SpatialIndividual ind, int departed )
@@ -158,5 +156,6 @@ public class RestrictedInitiatorEventTimeCalculator
 
         return cancelTime;
     }
+
 
 }

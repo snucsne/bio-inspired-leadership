@@ -1,0 +1,33 @@
+simulation-count = 1000
+random-seed = 42
+individual-count = 10
+nearest-neighbor-count = 10
+rebuild-individuals = false
+use-nearest-neighbor-group-size = true
+max-location-radius = 10
+results-file = data/sueur-local.dat
+use-sim-log-file-flag = true
+
+event-time-calculator-class = edu.snu.leader.hidden.event.SueurEventTimeCalculator
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+alpha-move = 0.006161429
+beta-move = 0.013422819
+s-move-type = function
+s-move = petitcorrected
+q-move = 1
+alpha-cancel = 0.009
+beta-cancel = -0.009
+s-cancel = 2
+q-cancel = 2.3
+
+individual-builder-class = edu.snu.leader.hidden.builder.DefaultIndividualBuilder
+
+
+directions-file = cfg/sim/environment/env-dir-constant.dat
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc
+
+observer-count = 0
+

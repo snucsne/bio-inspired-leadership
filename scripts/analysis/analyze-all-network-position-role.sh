@@ -1,6 +1,7 @@
 #!/bin/bash
 
-for DATA_DIR in $1*indcount*;
+#for DATA_DIR in $1/indcount*;
+for DATA_DIR in $1/indcount*;
 do
     echo Processing [$DATA_DIR]
 
@@ -17,10 +18,8 @@ do
             $DATA_DIR/ \
             $DATA_DIR/analysis/network-position-$INDCOUNT-correlations.dat \
             $DATA_DIR/figures/network-position-$INDCOUNT-
-
     pdftk $DATA_DIR/figures/network-position-*.pdf \
             cat output \
             $DATA_DIR/figures/all-network-position-$INDCOUNT-figures.pdf
-
 done
 

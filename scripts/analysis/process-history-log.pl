@@ -32,6 +32,7 @@ my @allIndivduals;
 
 
 # Open the input file
+#print "Opening inputFile=[$inputFile]\n";
 open( INPUT, "$inputFile" ) or die "Unable to open input file [$inputFile]: $!\n";
 
 # Read each line
@@ -76,6 +77,7 @@ while( <INPUT> )
     # hierarchy and ignore failed attempts
     my %processed;
     my $order = $groupSize - 1;
+#    print "  Processing [",(scalar @historyEvents),"] events\n";
     foreach my $event (reverse @historyEvents)
     {
         # Pull out the details
@@ -101,7 +103,7 @@ while( <INPUT> )
         $processed{$departed} = 1;
 
         # Store the link from departed to leader
-        if( $leader =~ /\*/ )
+        if( $leader =~ /\*/ || $leader =~ /^$departed$/ )
         {
             # If the departed is initiating, note that in the leader
             $leader = "initiate";
@@ -109,6 +111,7 @@ while( <INPUT> )
         else
         {
             $leaders{$departed} = $leader;
+#print "  departed=[$departed] leader=[$leader]\n";
         }
         $data{"freq"}{$departed}{$leader}++;
         $data{"freq"}{$departed}{"total"}++;
@@ -123,6 +126,7 @@ while( <INPUT> )
     }
 
     # Calculate the total elapsed time for following events
+#    print "Calculating elapsed time...\n";
     my $totalElapsedTime = 0;
     foreach my $order ( sort keys %{$data{"time"}} )
     {
@@ -132,7 +136,10 @@ while( <INPUT> )
 #        print "\tTime array [",join(" ", @{$data{"time"}{$order}}),"]\n";
     }
 
+#print Dumper (\%leaders);
+
     # Process the hierarchy
+#    print "Processing hierarchy...\n";
     @allIndivduals = sort( keys %individuals );
     processHierarchy( \%data, \%leaders, \@allIndivduals );
 #    print "\t\tDone\n";
@@ -141,6 +148,7 @@ while( <INPUT> )
 # Close the file
 close( INPUT );
 
+print "  Read [$line] lines\n";
 
 # -------------------------------------------------------------------
 # Open the output file
@@ -380,6 +388,8 @@ sub processHierarchy
     my %leaders = %$leadersRef;
     my @individuals = @$indRef;
 
+#print Dumper (\%leaders);
+
     # Process each individual
     my %followers;
     my %depth;
@@ -387,7 +397,6 @@ sub processHierarchy
     foreach my $ind (@individuals)
     {
 #print "Processing [$ind]\n";
-
         # Put in some default values if needed
         unless( defined( $followers{$ind} ) )
         {

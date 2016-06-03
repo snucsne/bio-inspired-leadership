@@ -13,6 +13,11 @@ my $locationLineNumber = shift( @ARGV );
 # Get the output gexf file
 my $outputFile = shift( @ARGV );
 chomp( $outputFile );
+
+# Get the preferred initiator
+my $preferredInitiator = shift( @ARGV );
+
+
 #print "Exists   [$outputFile]=[".(-e $outputFile ? "True" : "False")."]\n";
 #print "Writable [$outputFile]=[".(-w $outputFile ? "True" : "False")."]\n";
 #print "Readable [$outputFile]=[".(-r $outputFile ? "True" : "False")."]\n";
@@ -144,7 +149,7 @@ foreach my $id ( sort( keys %data ) )
             "\" />\n";
     print GEXF "        <attvalues>\n";
     print GEXF "          <attvalue for=\"node0\" value=\"".
-            ($initiators{$id} ? "1" : "0").
+            ($initiators{$id} ? "1" : (($preferredInitiator eq $id) ? "0.5" : "0")).
             "\"/>\n";
     print GEXF "          <attvalue for=\"node1\" value=\"".
             $data{$id}{"mimics"}.

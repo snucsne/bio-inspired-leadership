@@ -114,6 +114,8 @@ sub createRInput
     print INPUT "library('Matching')\n";
     print INPUT "library('igraph')\n";
     print INPUT "library('Hmisc')\n";
+    print INPUT "library(extrafont)\n";
+    print INPUT "loadfonts(device = \"postscript\")\n";
 
     # Build a standard error function
     print INPUT "stderr <- function(x) sd(x)/sqrt(length(x))\n\n";
@@ -244,14 +246,16 @@ sub createRInput
     push( @epsFiles, $combinedEpsFile );
     print INPUT "groupsizes = (c($dataPositionsStr) + 1)*5\n";
     print INPUT "groupsizes\n";
-    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
+    print INPUT "postscript( file=\"$combinedEpsFile\", height=5.5, width=6.5, family=\"Arial\", onefile=FALSE, pointsize=12, horizontal=FALSE, paper=\"special\" )\n";
     print INPUT "par(mar=c(8,8,3,3)+0.1)\n";
     print INPUT "par(mgp=c(3,1,0))\n";
     my $index = 0;
-    $legendPosition = "bottom";
+    $legendPosition = "top";
 #    my @colors = (  "#999933", "#117733", "#332288", "#882255", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
-    my @colors = (  "#999933", "#117733", "#332288", "#9C0A2E", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
-    my @plotSymbols = ( 1, 2, 5, 6, 0, 9, 3, 4, 7, 8 );
+#    my @colors = (  "#999933", "#117733", "#332288", "#9C0A2E", "#AA4499", "#88CCEE", "#CC6677", "#44AA99", "#DDCC77", "#000000" );
+#    my @plotSymbols = ( 1, 2, 5, 6, 0, 9, 3, 4, 7, 8 );
+    my @colors = (  "#882255", "#999933", "#AA4499", "#332288", "#114477", "#774411", "#117733", "#44AA99", "#DDCC77", "#000000" );
+    my @plotSymbols = ( 1, 6, 0, 2, 7, 3, 5, 4, 9, 8 );
     my $dataSetNames = "";
     my $colorsStr = "";
     my $plotSymbolsStr = "";
@@ -265,12 +269,15 @@ sub createRInput
             $misc = "";
             $cmd = "lines";
         }
-        print INPUT "$cmd( (groupsizes+$index*0.5-0.5), ",$meansIDStrings[$index],", type=\"o\", \n",
+#        print INPUT "$cmd( (groupsizes+$index*0.5-0.5), ",$meansIDStrings[$index],", type=\"o\", \n",
+#                    "    lwd=2, pch=",$plotSymbols[$index],",\n",
+#                    "    ",$misc," col=\"",$colors[$index],"\", yaxt='n' )\n";
+        print INPUT "$cmd( (groupsizes), ",$meansIDStrings[$index],", type=\"o\", \n",
                     "    lwd=2, pch=",$plotSymbols[$index],",\n",
                     "    ",$misc," col=\"",$colors[$index],"\", yaxt='n' )\n";
 
         print INPUT "par(fg=\"",$colors[$index],"\")\n";
-        print INPUT "errbar( (groupsizes+$index*0.5-0.5), ",$meansIDStrings[$index],", \n",
+        print INPUT "errbar( (groupsizes), ",$meansIDStrings[$index],", \n",
                 "    (",$meansIDStrings[$index],"+",$seIDStrings[$index],"), \n",
                 "    (",$meansIDStrings[$index],"-",$seIDStrings[$index],"), \n",
                 "    add=TRUE, lwd=0.5, pch=",$plotSymbols[$index],",\n",
@@ -413,7 +420,7 @@ sub printKSTestText
 {
     local *INPUT = shift;
     my ($firstID, $firstKey, $secondID, $secondKey) = @_;
-#return;
+return;
             print INPUT "ks <- ks.boot( ",
                     $firstID,
                     ",",

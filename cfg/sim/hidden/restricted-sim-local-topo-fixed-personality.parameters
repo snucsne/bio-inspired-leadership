@@ -1,0 +1,38 @@
+simulation-count = 1000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 10
+nearest-neighbor-distance = 4
+rebuild-individuals = false
+use-nearest-neighbor-group-size = true
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership-personality-local-reversal.dat
+use-sim-log-file-flag = false
+use-location-log-file-flag = false
+
+event-time-calculator-class = edu.snu.leader.hidden.event.RestrictedPersonalityEventTimeCalculator
+initiator-id = Ind00000
+restrict-initiating = true
+restrict-canceling = false
+#event-time-calculator-class = edu.snu.leader.hidden.event.SigmoidPersonalityEventTimeCalculator
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+sigmoid-slope-value = 10
+
+
+individual-builder-class = edu.snu.leader.hidden.builder.OverridePersonalityAndDirIndividualBuilder
+default-personality = 0.1
+default-direction = 0.5
+override-personality-count = 1
+override-personality.00.id = Ind00000
+override-personality.00.value = 0.9
+local-communication-type = topological
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc
+
+
+personality-calculator-class = edu.snu.leader.hidden.personality.ConstantPersonalityCalculator
+
+directions-file = cfg/sim/environment/env-dir-constant.dat
+

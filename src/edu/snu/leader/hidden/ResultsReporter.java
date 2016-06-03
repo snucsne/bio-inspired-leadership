@@ -262,8 +262,7 @@ public class ResultsReporter
             // Build the compressed location log file
             int lastDotIdx = resultsFile.lastIndexOf( '.' );
             String simLocationFile = resultsFile.substring( 0, lastDotIdx )
-                    + ".locations";
-//                    + ".locations.gz";
+                    + ".locations.gz";
             _LOG.warn( "Sending location log to [" + simLocationFile + "]" );
 
             // Build the location log writer
@@ -271,8 +270,8 @@ public class ResultsReporter
             {
                 _locationWriter = new PrintWriter( new BufferedWriter(
                         new OutputStreamWriter(
-//                                new GZIPOutputStream(
-                                        new FileOutputStream( simLocationFile ) ) ) );
+                                new GZIPOutputStream(
+                                        new FileOutputStream( simLocationFile ) ) ) ) );
                 // );
             }
             catch( IOException ioe )
@@ -347,6 +346,10 @@ public class ResultsReporter
                 builder.append( String.format( "%09.3f", currentEvent.getTime() ) );
                 builder.append( "  " );
                 builder.append( String.format( "%06.4f", departed.getPersonality() ) );
+                builder.append( "  " );
+                builder.append( String.format( "%03d", currentEvent.getFollowerCount() ) );
+                builder.append( "  " );
+                builder.append( String.format( "%03d", currentEvent.getPotentialFollowerCount() ) );
                 builder.append( "] " );
             }
 
@@ -360,12 +363,23 @@ public class ResultsReporter
             StringBuilder builder = new StringBuilder();
             builder.append( (successful ? "S [" : "F [" ) );
 
-            // List all the successful initiator IDs
-            Iterator<SpatialIndividual> initiatorIDIter = finalInitiators.iterator();
-            while( initiatorIDIter.hasNext() )
+            Iterator<SpatialIndividual> initiatorIter = null;
+            if( successful )
             {
-                builder.append( initiatorIDIter.next().getID() );
-                if( initiatorIDIter.hasNext() )
+                // Use the final initiators
+                initiatorIter = finalInitiators.iterator();
+            }
+            else
+            {
+                // Use the canceled initiators
+                initiatorIter = _simState.getCanceledInitiators().iterator();
+            }
+
+            // List all the initiator IDs
+            while( initiatorIter.hasNext() )
+            {
+                builder.append( initiatorIter.next().getID() );
+                if( initiatorIter.hasNext() )
                 {
                     builder.append( ":" );
                 }
@@ -618,6 +632,12 @@ public class ResultsReporter
         {
             // Close the log writer
             _logWriter.close();
+        }
+
+        if( _useLocationLogFile )
+        {
+            // Close the locations write
+            _locationWriter.close();
         }
 
         // Close the results writer

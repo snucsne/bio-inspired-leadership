@@ -199,11 +199,11 @@ public abstract class PersonalityEventTimeCalculator extends AbstractEventTimeCa
     }
 
     /**
-    * Calculates the time at the specified individual will cancel an initiation
-    *
-    * @param ind The individual
-    * @param departed The number of individuals who have already departed
-    * @return The cancellation time
+     * Calculates the time at the specified individual will cancel an initiation
+     *
+     * @param ind The individual
+     * @param departed The number of individuals who have already departed
+     * @return The cancellation time
      * @see edu.snu.leader.hidden.event.EventTimeCalculator#calculateCancelTime(edu.snu.leader.hidden.SpatialIndividual, int)
      */
     @Override

@@ -26,5 +26,6 @@ do
             $DATA_FILE \
             $BASE_DIR/figures/gephi/$INDCOUNT/$PREFIX.gexf
 
+exit
 done
 

@@ -23,9 +23,12 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+
 import edu.snu.leader.hidden.personality.PersonalityCalculator;
 import edu.snu.leader.hidden.personality.PersonalityUpdateType;
+
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -57,10 +60,16 @@ public class SpatialIndividual
     public static class InitiationEvent
     {
         public long simIndex;
+        @Deprecated
         public float oldPersonality;
+        public Map<PersonalityTrait,Float> oldPersonalityTraits =
+                new EnumMap<PersonalityTrait, Float>( PersonalityTrait.class );
         public boolean successful;
         public int followers;
+        @Deprecated
         public float newPersonality;
+        public Map<PersonalityTrait,Float> newPersonalityTraits =
+                new EnumMap<PersonalityTrait, Float>( PersonalityTrait.class );
 
         /**
          * Builds this InitiationEvent object
@@ -71,7 +80,22 @@ public class SpatialIndividual
         public InitiationEvent( long simIndex, float personality )
         {
             this.simIndex = simIndex;
-            this.oldPersonality = personality;
+//            this.oldPersonality = personality;
+            this.oldPersonalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                    new Float( personality ) );
+        }
+
+        /**
+         * Builds this InitiationEvent object
+         *
+         * @param simIndex
+         * @param personalityTraits
+         */
+        public InitiationEvent( long simIndex,
+                Map<PersonalityTrait,Float> personalityTraits )
+        {
+            this.simIndex = simIndex;
+            oldPersonalityTraits.putAll( personalityTraits );
         }
     }
 
@@ -87,13 +111,29 @@ public class SpatialIndividual
 
     /** The individual's personality (ranking on bold/shy).  A value of 1.0
      * denotes maximum boldness, while 0.0 denotes maximum shyness. */
+    @Deprecated
     protected float _personality = 0.0f;
 
+    /** The individual's personality traits.  A value of 1.0 denotes the max,
+     *  while denotes the minimum. */
+    protected Map<PersonalityTrait,Float> _personalityTraits =
+            new EnumMap<PersonalityTrait, Float>( PersonalityTrait.class );
+
     /** The individual's initial personality */
+    @Deprecated
     protected float _initialPersonality = 0.0f;
 
+    /** The individual's initial personality traits */
+    protected Map<PersonalityTrait,Float> _initialPersonalityTraits =
+            new EnumMap<PersonalityTrait, Float>( PersonalityTrait.class );
+
     /** The individual's personality after the last initiation attempt */
+    @Deprecated
     protected float _personalityAfterLastInitiation = 0.0f;
+
+    /** THe individual's personality traits after the last initiation attempt */
+    protected Map<PersonalityTrait,Float> _personalityTraitsAfterLastInitiation =
+            new EnumMap<PersonalityTrait, Float>( PersonalityTrait.class );
 
     /** The simulation index of this individual's last initiation attempt */
     protected long _lastInitiationAttempt = 0;
@@ -182,9 +222,48 @@ public class SpatialIndividual
     {
         _id = id;
         _location = location;
-        _personality = personality;
-        _initialPersonality = personality;
-        _personalityAfterLastInitiation = personality;
+//        _personality = personality;
+//        _initialPersonality = personality;
+//        _personalityAfterLastInitiation = personality;
+        _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                new Float( personality ) );
+        _initialPersonalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                new Float( personality ) );
+        _personalityTraitsAfterLastInitiation.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                new Float( personality ) );
+        _assertiveness = assertiveness;
+        _preferredDirection = preferredDirection;
+        _conflict = conflict;
+        _describeInitiationHistory = describeInitiationHistory;
+    }
+
+    /**
+     * Builds this SpatialIndividual object
+     *
+     * @param id
+     * @param location
+     * @param personalityTraits
+     * @param assertiveness
+     * @param preferredDirection
+     * @param conflict
+     * @param describeInitiationHistory
+     */
+    public SpatialIndividual( Object id,
+            Vector2D location,
+            Map<PersonalityTrait,Float> personalityTraits,
+            float assertiveness,
+            float preferredDirection,
+            float conflict,
+            boolean describeInitiationHistory )
+    {
+        _id = id;
+        _location = location;
+//        _personality = personality;
+//        _initialPersonality = personality;
+//        _personalityAfterLastInitiation = personality;
+        _personalityTraits.putAll( personalityTraits );
+        _initialPersonalityTraits.putAll( personalityTraits );
+        _personalityTraitsAfterLastInitiation.putAll( personalityTraits );
         _assertiveness = assertiveness;
         _preferredDirection = preferredDirection;
         _conflict = conflict;
@@ -649,6 +728,16 @@ public class SpatialIndividual
     }
 
     /**
+     * Returns the failed leaders for this individual
+     *
+     * @return The failed leaders
+     */
+    public List<Neighbor> getFailedLeaders()
+    {
+        return new LinkedList<Neighbor>( _failedLeaders );
+    }
+
+    /**
      *  Notes that the individual attempted an initiation
      *
      * @param simState The simulation's state
@@ -682,24 +771,29 @@ public class SpatialIndividual
         PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
         if( null != personalityCalc )
         {
-            _personality = personalityCalc.calculatePersonality(
+            float boldPersonality = personalityCalc.calculatePersonality(
                     this,
                     PersonalityUpdateType.TRUE_WINNER,
                     getTotalFollowerCount() );
+            _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                    new Float( boldPersonality ) );
 
             // Allow for bystander effects
             for( Neighbor neighbor : _nearestNeighbors )
             {
                 SpatialIndividual ind = neighbor.getIndividual();
-                ind._personality = personalityCalc.calculatePersonality(
+                float otherBoldPersonality = personalityCalc.calculatePersonality(
                         ind,
                         PersonalityUpdateType.BYSTANDER_WINNER,
                         getTotalFollowerCount() );
+                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                        new Float( boldPersonality ) );
             }
         }
 
         // Save the individual's personality and the simulation index
-        _personalityAfterLastInitiation = _personality;
+//        _personalityAfterLastInitiation = _personality;
+        _personalityTraitsAfterLastInitiation.putAll( _personalityTraits );
         _lastInitiationAttempt = simState.getSimIndex();
 
         // Are we keeping track of these things?
@@ -707,7 +801,8 @@ public class SpatialIndividual
         {
             _currentInitiationEvent.successful = true;
             _currentInitiationEvent.followers = getTotalFollowerCount();
-            _currentInitiationEvent.newPersonality = _personality;
+//            _currentInitiationEvent.newPersonality = _personality;
+            _currentInitiationEvent.newPersonalityTraits.putAll( _personalityTraits );
         }
     }
 
@@ -727,24 +822,29 @@ public class SpatialIndividual
         PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
         if( null != personalityCalc )
         {
-            _personality = personalityCalc.calculatePersonality(
+            float boldPersonality = personalityCalc.calculatePersonality(
                     this,
                     PersonalityUpdateType.TRUE_LOSER,
                     getTotalFollowerCount() );
+            _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                    new Float( boldPersonality ) );
 
             // Allow for bystander effects
             for( Neighbor neighbor : _nearestNeighbors )
             {
                 SpatialIndividual ind = neighbor.getIndividual();
-                ind._personality = personalityCalc.calculatePersonality(
+                float otherBoldPersonality = personalityCalc.calculatePersonality(
                         ind,
                         PersonalityUpdateType.BYSTANDER_LOSER,
                         getTotalFollowerCount() );
+                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                        new Float( boldPersonality ) );
             }
         }
 
         // Save the individual's personality and the simulation index
-        _personalityAfterLastInitiation = _personality;
+//      _personalityAfterLastInitiation = _personality;
+      _personalityTraitsAfterLastInitiation.putAll( _personalityTraits );
         _lastInitiationAttempt = simState.getSimIndex();
 
         // Are we keeping track of these things?
@@ -752,7 +852,8 @@ public class SpatialIndividual
         {
             _currentInitiationEvent.successful = false;
             _currentInitiationEvent.followers = getTotalFollowerCount();
-            _currentInitiationEvent.newPersonality = _personality;
+//          _currentInitiationEvent.newPersonality = _personality;
+          _currentInitiationEvent.newPersonalityTraits.putAll( _personalityTraits );
         }
     }
 
@@ -778,7 +879,7 @@ public class SpatialIndividual
         // Add the personality
         builder.append( prefix );
         builder.append( "personality = " );
-        builder.append( _personality );
+        builder.append( _personalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS ) );
         builder.append( _NEWLINE );
 
         // Add the assertiveness
@@ -879,11 +980,13 @@ public class SpatialIndividual
                 builder.append( " [" );
                 builder.append( currentEvent.simIndex );
                 builder.append( "  " );
-                builder.append( currentEvent.oldPersonality );
+                builder.append( currentEvent.oldPersonalityTraits.get(
+                        PersonalityTrait.BOLDNESS_SHYNESS ) );
                 builder.append( "  " );
                 builder.append( currentEvent.successful );
                 builder.append( "  " );
-                builder.append( currentEvent.newPersonality );
+                builder.append( currentEvent.newPersonalityTraits.get(
+                        PersonalityTrait.BOLDNESS_SHYNESS ) );
                 builder.append( "  " );
                 builder.append( currentEvent.followers );
                 builder.append( "]" );
@@ -982,7 +1085,19 @@ public class SpatialIndividual
      */
     public void setPersonality( float personality )
     {
-        _personality = personality;
+        _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+                new Float( personality ) );
+    }
+
+    /**
+     * Sets the specified personality trait
+     *
+     * @param trait
+     * @param value
+     */
+    public void setPersonalityTrait( PersonalityTrait trait, float value )
+    {
+        _personalityTraits.put( trait, new Float( value ) );
     }
 
     /**
@@ -992,7 +1107,25 @@ public class SpatialIndividual
      */
     public float getPersonality()
     {
-        return _personality;
+        return _personalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS );
+    }
+
+    /**
+     * Returns the specified personality trait value
+     *
+     * @param trait
+     * @return The value associated with the personality trait
+     */
+    public float getPersonalityTrait( PersonalityTrait trait )
+    {
+        float value = 0.0f;
+        Float valueObj = _personalityTraits.get( trait );
+        if( null != valueObj )
+        {
+            value = valueObj.floatValue();
+        }
+
+        return value;
     }
 
     /**
@@ -1002,8 +1135,27 @@ public class SpatialIndividual
      */
     public float getInitialPersonality()
     {
-        return _initialPersonality;
+        return _initialPersonalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS );
     }
+
+    /**
+     * Returns the initial value of the personality trait
+     *
+     * @param trait
+     * @return The initiation value of the specified personality trait
+     */
+    public float getInitialPersonalityTrait( PersonalityTrait trait )
+    {
+        float value = 0.0f;
+        Float valueObj = _initialPersonalityTraits.get( trait );
+        if( null != valueObj )
+        {
+            value = valueObj.floatValue();
+        }
+
+        return value;
+    }
+
 
     /**
      * Returns the personality after the individual's last initiation attempt
@@ -1012,7 +1164,26 @@ public class SpatialIndividual
      */
     public float getPersonalityAfterLastInitiation()
     {
-        return _personalityAfterLastInitiation;
+        return _personalityTraitsAfterLastInitiation.get(
+                PersonalityTrait.BOLDNESS_SHYNESS );
+    }
+
+    /**
+     * Returns the specified personality traits value after the last initiation
+     *
+     * @param trait
+     * @return The value of the specified personality trait
+     */
+    public float getPersonalityTraitAfterLastInitiation( PersonalityTrait trait )
+    {
+        float value = 0.0f;
+        Float valueObj = _personalityTraitsAfterLastInitiation.get( trait );
+        if( null != valueObj )
+        {
+            value = valueObj.floatValue();
+        }
+
+        return value;
     }
 
     /**

@@ -27,6 +27,8 @@ do
         epstopdf /tmp/gephi.eps
         mv /tmp/gephi.pdf $PDF_FILE
 
-    done
+#exit
 
+    done
+exit
 done

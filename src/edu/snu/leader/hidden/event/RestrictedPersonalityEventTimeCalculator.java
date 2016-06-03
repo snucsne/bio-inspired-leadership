@@ -14,19 +14,19 @@ import java.util.Properties;
 
 
 /**
- * RestrictedInitiatorEventTimeCalculator
+ * RestrictedPersonalityEventTimeCalculator
  *
  * TODO Class description
  *
  * @author Brent Eskridge
  * @version $Revision$ ($Author$)
  */
-public class RestrictedInitiatorEventTimeCalculator
-        extends DefaultEventTimeCalculator
+public class RestrictedPersonalityEventTimeCalculator
+        extends SigmoidPersonalityEventTimeCalculator
 {
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
-            RestrictedInitiatorEventTimeCalculator.class.getName() );
+            RestrictedPersonalityEventTimeCalculator.class.getName() );
 
     /** Key for the initiating individual's ID */
     protected static final String _INITIATOR_ID_KEY = "initiator-id";
@@ -157,6 +157,18 @@ public class RestrictedInitiatorEventTimeCalculator
         }
 
         return cancelTime;
+    }
+
+    /**
+     * Calculates k coefficient for the collective movement equations
+     *
+     * @param value
+     * @return The k coefficient
+     */
+    @Override
+    protected float calculateK( float value )
+    {
+        return 2.0f * value;
     }
 
 }

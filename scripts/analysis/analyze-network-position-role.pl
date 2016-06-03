@@ -1,15 +1,20 @@
 #!/usr/bin/perl
 use strict;
+use List::Util qw(sum);
 
 # -------------------------------------------------------------------
 # Get the individual level data directory
 my $dataDir = shift( @ARGV );
+$dataDir =~ /indcount-(\d+)/;
+my $indCount = $1;
 
 # Get the output file
 my $outputFile = shift( @ARGV );
 
 # Get the eps file
 my $epsFilePrefix = shift( @ARGV );
+
+my $performKSTests = 0;
 
 # -------------------------------------------------------------------
 # Get each of the data files
@@ -69,10 +74,33 @@ foreach my $dataFile (@dataFiles)
         if( $key =~ /^individual\./ )
         {
             $data{$mapID}{$id}{$dataKey} = $value;
+
+            if( $key =~ /shortest-paths/ )
+            {
+                # Remove the 0 for the individual itself and recalculate the mean
+                $value =~ s/(\s+0|\s+0\s+|0\s+)/ /;
+                my @values = split( /\s+/, $value );
+                my $sum = sum( @values ) / (scalar @values);
+                $data{$mapID}{$id}{"mean-shortest-path"} = $sum;
+            }
         }
     }
 
     close( DATA );
+}
+
+foreach my $mapID (sort (keys (%data) ) )
+{
+    foreach my $id (sort (keys (%{$data{$mapID}}) ) )
+    {
+        my @shortestPaths = split( /\s+/, $data{$mapID}{$id}{"shortest-paths"} );
+#print "Paths=[",join( ", ", @shortestPaths ),"] length=[",(scalar @shortestPaths),"]\n";
+        @shortestPaths = grep { $_ != 0 } @shortestPaths;
+        my $mean = sum( @shortestPaths ) / (scalar @shortestPaths);
+#print "Paths=[",join( ", ", @shortestPaths ),"] length=[",(scalar @shortestPaths),"]\n";
+#print "\tMap=[$mapID] Ind=[$id]  Before=[",$data{$mapID}{$id}{"mean-shortest-path"},"] After=[$mean]\n";
+        $data{$mapID}{$id}{"mean-shortest-path"} = $mean;
+    }
 }
 
 # -------------------------------------------------------------------
@@ -194,6 +222,7 @@ foreach my $dataFile (@dataFiles)
 # Create an input file for R
 my $rInputFile = "/tmp/network-position.r";
 my $rOutputFile = "/tmp/network-position.r.out";
+my $nowString = localtime;
 
 open( RINPUT, "> $rInputFile" ) or die "Unable to open input file [$rInputFile]: $!\n";
 
@@ -209,8 +238,40 @@ print RINPUT "  hues = seq(15, 375, length=n+1)\n";
 print RINPUT "  hcl(h=hues, l=65, c=100)[1:n]\n";
 print RINPUT "}\n\n";
 
+# Build a function to handle the t-test error in case the data is constant
+print RINPUT "try_default <- function (expr, default = NA) {\n";
+print RINPUT "  result <- default\n";
+print RINPUT "  tryCatch(result <- expr, error = function(e) {})\n";
+print RINPUT "  result\n";
+print RINPUT "}\n";
+
+print RINPUT "failwith <- function(default = NULL, f, ...) {\n";
+print RINPUT "  function(...) try_default(f(...), default)\n";
+print RINPUT "}\n";
+
+print RINPUT "tryttest <- function(...) failwith(NA, t.test(...))\n";
+print RINPUT "tryttestpvalue <- function(...) {\n";
+print RINPUT "    obj<-try(t.test(...), silent=TRUE)\n";
+print RINPUT "    if (is(obj, \"try-error\")) return(NA) else return(obj\$p.value)\n";
+print RINPUT "}\n\n";
+
+print RINPUT "calctickspacing <- function (minValue, maxValue, maxTickCount) {\n";
+print RINPUT "  valueRange = maxValue - minValue\n";
+print RINPUT "  minTickSpacing = maxValue / maxTickCount\n";
+print RINPUT "  magnitude = 10 ** floor( log10( minTickSpacing ) )\n";
+print RINPUT "  residual = minTickSpacing / magnitude\n";
+print RINPUT "  multTable = c(1, 1.5, 2, 3, 5, 7, 10)\n";
+print RINPUT "  tickSpacing = which.min( abs( multTable - residual ) ) * magnitude\n";
+print RINPUT "  return(tickSpacing)\n";
+print RINPUT "}\n\n";
+
+
+
+
+print RINPUT "# Date: $nowString\n\n";
 
 # -------------------------------------------------------------------
+my $maxTickCount = 8;
 my @correlationData = ( "mimicing-neighbor-count",
         "eigenvector-centrality",
         "closeness",
@@ -232,6 +293,8 @@ my %relevantDataNames = (
 
 # Build R variables
 my %rData;
+my %rElapsedTimeData;
+my %ecToInd;
 foreach my $mapID (sort (keys (%data) ) )
 {
     foreach my $id (sort (keys (%{$data{$mapID}}) ) )
@@ -240,6 +303,13 @@ foreach my $mapID (sort (keys (%data) ) )
         {
             push( @{$rData{$dataType}}, $data{$mapID}{$id}{$dataType} );
         }
+
+        # Build a separate bit of data linking eigenvector centrality and final elapsed time
+        my $ec = $data{$mapID}{$id}{"eigenvector-centrality"};
+        my @followers = sort (keys %{$data{$mapID}{$id}{"elapsed-time"}} );
+        my $lastIndex = $followers[-1];
+        $rElapsedTimeData{$ec} = $data{$mapID}{$id}{"elapsed-time"}{$lastIndex};
+        $ecToInd{$ec} = "Map$mapID-$id";
     }
 }
 
@@ -247,8 +317,26 @@ foreach my $dataType (@relevantData)
 {
     my $varID = convertToRName( $dataType );
     print RINPUT "# ------------------------\n";
+    print RINPUT "# Datatype [$dataType]\n";
     print RINPUT "$varID <- scan()\n";
     print RINPUT join( " ", @{$rData{$dataType}} ),"\n\n";
+}
+
+my %ecNames;
+if( $performKSTests )
+{
+    foreach my $ec (sort (keys %rElapsedTimeData))
+    {
+        my $formattedEC = sprintf( "%08.6f", $ec );
+        $formattedEC =~ s/\.//;
+        my $varID = "ec".$formattedEC."elapsedtimes";
+        print RINPUT "# ------------------------\n";
+        print RINPUT "# Elapsed times for eigenvector centrality [$ec]\n";
+        print RINPUT "$varID <- scan()\n";
+        print RINPUT join( " ", $rElapsedTimeData{$ec} ),"\n\n";
+    
+        $ecNames{$varID} = $ec;
+    }
 }
 
 
@@ -257,7 +345,6 @@ foreach my $dataType (@relevantData)
 print RINPUT "sink(\"$outputFile\")\n";
 
 print RINPUT buildRCatText( "# Data dir [$dataDir]" );
-my $nowString = localtime;
 print RINPUT buildRCatText( "# Time     [$nowString]" );
 print RINPUT buildRCatText( "# ===========================================" );
 print RINPUT buildRCatText( "" );
@@ -265,6 +352,13 @@ print RINPUT buildRCatText( "" );
 # -------------------------------------------------------------------
 my $finalElapsedTimeVarName = convertToRName( "final-elapsed-time-mean" );
 my $finalElapsedTimeName = $relevantDataNames{ "final-elapsed-time-mean" };
+
+print RINPUT buildRCatText( "" );
+print RINPUT buildRCatText( "mean.elapsed-time-mean = \",format( mean( $finalElapsedTimeVarName ) ),\"" );
+print RINPUT buildRCatText( "std-dev.elapsed-time-mean = \",format( sd( $finalElapsedTimeVarName ) ),\"" );
+print RINPUT buildRCatText( "max.elapsed-time-mean = \",format( max( $finalElapsedTimeVarName ) ),\"" );
+print RINPUT buildRCatText( "min.elapsed-time-mean = \",format( min( $finalElapsedTimeVarName ) ),\"" );
+print RINPUT buildRCatText( "" );
 
 foreach my $dataType (@correlationData)
 {
@@ -281,6 +375,71 @@ foreach my $dataType (@correlationData)
 }
 
 # -------------------------------------------------------------------
+if( $performKSTests )
+{
+    # Add the KS tests
+    my @ecNamesArray = (sort (keys %ecNames) );
+    for( my $i = 0; $i < (scalar @ecNamesArray); $i++ )
+    {
+        for( my $j = $i + 1; $j < (scalar @ecNamesArray); $j++ )
+        {
+            my $first = $ecNamesArray[$i];
+            my $firstName = $ecNames{$first};
+            $firstName =~ s/\./-/;
+            my $second = $ecNamesArray[$j];
+            my $secondName = $ecNames{$second};
+            $secondName =~ s/\./-/;
+
+            print RINPUT buildRCatText( "# -----------------------------------------" );
+            print RINPUT buildRCatText( "# KS: ".$ecToInd{$first}."(ec=".$firstName.") vs ".$ecToInd{$first}."(ec=".$secondName.")" );
+            print RINPUT "cat(\"elapsed-time.",
+                    $firstName,
+                    ".mean = \", format( mean( ".$first.") ), \"\\n\")\n";
+            print RINPUT "cat(\"elapsed-time.",
+                    $firstName,
+                    ".stdev = \", format( sd( ".$first.") ), \"\\n\")\n";
+            print RINPUT "cat(\"elapsed-time.",
+                    $secondName,
+                    ".mean = \", format( mean( ".$second.") ), \"\\n\")\n";
+            print RINPUT "cat(\"elapsed-time.",
+                    $secondName,
+                    ".stdev = \", format( sd( ".$second.") ), \"\\n\")\n";
+            print RINPUT "ks <- ks.boot( ",
+                    $first,
+                    ",",
+                    $second,
+                    " )\n";
+            print RINPUT "cat(\"ks.",
+                    $firstName,
+                    ".vs.",
+                    $secondName,
+                    ".p-value = \", format( ks\$ks.boot.pvalue), \"\\n\")\n";
+            print RINPUT "cat(\"ks.",
+                    $firstName,
+                    ".vs.",
+                    $secondName,
+                    ".naive-pvalue = \", format(ks\$ks\$p.value), \"\\n\")\n";
+            print RINPUT "cat(\"ks.",
+                    $firstName,
+                    ".vs.",
+                    $secondName,
+                    ".statistic = \", format(ks\$ks\$statistic), \"\\n\")\n";
+            print RINPUT "ttest.p.value <- tryttestpvalue(",
+                    $first,
+                    ",",
+                    $second,
+                    ")\n";
+            print RINPUT "cat(\"t-test.",
+                    $firstName,
+                    ".vs.",
+                    $secondName,
+                    ".p-value =   \", format(ttest.p.value), \"\\n\")\n";
+            print RINPUT buildRCatText( "" );
+        }
+    }
+}
+
+# -------------------------------------------------------------------
 print RINPUT "sink()\n";
 
 # -------------------------------------------------------------------
@@ -292,19 +451,47 @@ foreach my $dataType (@correlationData)
     push( @epsFiles, $epsFile );
 
     my $dataTypeName = convertToRName( $dataType );
+    print RINPUT "yTickSpacing = calctickspacing( min($finalElapsedTimeVarName), max($finalElapsedTimeVarName), $maxTickCount )\n";
+    print RINPUT "yTickSpacing\n";
+    print RINPUT "minYTickValue = min($finalElapsedTimeVarName) - (min($finalElapsedTimeVarName) %% yTickSpacing)\n";
+    print RINPUT "maxYTickValue = max($finalElapsedTimeVarName) - (max($finalElapsedTimeVarName) %% yTickSpacing) + yTickSpacing\n";
+#    print RINPUT "c(min($finalElapsedTimeVarName), max($finalElapsedTimeVarName))\n";
+#    print RINPUT "c(minTickValue, maxTickValue)\n";
+    print RINPUT "yTickCount = (maxYTickValue - minYTickValue) / yTickSpacing + 1\n";
+#    print RINPUT "yTickCount\n";
+#    print RINPUT "axisTicks( c(minTickValue, maxTickValue), log=FALSE, n = tickCount )\n\n\n";
+    print RINPUT "xTickSequence = pretty( c(min($dataTypeName), max($dataTypeName)) )\n";
+    print RINPUT "c( min($dataTypeName), max($dataTypeName) )\n";
+    print RINPUT "xTickSequence\n";
+    print RINPUT "yTickSequence = pretty( c(min($finalElapsedTimeVarName), max($finalElapsedTimeVarName)) )\n";
+    print RINPUT "c( min($finalElapsedTimeVarName), max($finalElapsedTimeVarName) )\n";
+    print RINPUT "c( min($finalElapsedTimeVarName), max($finalElapsedTimeVarName) )\n";
+    print RINPUT "yTickSequence\n";
     print RINPUT "postscript( file=\"$epsFile\", height=5.5, width=6.83, family=\"Arial\", onefile=FALSE, pointsize=16, horizontal=FALSE, paper=\"special\" )\n";
     print RINPUT "par(mar=c(5.1,5.1,1.1,1.1))\n";
     print RINPUT "plot( $dataTypeName, $finalElapsedTimeVarName, col=c(\"#882255\"),\n";
     print RINPUT "    xlab=\"",$relevantDataNames{$dataType},"\", ylab=\"\", las = 1,\n";
-    print RINPUT "    xlim=c(min($dataTypeName),max($dataTypeName)),\n";
-    print RINPUT "    ylim=c(min($finalElapsedTimeVarName), max($finalElapsedTimeVarName)) )\n";
+#    print RINPUT "    xlim=c(min($dataTypeName),max($dataTypeName)),\n";
+    print RINPUT "    xlim=c(min(xTickSequence),max(xTickSequence)), xaxt='n',\n";
+#    print RINPUT "    ylim=c(min($finalElapsedTimeVarName), max($finalElapsedTimeVarName)) )\n";
+#    print RINPUT "    ylim=c(minTickValue, maxTickValue), yaxt='n',\n";
+    print RINPUT "    ylim=c(min(yTickSequence), max(yTickSequence)), yaxt='n',\n";
+#    print RINPUT "    panel.first = abline( h=seq( minTickValue, maxTickValue, by=tickSpacing), col=\"gray\", lwd=0.5) )\n";
+    print RINPUT "    panel.first = abline( h=yTickSequence, col=\"gray\", lwd=0.5) )\n";
     print RINPUT "mtext(\"$finalElapsedTimeName\", side=2, line=4, las=0 )\n";
+#    print RINPUT "axis(2, las=2, at=axisTicks( c(minTickValue, maxTickValue), log=FALSE, n = tickCount ))\n";
+    print RINPUT "axis(1, las=0, at=xTickSequence )\n";
+    print RINPUT "axis(2, las=2, at=yTickSequence )\n";
+#    print RINPUT "axis(2, las=2, at=seq( minTickValue, maxTickValue, by=tickSpacing) )\n";
+#    print RINPUT "axis(4, las=2, at=seq( minTickValue, maxTickValue, by=tickSpacing) )\n";
+#    print RINPUT "abline( h=seq( minTickValue, maxTickValue, by=tickSpacing), col=\"gray\", lwd=0.5)\n";
     print RINPUT "dev.off()\n\n";
 }
 
 # -------------------------------------------------------------------
 # Close the input file
 close( RINPUT );
+
 
 # -------------------------------------------------------------------
 # Run it

@@ -25,8 +25,9 @@ set output \"/tmp/tmp.eps\"
 
 set multiplot layout 1,3
 
-#set title \"Default probabilities\"
+set title \"Default probabilities\"
 #set title
+set label 15 center at graph 0.5, char -1 \"(a)\" font \",22\"
 
 set xlabel \"Departed individuals\"
 set ylabel \"Probability\"
@@ -43,27 +44,29 @@ plot 0.1 title \"               \" lc rgb \"#FFFFFF\", \
    1/(162.3+75.4*(10-x)/x) title \"Follow\" with lines lt 2 lw 3 lc rgb \"$SHYCOLOR\"
 
 
-#set title \"Effects on following probabilities\"
+set title \"Effects on following probabilities\"
 #set title
+set label 15 \"(b)\"
 
 #set size 0.65,0.62
 set key out vert center top
 
-plot 1.90515/(162.3+75.4*(10-x)/x) title \"Shy\" with lines lw 3 lt 2 lc rgb \"$SHYCOLOR\", \
-   1/(162.3+75.4*(10-x)/x) title \"Default / Moderate\" with lines lt 1 lw 3 lc rgb \"$DEFAULTCOLOR\", \
-   0.09485/(162.3+75.4*(10-x)/x) title \"Bold\" with lines lw 3 lt 5 lc rgb \"$BOLDCOLOR\"
+plot 1.90515/(162.3+75.4*(10-x)/x) title \"Low LT\" with lines lw 3 lt 2 lc rgb \"$SHYCOLOR\", \
+   1/(162.3+75.4*(10-x)/x) title \"Default / Moderate LT\" with lines lt 1 lw 3 lc rgb \"$DEFAULTCOLOR\", \
+   0.09485/(162.3+75.4*(10-x)/x) title \"High LT\" with lines lw 3 lt 5 lc rgb \"$BOLDCOLOR\"
 
 
 
-#set title \"Effects on canceling probabilities\"
+set title \"Effects on canceling probabilities\"
 #set title
+set label 15 \"(c)\"
 
 #set size 0.3,0.8
 set key out vert center top
 
-plot 1.90515*0.009/(1+(x/2)**2.3) title \"Shy\" with lines lt 2 lw 3 lc rgb \"$SHYCOLOR\", \
-   0.009/(1+(x/2)**2.3) title \"Default / Moderate\" with lines lt 1 lw 3 lc rgb \"$DEFAULTCOLOR\", \
-   0.09485*0.009/(1+(x/2)**2.3) title \"Bold\" with lines lt 5 lw 3 lc rgb \"$BOLDCOLOR\"
+plot 1.90515*0.009/(1+(x/2)**2.3) title \"Low LT\" with lines lt 2 lw 3 lc rgb \"$SHYCOLOR\", \
+   0.009/(1+(x/2)**2.3) title \"Default / Moderate LT\" with lines lt 1 lw 3 lc rgb \"$DEFAULTCOLOR\", \
+   0.09485*0.009/(1+(x/2)**2.3) title \"High LT\" with lines lt 5 lw 3 lc rgb \"$BOLDCOLOR\"
 
 unset multiplot
 "
