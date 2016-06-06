@@ -275,6 +275,7 @@ public class SimpleDevelopmentProblem extends Problem
      * @param base
      * @see ec.Problem#setup(ec.EvolutionState, ec.util.Parameter)
      */
+    @SuppressWarnings( "deprecation" )
     @Override
     public void setup( EvolutionState state, Parameter base )
     {
@@ -775,6 +776,7 @@ public class SimpleDevelopmentProblem extends Problem
      * @param verbosity
      * @see ec.simple.SimpleProblemForm#describe(ec.Individual, ec.EvolutionState, int, int, int, int)
      */
+    /*
     @Override
     public void describe( Individual ind,
             EvolutionState state,
@@ -785,6 +787,7 @@ public class SimpleDevelopmentProblem extends Problem
     {
         throw new RuntimeException( "NOT YET IMPLEMENTED" );
     }
+    */
 
     /**
      * Evaluates the network in the maturation simulation
