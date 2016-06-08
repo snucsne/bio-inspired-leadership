@@ -26,6 +26,8 @@ while( <FILE> )
     push( @meanShortestPaths, $_ );
 }
 
+close( FILE );
+
 # Min and max mean shortest path
 my $minMeanShortestPath = min @meanShortestPaths;
 my $maxMeanShortestPath = max @meanShortestPaths;
@@ -33,13 +35,18 @@ my $maxMeanShortestPath = max @meanShortestPaths;
 # The range of values
 my $range = $maxMeanShortestPath - $minMeanShortestPath;
 
-print "# Date generated: ",scalar(localtime()),"\n";
-print "# Min mean shortest path [$minMeanShortestPath]\n";
-print "# Max mean shortest path [$maxMeanShortestPath]\n";
-print "# Range of value [$range]\n";
-print "# =============================================================\n\n";
+# Create an output file
+my $outputFile = $meanShortestPathsFile;
+$outputFile =~ s/mean-shortest-path/personality-traits/g;
+open( OUTPUT, "> $outputFile" ) or die "Unable to open output file [$outputFile]: $!\n";
 
-print "#    MSP       Bold    Sociable    Exploratory     Escape\n";
+print OUTPUT "# Date generated: ",scalar(localtime()),"\n";
+print OUTPUT "# Min mean shortest path [$minMeanShortestPath]\n";
+print OUTPUT "# Max mean shortest path [$maxMeanShortestPath]\n";
+print OUTPUT "# Range of value [$range]\n";
+print OUTPUT "# =============================================================\n\n";
+
+print OUTPUT "#    MSP       Bold    Sociable    Exploratory     Escape\n";
 
 # Process each individual
 foreach my $meanShortestPath (@meanShortestPaths)
@@ -55,12 +62,14 @@ foreach my $meanShortestPath (@meanShortestPaths)
     my $exploratory = 1 - (0.8 * $centrality + 0.1);
     my $escape = 0.9;
 
-    printf( "%08.5f    %07.5f     %07.5f        %07.5f    %07.5f\n",
+    printf( OUTPUT "%08.5f    %07.5f     %07.5f        %07.5f    %07.5f\n",
             $meanShortestPath,
             $bold,
             $sociable,
             $exploratory,
             $escape );
 }
+
+close( OUTPUT );
 
 
