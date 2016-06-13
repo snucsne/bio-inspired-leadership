@@ -1,0 +1,31 @@
+simulation-count = 2000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 10
+rebuild-individuals = false
+use-nearest-neighbor-group-size = true
+max-location-radius = 10
+results-file = data/spatial-hidden-variables-leadership-personality-local-reversal.dat
+use-sim-log-file-flag = true
+use-location-log-file-flag = false
+
+# Valid values are: navigate, explore, escape
+task = navigate
+
+event-time-calculator-class = edu.snu.leader.hidden.event.MultiplePersonalityTraitsEventTimeCalculator
+initiator-id = Ind00000
+restrict-initiating = true
+restrict-canceling = false
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+sigmoid-slope-value = 10
+
+
+individual-builder-class = edu.snu.leader.hidden.builder.SpecificMultiplePersonalityTraitsIndividualBuilder
+# This should be replaced by the launch script
+personality-traits-file = cfg/sim/locations/metric/personality-traits/personality-traits-indcount-020-map-00001.dat
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc
+
+

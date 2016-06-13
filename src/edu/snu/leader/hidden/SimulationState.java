@@ -89,6 +89,9 @@ public class SimulationState
      * that have departed. */
     private static final String _USE_ALL_DEPARTED_KEY = "use-all-departed";
 
+    /** Key for the task */
+    private static final String _TASK_KEY = "task";
+
 
 
     /** Current simulation index */
@@ -167,6 +170,9 @@ public class SimulationState
     /** Flag denoting whether the total number of departed individuals should be
      * used or the number of nearest neighbors that have departed. */
     private boolean _useAllDeparted = true;
+
+    /** The current task for the individuals */
+    private Task _currentTask = Task.NAVIGATE;
 
 
     /**
@@ -270,6 +276,9 @@ public class SimulationState
             _personalityCalc = (PersonalityCalculator) MiscUtils.loadAndInstantiate(
                     personalityCalculatorStr,
                     "Personality calculator class" );
+                _LOG.info( "Using personality calculator class ["
+                        + personalityCalculatorStr
+                        + "]" );
         }
         else
         {
@@ -288,6 +297,27 @@ public class SimulationState
                     useAllDepartedString );
             _LOG.info( "Using _useAllDeparted=[" + _useAllDeparted + "]" );
         }
+
+        /* Get the task for the simulation */
+        String taskString = _props.getProperty( _TASK_KEY );
+        if( null != taskString )
+        {
+            _currentTask = Task.valueOf( taskString.toUpperCase() );
+            _LOG.info( "Using _currentTask=["
+                    + _currentTask
+                    + "]" );
+        }
+        else
+        {
+            _currentTask = Task.NONE;
+            _LOG.info( "Using default task of ["
+                    + _currentTask
+                    + "]" );
+        }
+        Validate.notEmpty( taskString,
+                "Task (key=["
+                + _TASK_KEY
+                + "]) may not be empty" );
 
         // Create the individuals
         createIndividuals();
@@ -880,6 +910,16 @@ public class SimulationState
     {
         return "Group"
                 + String.format( "%05d", _groupIDCounter++);
+    }
+
+    /**
+     * Returns the current task
+     *
+     * @return The current task
+     */
+    public Task getCurrentTask()
+    {
+        return _currentTask;
     }
 
     /**

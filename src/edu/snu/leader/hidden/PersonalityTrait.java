@@ -26,10 +26,11 @@ package edu.snu.leader.hidden;
  * @author Kyler Ross
  * @version $Revision$ ($Author$)
  */
-public enum PersonalityTrait {    
+public enum PersonalityTrait {
     BOLDNESS_SHYNESS,
     EXPLORATION,
     ACTIVITY,
     SOCIABILITY,
-    AGGRESSIVENESS
+    AGGRESSIVENESS,
+    ESCAPE
 }

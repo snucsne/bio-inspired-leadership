@@ -24,9 +24,6 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
-import edu.snu.leader.hidden.personality.PersonalityCalculator;
-import edu.snu.leader.hidden.personality.PersonalityUpdateType;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -767,29 +764,30 @@ public class SpatialIndividual
         _successfulFollowers.add( getTotalFollowerCount() );
         _successfulFollowersStats.addValue( getTotalFollowerCount() );
 
-        // Update the personality
-        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
-        if( null != personalityCalc )
-        {
-            float boldPersonality = personalityCalc.calculatePersonality(
-                    this,
-                    PersonalityUpdateType.TRUE_WINNER,
-                    getTotalFollowerCount() );
-            _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
-                    new Float( boldPersonality ) );
-
-            // Allow for bystander effects
-            for( Neighbor neighbor : _nearestNeighbors )
-            {
-                SpatialIndividual ind = neighbor.getIndividual();
-                float otherBoldPersonality = personalityCalc.calculatePersonality(
-                        ind,
-                        PersonalityUpdateType.BYSTANDER_WINNER,
-                        getTotalFollowerCount() );
-                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
-                        new Float( boldPersonality ) );
-            }
-        }
+//        // Update the personality
+//        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
+//        if( null != personalityCalc )
+//        {
+//            _LOG.warn( "Updating personalities due to success" );
+//            float boldPersonality = personalityCalc.calculatePersonality(
+//                    this,
+//                    PersonalityUpdateType.TRUE_WINNER,
+//                    getTotalFollowerCount() );
+//            _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+//                    new Float( boldPersonality ) );
+//
+//            // Allow for bystander effects
+//            for( Neighbor neighbor : _nearestNeighbors )
+//            {
+//                SpatialIndividual ind = neighbor.getIndividual();
+//                float otherBoldPersonality = personalityCalc.calculatePersonality(
+//                        ind,
+//                        PersonalityUpdateType.BYSTANDER_WINNER,
+//                        getTotalFollowerCount() );
+//                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+//                        new Float( boldPersonality ) );
+//            }
+//        }
 
         // Save the individual's personality and the simulation index
 //        _personalityAfterLastInitiation = _personality;
@@ -818,29 +816,30 @@ public class SpatialIndividual
 //        _failedFollowers.add( getTotalFollowerCount() );
 //        _failedFollowersStats.addValue( getTotalFollowerCount() );
 
-        // Update the personality
-        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
-        if( null != personalityCalc )
-        {
-            float boldPersonality = personalityCalc.calculatePersonality(
-                    this,
-                    PersonalityUpdateType.TRUE_LOSER,
-                    getTotalFollowerCount() );
-            _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
-                    new Float( boldPersonality ) );
-
-            // Allow for bystander effects
-            for( Neighbor neighbor : _nearestNeighbors )
-            {
-                SpatialIndividual ind = neighbor.getIndividual();
-                float otherBoldPersonality = personalityCalc.calculatePersonality(
-                        ind,
-                        PersonalityUpdateType.BYSTANDER_LOSER,
-                        getTotalFollowerCount() );
-                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
-                        new Float( boldPersonality ) );
-            }
-        }
+//        // Update the personality
+//        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
+//        if( null != personalityCalc )
+//        {
+//            _LOG.warn( "Updating personalities due to failure" );
+//            float boldPersonality = personalityCalc.calculatePersonality(
+//                    this,
+//                    PersonalityUpdateType.TRUE_LOSER,
+//                    getTotalFollowerCount() );
+//            _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+//                    new Float( boldPersonality ) );
+//
+//            // Allow for bystander effects
+//            for( Neighbor neighbor : _nearestNeighbors )
+//            {
+//                SpatialIndividual ind = neighbor.getIndividual();
+//                float otherBoldPersonality = personalityCalc.calculatePersonality(
+//                        ind,
+//                        PersonalityUpdateType.BYSTANDER_LOSER,
+//                        getTotalFollowerCount() );
+//                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+//                        new Float( boldPersonality ) );
+//            }
+//        }
 
         // Save the individual's personality and the simulation index
 //      _personalityAfterLastInitiation = _personality;
@@ -877,10 +876,25 @@ public class SpatialIndividual
         builder.append( _NEWLINE );
 
         // Add the personality
-        builder.append( prefix );
-        builder.append( "personality = " );
-        builder.append( _personalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS ) );
-        builder.append( _NEWLINE );
+        if( 1 < _personalityTraits.size() )
+        {
+            for( Map.Entry<PersonalityTrait, Float> entry : _personalityTraits.entrySet() )
+            {
+                builder.append( prefix );
+                builder.append( "personality-trait." );
+                builder.append( entry.getKey().name().toLowerCase() );
+                builder.append( " = " );
+                builder.append( entry.getValue() );
+                builder.append( _NEWLINE );
+            }
+        }
+        else
+        {
+            builder.append( prefix );
+            builder.append( "personality = " );
+            builder.append( _personalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS ) );
+            builder.append( _NEWLINE );
+        }
 
         // Add the assertiveness
         builder.append( prefix );
@@ -1085,6 +1099,7 @@ public class SpatialIndividual
      */
     public void setPersonality( float personality )
     {
+        _LOG.warn( "Setting personality [" + personality + "]" );
         _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
                 new Float( personality ) );
     }
@@ -1097,6 +1112,7 @@ public class SpatialIndividual
      */
     public void setPersonalityTrait( PersonalityTrait trait, float value )
     {
+        _LOG.warn( "Setting personality trait [" + trait + "]=[" + value + "]" );
         _personalityTraits.put( trait, new Float( value ) );
     }
 
@@ -1123,6 +1139,12 @@ public class SpatialIndividual
         if( null != valueObj )
         {
             value = valueObj.floatValue();
+        }
+        else
+        {
+            _LOG.warn( "No value for personality trait ["
+                    + trait
+                    + "] was found" );
         }
 
         return value;

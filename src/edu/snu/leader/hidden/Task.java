@@ -26,7 +26,9 @@ package edu.snu.leader.hidden;
  * @author Kyler Ross
  * @version $Revision$ ($Author$)
  */
-public enum Task {
+public enum Task
+{
+    NONE,
     NAVIGATE,
     EXPLORE,
     ESCAPE

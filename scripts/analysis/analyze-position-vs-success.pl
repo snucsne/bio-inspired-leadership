@@ -85,8 +85,12 @@ foreach my $dataFile (@dataFiles)
 # Clean up the mean shortest paths and calculate the success percentage
 foreach my $mapID (sort (keys (%data) ) )
 {
+    print "Cleaning up map [$mapID]...\n";
+
     foreach my $id (sort (keys (%{$data{$mapID}}) ) )
     {
+        print "  Processing ID [$id]: shortest-paths[",$data{$mapID}{$id}{"shortest-paths"},"]\n";
+
         my @shortestPaths = split( /\s+/, $data{$mapID}{$id}{"shortest-paths"} );
         @shortestPaths = grep { $_ != 0 } @shortestPaths;
         my $mean = sum( @shortestPaths ) / (scalar @shortestPaths);
