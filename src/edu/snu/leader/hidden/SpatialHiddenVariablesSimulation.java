@@ -128,8 +128,22 @@ public class SpatialHiddenVariablesSimulation
         _LOG.trace( "Entering initialize()" );
 
         // Load the properties
-        _props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
+        Properties props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
+        
+        // Use the other initiatlization method
+        initialize( props );
 
+        _LOG.trace( "Leaving initialize()" );
+    }
+    
+    /**
+     * Initialize the simulation
+     * 
+     */
+    public void initialize( Properties props )
+    {
+        _LOG.trace( "Entering initialize( props )" );
+        
         // Initialize the simulation state
         _simState.initialize( _props );
 
@@ -167,7 +181,7 @@ public class SpatialHiddenVariablesSimulation
             _simObservers.add( observer );
         }
 
-        _LOG.trace( "Leaving initialize()" );
+        _LOG.trace( "Leaving initialize( props )" );
     }
 
     /**
@@ -202,11 +216,22 @@ public class SpatialHiddenVariablesSimulation
         // Report the final results
         _reporter.reportFinalResults();
 
-
-
         _LOG.trace( "Leaving run()" );
     }
 
+    public void addObserver( SimulationObserver simObserver )
+    {
+        _LOG.trace( "Entering addObserver( simObserver )" );
+
+        // Initialize the observer
+        simObserver.initialize( _simState );
+        
+        // Add it to the observers
+        _simObservers.add( simObserver );
+        
+        _LOG.trace( "Leaving addObserver( simObserver )" );
+    }
+    
     /**
      * Iterate over all the observers and have them set up a simulation run
      */
@@ -239,14 +264,11 @@ public class SpatialHiddenVariablesSimulation
     {
         _LOG.trace( "Entering executeSimulation()" );
 
-//        if( simIndex >= 147 )
-//        {
-//            _LOG.getRootLogger().setLevel( Level.DEBUG );
-//        }
-
         // Maintain the departure history
         List<DepartureEvent> departureHistory = new LinkedList<DepartureEvent>();
 
+        float simulationTime = 0.0f;
+        
         // Determine the initiating individual
         List<InitiatorData> initiators = new ArrayList<InitiatorData>();
         IndividualEvent initiateEvent = determineNextInitiationEvent();
@@ -257,6 +279,7 @@ public class SpatialHiddenVariablesSimulation
                 null,
                 DepartureEvent.Type.INITIATE,
                 initiateEvent.time ) );
+        simulationTime += initiateEvent.time;
 
         /* Continue the simulation until no individual is remaining or
          * the initiator(s) have cancelled. */
@@ -363,7 +386,7 @@ public class SpatialHiddenVariablesSimulation
                         null,
                         DepartureEvent.Type.INITIATE,
                         initiateEvent.time ) );
-
+                simulationTime += initiateEvent.time;
 
                 // Update the max number of initiators if necessary
                 if( maxInitiatorCount < initiators.size() )
@@ -390,6 +413,7 @@ public class SpatialHiddenVariablesSimulation
                             follower.getFirstMover().getIndividual(),
                             DepartureEvent.Type.FOLLOW,
                             earliestInitiatorData.followEvent.time ) );
+                    simulationTime += earliestInitiatorData.followEvent.time;
 
                 }
                 else if( earliestInitiatorData.cancelTime < Float.POSITIVE_INFINITY )
@@ -405,6 +429,7 @@ public class SpatialHiddenVariablesSimulation
                             null,
                             DepartureEvent.Type.CANCEL,
                             earliestInitiatorData.cancelTime ) );
+                    simulationTime += earliestInitiatorData.cancelTime;
                 }
             }
 
@@ -443,6 +468,7 @@ public class SpatialHiddenVariablesSimulation
                 initiatorIDs,
                 maxInitiatorCount,
                 departureHistory );
+        _simState.gatherMeasures( simulationTime );
 
         _LOG.trace( "Leaving executeSimulation()" );
     }
