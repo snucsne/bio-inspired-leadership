@@ -1,8 +1,5 @@
 package edu.snu.leader.hidden.evolution;
 
-import java.util.Iterator;
-import java.util.List;
-
 // Imports
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
@@ -10,16 +7,13 @@ import org.apache.log4j.Logger;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.Problem;
-import ec.multiobjective.MultiObjectiveFitness;
 import ec.simple.SimpleFitness;
 import ec.simple.SimpleProblemForm;
 import ec.util.MersenneTwisterFast;
 import ec.util.Parameter;
 import ec.vector.BitVectorIndividual;
 import edu.snu.leader.util.MiscUtils;
-import edu.snu.leader.hidden.SpatialHiddenVariablesSimulation;
 import edu.snu.leader.hidden.evolution.EvolutionInputParameters.DestinationRunCounts;
-import edu.snu.leader.hidden.observer.EvolutionaryFitnessMeasureSimObserver;
 
 /**
  * GautraisCoefficientGAProblem
@@ -77,8 +71,7 @@ public class GautraisCoefficientGAProblem
     /** Parameter key for flag to force re-evaluation of individuals */
     private static final String _P_FORCE_REEVALUATION = "force-reevaluation";
 
-    /** Parameter key for the max simulation time */
-    private static final String _P_MAX_SIM_TIME = "max-simulation-time";
+
 
     
     /** The alpha scaling factor */
@@ -128,9 +121,6 @@ public class GautraisCoefficientGAProblem
 
     /** Flag indicating that individuals should be re-evaluated every generation */
     private boolean _forceReevaluation = false;
-    
-    /** Maximum amount of time for a simulation */
-    private float _maxSimulationTime = 0.0f;
 
     
     /**
@@ -323,18 +313,6 @@ public class GautraisCoefficientGAProblem
                  false );
         _LOG.info( "Using _forceReevaluation=[" + _forceReevaluation + "]" );
 
-        // $$$$$$$$$$$$$$$$$$$$$$$$$$
-        // TODO
-        Validate.isTrue( state.parameters.exists(
-                base.push( _P_MAX_SIM_TIME ), null ),
-                "Max simulation time is required " );
-        _maxSimulationTime = state.parameters.getFloat( base.push(
-                _P_MAX_SIM_TIME ),
-                null );
-        _LOG.info( "Using _maxSimulationTime=[" + _maxSimulationTime + "]" );
-        // $$$$$$$$$$$$$$$$$$$$$$$$$$
-       
-        _LOG.trace( "Leaving setup( state, base )" );
     }
 
     /**
@@ -378,51 +356,16 @@ public class GautraisCoefficientGAProblem
         EvolutionInputParameters inputParameters = decodeGenome( bitInd.genome,
                 state.random[threadnum] );
 
-        // Build the simulator
-        SpatialHiddenVariablesSimulation simulator =
-                new SpatialHiddenVariablesSimulation();
-        simulator.initialize();
-        
-        // Add our observer
-        EvolutionaryFitnessMeasureSimObserver observer =
-                new EvolutionaryFitnessMeasureSimObserver();
-        simulator.addObserver( observer );
-        
-        // Run the simulator
-        simulator.run();
-
-        // Get the fitness
-        List<FitnessMeasures> allFitnessMeasures =
-                observer.getAllFitnessMeasures();
-        float successPercentage = 0.0f;
-        float meanTimeLeftAfterConsensus = 0.0f;
-        int successfulSimulations = 0;
-        int totalSimulations = allFitnessMeasures.size();
-        float totalTime = 0.0f;
-        Iterator<FitnessMeasures> iter = allFitnessMeasures.iterator();
-        while( iter.hasNext() )
-        {
-            FitnessMeasures current = iter.next();
-            if( current.wasSuccessful() )
-            {
-                successfulSimulations++;
-            }
-            totalTime += current.getTimeUntilConsensus();
-        }
-        successPercentage = successfulSimulations / (float) totalSimulations;
-        meanTimeLeftAfterConsensus = 1.0f - ((totalTime) / totalSimulations)
-                / _maxSimulationTime;
-        meanTimeLeftAfterConsensus = Math.max( 0.0f, meanTimeLeftAfterConsensus );
+        // Run the simulation
+        float fitness = 0.0f;
+        // TODO
         
         // Store the fitness
-        float[] objectiveValues = new float[2];
-        objectiveValues[0] = successPercentage;
-        objectiveValues[1] = meanTimeLeftAfterConsensus;
-        MultiObjectiveFitness fitness = (MultiObjectiveFitness) ind.fitness;
-        fitness.setObjectives( state, objectiveValues );
-
+        ((SimpleFitness) bitInd.fitness).setFitness( state, fitness, false );
+        
         // Mark the individual as evaluated
         ind.evaluated = true;
+
     }
 
     /**

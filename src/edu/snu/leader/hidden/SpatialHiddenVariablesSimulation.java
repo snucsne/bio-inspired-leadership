@@ -130,7 +130,7 @@ public class SpatialHiddenVariablesSimulation
         // Load the properties
         Properties props = MiscUtils.loadProperties( _PROPS_FILE_KEY );
         
-        // Use the other initialization method
+        // Use the other initiatlization method
         initialize( props );
 
         _LOG.trace( "Leaving initialize()" );
