@@ -21,7 +21,6 @@ package edu.snu.leader.hidden;
 // Imports
 import edu.snu.leader.hidden.builder.IndividualBuilder;
 import edu.snu.leader.hidden.event.EventTimeCalculator;
-import edu.snu.leader.hidden.evolution.FitnessMeasures;
 import edu.snu.leader.hidden.personality.ConstantPersonalityCalculator;
 import edu.snu.leader.hidden.personality.PersonalityCalculator;
 import edu.snu.leader.util.MiscUtils;
@@ -93,9 +92,6 @@ public class SimulationState
     /** Key for the task */
     private static final String _TASK_KEY = "task";
 
-    /** Difference threshold used to consider whether or not a direction
-     *  is the "same" */
-    private static final float _DIR_DIFFERENCE_THRESHOLD = 0.0001f;
 
 
     /** Current simulation index */
@@ -178,12 +174,6 @@ public class SimulationState
     /** The current task for the individuals */
     private Task _currentTask = Task.NAVIGATE;
 
-    /** The fitness measure values for the current simulation */
-    private FitnessMeasures _fitnessMeasures = null;
-    
-    /** The "correct" direction of movement */
-    private float _correctDir = 0.0f;
-    
 
     /**
      * Initialize the simulation state
@@ -331,12 +321,6 @@ public class SimulationState
 
         // Create the individuals
         createIndividuals();
-        
-        // $$$$$$$$$$$$$$$$$$$$$$$$$$
-        // TODO
-        _correctDir = 0.50f;
-        // $$$$$$$$$$$$$$$$$$$$$$$$$$
-        
 
         _LOG.trace( "Leaving initialize( props )" );
     }
@@ -381,66 +365,6 @@ public class SimulationState
         }
     }
 
-    public void gatherMeasures( float totalSimulationTime )
-    {
-        _LOG.trace( "Entering gatherMeasures( totalSimulationTime )" );
-        
-        // Was it successful?
-        boolean success = (0 == getRemainingCount());
-        
-        // Iterate through all the individuals
-        int total = 0;
-        int totalAtPreferredDirection = 0;
-        int totalAtCorrectDirection = 0;
-        Iterator<SpatialIndividual> indIter = _allIndividuals.iterator();
-        while( indIter.hasNext() )
-        {
-            // Get the current individual
-            SpatialIndividual ind = indIter.next();
-            total++;
-            
-            // Get their preferred direction
-            float preferredDir = ind.getPreferredDirection();
-            
-            // Get the individual's leader
-            Neighbor immediateLeader = ind.getLeader();
-            SpatialIndividual leader = null;
-            while( immediateLeader != null )
-            {
-                // Get the leader as an individual
-                leader = immediateLeader.getIndividual();
-
-                // Get their leader
-                immediateLeader = leader.getLeader();
-            }
-            
-            // Get their preferred direction
-            float leaderPreferredDir = leader.getPreferredDirection();
-            
-            // Are the directions the same?
-            if( Math.abs( preferredDir - leaderPreferredDir )
-                    < _DIR_DIFFERENCE_THRESHOLD )
-            {
-                totalAtPreferredDirection++;
-            }
-            
-            // Is the leader's direction the correct one?
-            if( Math.abs( _correctDir - leaderPreferredDir )
-                    < _DIR_DIFFERENCE_THRESHOLD )
-            {
-                totalAtCorrectDirection++;
-            }
-        }
-        
-        // Store the measures
-        _fitnessMeasures = new FitnessMeasures( success,
-                totalAtPreferredDirection / (float) total,
-                totalAtCorrectDirection / (float) total,
-                totalSimulationTime );
-
-        _LOG.trace( "Leaving gatherMeasures( totalSimulationTime )" );
-    }
-    
     /**
      * Updates the nearest neighbors for all the individuals
      */
@@ -996,16 +920,6 @@ public class SimulationState
     public Task getCurrentTask()
     {
         return _currentTask;
-    }
-    
-    /**
-     * Returns the fitness measures
-     *
-     * @return The fitness measures
-     */
-    public FitnessMeasures getFitnessMeasures()
-    {
-        return _fitnessMeasures;
     }
 
     /**
