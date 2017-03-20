@@ -148,8 +148,8 @@ public class SpecificMultiplePersonalityTraitsIndividualBuilder extends
                 // Add it to the list
                 Map<PersonalityTrait,Float> personalityTraits =
                         new EnumMap<PersonalityTrait,Float>( PersonalityTrait.class );
-                personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS, bold );
-                personalityTraits.put( PersonalityTrait.SOCIABILITY, sociability );
+                personalityTraits.put( PersonalityTrait.BOLD_SHY, bold );
+                personalityTraits.put( PersonalityTrait.SOCIAL_SOLITARY, sociability );
                 personalityTraits.put( PersonalityTrait.EXPLORATION, exploration );
                 personalityTraits.put( PersonalityTrait.ESCAPE, escape );
                 _allPersonalityTraits.add( personalityTraits );

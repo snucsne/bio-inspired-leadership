@@ -24,6 +24,9 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
+import edu.snu.leader.hidden.personality.PersonalityCalculator;
+import edu.snu.leader.hidden.personality.PersonalityUpdateType;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -32,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 
 /**
@@ -78,7 +82,7 @@ public class SpatialIndividual
         {
             this.simIndex = simIndex;
 //            this.oldPersonality = personality;
-            this.oldPersonalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+            this.oldPersonalityTraits.put( PersonalityTrait.BOLD_SHY,
                     new Float( personality ) );
         }
 
@@ -197,7 +201,16 @@ public class SpatialIndividual
     /** All the failed initiators in the current simulation */
     protected List<Neighbor> _failedLeaders = new LinkedList<Neighbor>();
 
+    /** The mean topological distance to the rest of the individuals */
+    protected float _meanTopologicalDistance = 0.0f;
 
+    /** The mean position of all the nearest neighbors */
+    protected Vector2D _meanPositionOfNearestNeighbors = null;
+    
+    /** Distance to the mean position of all the nearest neighbors */
+    protected float _distanceToMeanPositionOfNearestNeighbors = 0.0f;
+    
+    
     /**
      * Builds this SpatialIndividual object
      *
@@ -222,11 +235,11 @@ public class SpatialIndividual
 //        _personality = personality;
 //        _initialPersonality = personality;
 //        _personalityAfterLastInitiation = personality;
-        _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+        _personalityTraits.put( PersonalityTrait.BOLD_SHY,
                 new Float( personality ) );
-        _initialPersonalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+        _initialPersonalityTraits.put( PersonalityTrait.BOLD_SHY,
                 new Float( personality ) );
-        _personalityTraitsAfterLastInitiation.put( PersonalityTrait.BOLDNESS_SHYNESS,
+        _personalityTraitsAfterLastInitiation.put( PersonalityTrait.BOLD_SHY,
                 new Float( personality ) );
         _assertiveness = assertiveness;
         _preferredDirection = preferredDirection;
@@ -317,6 +330,9 @@ public class SpatialIndividual
 //                    + neighbor.getIndividual().getID()
 //                    + "]" );
         }
+        
+        // Compute the mean position of the nearest neighbors
+        computeMeanPositionOfNearestNeighbors();
 
         _LOG.trace( "Leaving findNearestNeighbors( simState )" );
     }
@@ -764,10 +780,18 @@ public class SpatialIndividual
         _successfulFollowers.add( getTotalFollowerCount() );
         _successfulFollowersStats.addValue( getTotalFollowerCount() );
 
-//        // Update the personality
-//        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
-//        if( null != personalityCalc )
-//        {
+        // Save the individual's personality and the simulation index
+        _personalityTraitsAfterLastInitiation.putAll( _personalityTraits );
+        _lastInitiationAttempt = simState.getSimIndex();
+
+        // Update the personality
+        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
+        if( null != personalityCalc )
+        {
+            personalityCalc.updateTraits( this,
+                    PersonalityUpdateType.TRUE_WINNER,
+                    simState.getCurrentTask() );
+
 //            _LOG.warn( "Updating personalities due to success" );
 //            float boldPersonality = personalityCalc.calculatePersonality(
 //                    this,
@@ -787,12 +811,8 @@ public class SpatialIndividual
 //                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
 //                        new Float( boldPersonality ) );
 //            }
-//        }
+        }
 
-        // Save the individual's personality and the simulation index
-//        _personalityAfterLastInitiation = _personality;
-        _personalityTraitsAfterLastInitiation.putAll( _personalityTraits );
-        _lastInitiationAttempt = simState.getSimIndex();
 
         // Are we keeping track of these things?
         if( _describeInitiationHistory )
@@ -813,13 +833,21 @@ public class SpatialIndividual
     {
 
         // Log our total number of followers
-//        _failedFollowers.add( getTotalFollowerCount() );
-//        _failedFollowersStats.addValue( getTotalFollowerCount() );
+        _failedFollowers.add( getTotalFollowerCount() );
+        _failedFollowersStats.addValue( getTotalFollowerCount() );
 
-//        // Update the personality
-//        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
-//        if( null != personalityCalc )
-//        {
+        // Save the individual's personality and the simulation index
+        _personalityTraitsAfterLastInitiation.putAll( _personalityTraits );
+        _lastInitiationAttempt = simState.getSimIndex();
+
+        // Update the personality
+        PersonalityCalculator personalityCalc = simState.getPersonalityCalc();
+        if( null != personalityCalc )
+        {
+            personalityCalc.updateTraits( this,
+                    PersonalityUpdateType.TRUE_LOSER,
+                    simState.getCurrentTask() );
+            
 //            _LOG.warn( "Updating personalities due to failure" );
 //            float boldPersonality = personalityCalc.calculatePersonality(
 //                    this,
@@ -839,12 +867,7 @@ public class SpatialIndividual
 //                ind._personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
 //                        new Float( boldPersonality ) );
 //            }
-//        }
-
-        // Save the individual's personality and the simulation index
-//      _personalityAfterLastInitiation = _personality;
-      _personalityTraitsAfterLastInitiation.putAll( _personalityTraits );
-        _lastInitiationAttempt = simState.getSimIndex();
+        }
 
         // Are we keeping track of these things?
         if( _describeInitiationHistory )
@@ -892,7 +915,7 @@ public class SpatialIndividual
         {
             builder.append( prefix );
             builder.append( "personality = " );
-            builder.append( _personalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS ) );
+            builder.append( _personalityTraits.get( PersonalityTrait.BOLD_SHY ) );
             builder.append( _NEWLINE );
         }
 
@@ -954,6 +977,22 @@ public class SpatialIndividual
             builder.append( " " );
         }
         builder.append( _NEWLINE );
+        
+        // Add the mean location of the nearest neighbors
+        builder.append( prefix );
+        builder.append( "mean-position-nearest-neighbors = " );
+        builder.append( String.format( "%06.4f",
+                        _meanPositionOfNearestNeighbors.getX() )
+                + " "
+                + String.format( "%06.4f",
+                        _meanPositionOfNearestNeighbors.getY() ) );
+        builder.append( _NEWLINE );
+
+        // Add the distance to the mean location
+        builder.append( prefix );
+        builder.append( "distance-to-mean-position-nearest-neigbhors = " );
+        builder.append( _distanceToMeanPositionOfNearestNeighbors );
+        builder.append( _NEWLINE );
 
         // Add the number of individuals with this individual as a neighbor
         builder.append( prefix );
@@ -961,6 +1000,12 @@ public class SpatialIndividual
         builder.append( getMimickingNeighborCount() );
         builder.append( _NEWLINE );
 
+        // Add the mean topological distance to all individuals
+        builder.append( prefix );
+        builder.append( "mean-topoligical-distance = " );
+        builder.append( getMeanTopologicalDistance() );
+        builder.append( _NEWLINE );
+        
         // Add placeholders for the social network analysis data
         builder.append( prefix );
         builder.append( "eigenvector-centrality = %%%");
@@ -995,12 +1040,12 @@ public class SpatialIndividual
                 builder.append( currentEvent.simIndex );
                 builder.append( "  " );
                 builder.append( currentEvent.oldPersonalityTraits.get(
-                        PersonalityTrait.BOLDNESS_SHYNESS ) );
+                        PersonalityTrait.BOLD_SHY ) );
                 builder.append( "  " );
                 builder.append( currentEvent.successful );
                 builder.append( "  " );
                 builder.append( currentEvent.newPersonalityTraits.get(
-                        PersonalityTrait.BOLDNESS_SHYNESS ) );
+                        PersonalityTrait.BOLD_SHY ) );
                 builder.append( "  " );
                 builder.append( currentEvent.followers );
                 builder.append( "]" );
@@ -1100,7 +1145,7 @@ public class SpatialIndividual
     public void setPersonality( float personality )
     {
         _LOG.warn( "Setting personality [" + personality + "]" );
-        _personalityTraits.put( PersonalityTrait.BOLDNESS_SHYNESS,
+        _personalityTraits.put( PersonalityTrait.BOLD_SHY,
                 new Float( personality ) );
     }
 
@@ -1112,7 +1157,7 @@ public class SpatialIndividual
      */
     public void setPersonalityTrait( PersonalityTrait trait, float value )
     {
-        _LOG.warn( "Setting personality trait [" + trait + "]=[" + value + "]" );
+//        _LOG.warn( "Setting personality trait [" + trait + "]=[" + value + "]" );
         _personalityTraits.put( trait, new Float( value ) );
     }
 
@@ -1123,7 +1168,7 @@ public class SpatialIndividual
      */
     public float getPersonality()
     {
-        return _personalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS );
+        return _personalityTraits.get( PersonalityTrait.BOLD_SHY );
     }
 
     /**
@@ -1157,7 +1202,7 @@ public class SpatialIndividual
      */
     public float getInitialPersonality()
     {
-        return _initialPersonalityTraits.get( PersonalityTrait.BOLDNESS_SHYNESS );
+        return _initialPersonalityTraits.get( PersonalityTrait.BOLD_SHY );
     }
 
     /**
@@ -1187,7 +1232,7 @@ public class SpatialIndividual
     public float getPersonalityAfterLastInitiation()
     {
         return _personalityTraitsAfterLastInitiation.get(
-                PersonalityTrait.BOLDNESS_SHYNESS );
+                PersonalityTrait.BOLD_SHY );
     }
 
     /**
@@ -1269,5 +1314,87 @@ public class SpatialIndividual
     }
 
 
-
+    /**
+     * TODO Method description
+     *
+     * @param simState
+     */
+    public void calculateMeanTopoDistanceToAllIndividuals( SimulationState simState )
+    {
+        Map<Object, Integer> indDistanceMap = new HashMap<Object, Integer>();
+        Queue<SpatialIndividual> indsToProcess = new LinkedList<SpatialIndividual>();
+        
+        // Automatically add all the mimicing neighbors
+        for( SpatialIndividual neighbor : getMimickingNeighbors() )
+        {
+            indDistanceMap.put( neighbor.getID(), new Integer(1) );
+            indsToProcess.add( neighbor );
+        }
+//        _LOG.warn( "Mimicking neighbor count ["
+//                + getMimickingNeighborCount()
+//                + "]" );
+        
+        // Process all the individuals
+        while( !indsToProcess.isEmpty() )
+        {
+            // Get the individual and it's distance
+            SpatialIndividual current = indsToProcess.remove();
+            int currentDistance = indDistanceMap.get( current.getID() ).intValue();
+            
+            // Get all it's mimicking neighbors
+            for( SpatialIndividual currentsNeighbor : current.getMimickingNeighbors() )
+            {
+                // Have we processed it yet?
+                if( !indDistanceMap.containsKey( currentsNeighbor.getID() ) )
+                {
+                    // Nope
+                    indDistanceMap.put( currentsNeighbor.getID(),
+                            new Integer( currentDistance + 1 ) );
+                    indsToProcess.add( currentsNeighbor );
+                }
+            }
+        }
+        
+        // Compute the mean
+        int distanceTotals = 0;
+        StringBuilder builder = new StringBuilder();
+        for( Integer current : indDistanceMap.values() )
+        {
+            distanceTotals += current.intValue();
+            builder.append( current );
+            builder.append( " " );
+        }
+        _meanTopologicalDistance = distanceTotals / ((float) indDistanceMap.size() - 1.0f);
+        _LOG.warn( "Mean topological distance for ind=["
+                + getID()
+                + "] => ["
+                + _meanTopologicalDistance
+//                + "]  distances=[ "
+//                + builder.toString()
+                + "] total=[" + distanceTotals + "]" );
+    }
+    
+    public float getMeanTopologicalDistance()
+    {
+        return _meanTopologicalDistance;
+    }
+    
+    private void computeMeanPositionOfNearestNeighbors()
+    {
+        // Sum all the positions
+        Vector2D sumOfPositions = Vector2D.ZERO;
+        for( Neighbor neighbor : getNearestNeighbors() )
+        {
+            // The add method returns a new vector
+            sumOfPositions = sumOfPositions.add( neighbor.getIndividual().getLocation() );
+        }
+        
+        // Scale it by the number of nearest neighbors
+        _meanPositionOfNearestNeighbors = sumOfPositions.scalarMultiply(
+                1.0f / getNearestNeighborCount() );
+        
+        // Compute the distance to the mean position
+        _distanceToMeanPositionOfNearestNeighbors =
+                (float) getLocation().distance( _meanPositionOfNearestNeighbors );
+    }
 }

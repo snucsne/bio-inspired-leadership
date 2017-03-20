@@ -27,10 +27,11 @@ package edu.snu.leader.hidden;
  * @version $Revision$ ($Author$)
  */
 public enum PersonalityTrait {
-    BOLDNESS_SHYNESS,
+    BOLD_SHY,
     EXPLORATION,
-    ACTIVITY,
-    SOCIABILITY,
-    AGGRESSIVENESS,
-    ESCAPE
+    ACTIVE_LAZY,
+    SOCIAL_SOLITARY,
+    AGGRESSIVE_PASSIVE,
+    ESCAPE,
+    FEARFUL_ASSERTIVE
 }

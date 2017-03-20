@@ -73,7 +73,7 @@ public class LocalSpatialSimulation
     private Properties _props = new Properties();
 
     /** The results reporter */
-    private ResultsReporter _reporter = new ResultsReporter();
+    private ResultsReporter _reporter = new DefaultResultsReporter();
 
     /** The number of times to run the simulator */
     private int _simulationCount = 0;

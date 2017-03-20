@@ -23,6 +23,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
+import edu.snu.leader.hidden.Task;
+
 import java.util.Properties;
 
 
@@ -262,6 +264,23 @@ public class StandardUpdateRulePersonalityCalculator
 
         return newPersonality;
     }
+    
+    /**
+     * Calculate the personality trait value(s)
+     *
+     * @param individual The individual's current personality
+     * @param updateType The type of update being applied
+     * @param task The current task
+     * @see edu.snu.leader.hidden.personality.PersonalityCalculator#updateTraits(edu.snu.leader.hidden.SpatialIndividual, edu.snu.leader.hidden.personality.PersonalityUpdateType, edu.snu.leader.hidden.Task)
+     */
+    @Override
+    public void updateTraits( SpatialIndividual individual,
+            PersonalityUpdateType updateType,
+            Task currentTask )
+    {
+        // Do nothing
+    }
+
 
     /**
      * Calculates the true winner result for the given individual and number

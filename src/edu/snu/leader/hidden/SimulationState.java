@@ -92,7 +92,10 @@ public class SimulationState
     /** Key for the task */
     private static final String _TASK_KEY = "task";
 
+    /** Key for the flag to randomize the tasks */
+    private static final String _RANDOMIZE_TASKS_KEY = "randomize-tasks";
 
+    
 
     /** Current simulation index */
     private long _simIndex = 0;
@@ -174,7 +177,19 @@ public class SimulationState
     /** The current task for the individuals */
     private Task _currentTask = Task.NAVIGATE;
 
+    /** Flag indicating whether or not tasks should be randomly chosen */
+    private boolean _randomizeTasks = false;
+    
+    /** Minimum mean topological distance to all individuals */
+    private float _minMeanTopologicalDistance = 0.0f;
+    
+    /** Maximum mean topological distance to all individuals */
+    private float _maxMeanTopologicalDistance = 0.0f;
 
+    /** Range of mean topological distances */
+    private float _meanTopologicalDistanceRange = 0.0f;
+    
+    
     /**
      * Initialize the simulation state
      *
@@ -309,7 +324,7 @@ public class SimulationState
         }
         else
         {
-            _currentTask = Task.NONE;
+            _currentTask = Task.NAVIGATE;
             _LOG.info( "Using default task of ["
                     + _currentTask
                     + "]" );
@@ -319,6 +334,16 @@ public class SimulationState
                 + _TASK_KEY
                 + "]) may not be empty" );
 
+        // Are the tasks randomized?
+        String randomizeTaskStr = _props.getProperty( _RANDOMIZE_TASKS_KEY );
+        if( null != randomizeTaskStr )
+        {
+            _randomizeTasks = Boolean.parseBoolean( randomizeTaskStr );
+            _LOG.info( "Using randomizeTask=["
+                    + _randomizeTasks
+                    + "]" );
+        }
+        
         // Create the individuals
         createIndividuals();
 
@@ -363,6 +388,9 @@ public class SimulationState
             _remaining.put( ind.getID(), ind );
             _eligibleInitiators.put( ind.getID(), ind );
         }
+        
+        // Update the task
+        updateTask();
     }
 
     /**
@@ -398,6 +426,31 @@ public class SimulationState
                     + "]" );
         }
 
+        // Have each individual compute the mean topological distance to the rest
+        for( SpatialIndividual ind : _allIndividuals )
+        {
+            ind.calculateMeanTopoDistanceToAllIndividuals( this );
+        }
+        
+        // Determine the min and max mean topological distance
+        _minMeanTopologicalDistance = Float.MAX_VALUE;
+        _maxMeanTopologicalDistance = Float.MIN_VALUE;
+        for( SpatialIndividual ind : _allIndividuals )
+        {
+            float meanTopologicalDistance = ind.getMeanTopologicalDistance();
+            if( meanTopologicalDistance < _minMeanTopologicalDistance )
+            {
+                _minMeanTopologicalDistance = meanTopologicalDistance;
+            }
+            if( meanTopologicalDistance > _maxMeanTopologicalDistance )
+            {
+                _maxMeanTopologicalDistance = meanTopologicalDistance;
+            }
+        }
+        
+        // Compute the range
+        _meanTopologicalDistanceRange = _maxMeanTopologicalDistance
+                - _minMeanTopologicalDistance;
     }
 
     /**
@@ -923,6 +976,54 @@ public class SimulationState
     }
 
     /**
+     * Sets the simulation's current task
+     *
+     * @param task
+     */
+    public void setCurrentTask( Task task )
+    {
+        _currentTask = task;
+    }
+    
+    /**
+     * Returns the minMeanTopologicalDistance for this object
+     *
+     * @return The minMeanTopologicalDistance.
+     */
+    public float getMinMeanTopologicalDistance()
+    {
+        return _minMeanTopologicalDistance;
+    }
+
+    /**
+     * Returns the maxMeanTopologicalDistance for this object
+     *
+     * @return The maxMeanTopologicalDistance.
+     */
+    public float getMaxMeanTopologicalDistance()
+    {
+        return _maxMeanTopologicalDistance;
+    }
+    
+    public float computeNormalizedMeanTopologicalDistance( SpatialIndividual ind )
+    {
+        return (ind.getMeanTopologicalDistance() - _minMeanTopologicalDistance)
+                / ( _meanTopologicalDistanceRange);
+    }
+
+    private void updateTask()
+    {
+        // Do we choose a random task?
+        if( _randomizeTasks )
+        {
+            // Yup
+            Task[] allTasks = Task.values();
+            Task task = allTasks[getRandom().nextInt( allTasks.length )];
+            setCurrentTask( task );
+        }
+    }
+    
+    /**
      * Create the individuals for the simulation
      */
     private void createIndividuals()
@@ -957,6 +1058,30 @@ public class SimulationState
                         + "] has no neighbors" );
             }
         }
+        
+        // Have each individual compute the mean topological distance to the rest
+        for( SpatialIndividual ind : _allIndividuals )
+        {
+            ind.calculateMeanTopoDistanceToAllIndividuals( this );
+        }
+        _minMeanTopologicalDistance = Float.MAX_VALUE;
+        _maxMeanTopologicalDistance = Float.MIN_VALUE;
+        for( SpatialIndividual ind : _allIndividuals )
+        {
+            float meanTopologicalDistance = ind.getMeanTopologicalDistance();
+            if( meanTopologicalDistance < _minMeanTopologicalDistance )
+            {
+                _minMeanTopologicalDistance = meanTopologicalDistance;
+            }
+            if( meanTopologicalDistance > _maxMeanTopologicalDistance )
+            {
+                _maxMeanTopologicalDistance = meanTopologicalDistance;
+            }
+        }
+        
+        // Compute the range
+        _meanTopologicalDistanceRange = _maxMeanTopologicalDistance
+                - _minMeanTopologicalDistance;
 
         // If an individual has no neighbors, delete it
         Iterator<SpatialIndividual> lonelyIndIter = lonelyInds.iterator();

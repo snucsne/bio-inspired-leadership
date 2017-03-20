@@ -20,6 +20,7 @@ package edu.snu.leader.hidden.personality;
 
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
+import edu.snu.leader.hidden.Task;
 
 /**
  * ExperienceUpdator
@@ -46,7 +47,19 @@ public interface PersonalityCalculator
      * @param followers The number of followers in the initiation
      * @return The updated personality value
      */
+    @Deprecated
     public float calculatePersonality( SpatialIndividual individual,
             PersonalityUpdateType updateType,
             int followers );
+    
+    /**
+     * Calculate the personality trait value(s)
+     *
+     * @param individual The individual's current personality
+     * @param updateType The type of update being applied
+     * @param task The current task
+     */
+    public void updateTraits( SpatialIndividual individual,
+            PersonalityUpdateType updateType,
+            Task currentTask );
 }

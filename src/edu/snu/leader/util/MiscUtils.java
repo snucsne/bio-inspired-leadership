@@ -228,4 +228,18 @@ public class MiscUtils
         return instantiated;
     }
 
+    public static float loadNonEmptyFloatProperty( Properties props,
+            String key,
+            String description )
+    {
+        String valueStr = props.getProperty( key );
+        Validate.notEmpty( valueStr,
+                description
+                + "(key="
+                + key
+                + ") may not be empty" );
+        float value = Float.parseFloat( valueStr );
+        
+        return value;
+    }
 }

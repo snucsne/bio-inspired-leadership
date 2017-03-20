@@ -156,24 +156,25 @@ public class MultiplePersonalityTraitsEventTimeCalculator extends
             {
                 // Yup, get the current task
                 Task task = _simState.getCurrentTask();
-
+                
                 // Get the appropriate personality trait value
                 float personalityTraitValue = 0.0f;
                 // Is the task navigation?
                 if( Task.NAVIGATE.equals( task ) )
                 {
-                    personalityTraitValue = ind.getInitialPersonalityTrait(
-                            PersonalityTrait.BOLDNESS_SHYNESS );
+                    personalityTraitValue = ind.getPersonalityTrait(
+                            PersonalityTrait.BOLD_SHY );
+                    
                 }
                 else if( Task.EXPLORE.equals( task ) )
                 {
-                    personalityTraitValue = ind.getInitialPersonalityTrait(
-                            PersonalityTrait.EXPLORATION );
+                    personalityTraitValue = ind.getPersonalityTrait(
+                            PersonalityTrait.ACTIVE_LAZY );
                 }
                 else if( Task.ESCAPE.equals( task ) )
                 {
-                    personalityTraitValue = ind.getInitialPersonalityTrait(
-                            PersonalityTrait.BOLDNESS_SHYNESS );
+                    personalityTraitValue = ind.getPersonalityTrait(
+                            PersonalityTrait.FEARFUL_ASSERTIVE );
                 }
                 else
                 {
@@ -185,11 +186,13 @@ public class MultiplePersonalityTraitsEventTimeCalculator extends
                 // Modify the rate
                 float k = calculateK( personalityTraitValue );
                 tau = tau / k;
+//                _LOG.warn( "Initiate [" + ind.getID() + "]: k=[" + k + "] tau=[" + tau + "] task=[" + task + "] trait=[" + personalityTraitValue + "]" );
             }
 
             initiationTime = MathUtils.generateRandomExponential(
                     1.0f / tau,
                     _simState.getRandom() );
+//            _LOG.warn( "   initiationTime=[" + initiationTime + "]" );
         }
 
         return initiationTime;
@@ -225,18 +228,18 @@ public class MultiplePersonalityTraitsEventTimeCalculator extends
             // Is the task navigation?
             if( Task.NAVIGATE.equals( task ) )
             {
-                personalityTraitValue = ind.getInitialPersonalityTrait(
-                        PersonalityTrait.SOCIABILITY );
+                personalityTraitValue = ind.getPersonalityTrait(
+                        PersonalityTrait.SOCIAL_SOLITARY );
             }
             else if( Task.EXPLORE.equals( task ) )
             {
-                personalityTraitValue = ind.getInitialPersonalityTrait(
-                        PersonalityTrait.SOCIABILITY );
+                personalityTraitValue = ind.getPersonalityTrait(
+                        PersonalityTrait.SOCIAL_SOLITARY );
             }
             else if( Task.ESCAPE.equals( task ) )
             {
-                personalityTraitValue = ind.getInitialPersonalityTrait(
-                        PersonalityTrait.ESCAPE );
+                personalityTraitValue = ind.getPersonalityTrait(
+                        PersonalityTrait.SOCIAL_SOLITARY );
             }
             else
             {
@@ -248,6 +251,7 @@ public class MultiplePersonalityTraitsEventTimeCalculator extends
             // Modify the rate
             float k = calculateK( personalityTraitValue );
             tau = tau / k;
+//            _LOG.warn( "Follow: k=[" + k + "] tau=[" + tau + "] task=[" + task + "] trait=[" + personalityTraitValue + "]" );
         }
 
         return MathUtils.generateRandomExponential( 1.0f / tau,
@@ -284,18 +288,18 @@ public class MultiplePersonalityTraitsEventTimeCalculator extends
                 // Is the task navigation?
                 if( Task.NAVIGATE.equals( task ) )
                 {
-                    personalityTraitValue = ind.getInitialPersonalityTrait(
-                            PersonalityTrait.BOLDNESS_SHYNESS );
+                    personalityTraitValue = ind.getPersonalityTrait(
+                            PersonalityTrait.BOLD_SHY );
                 }
                 else if( Task.EXPLORE.equals( task ) )
                 {
-                    personalityTraitValue = ind.getInitialPersonalityTrait(
-                            PersonalityTrait.EXPLORATION );
+                    personalityTraitValue = ind.getPersonalityTrait(
+                            PersonalityTrait.ACTIVE_LAZY );
                 }
                 else if( Task.ESCAPE.equals( task ) )
                 {
-                    personalityTraitValue = ind.getInitialPersonalityTrait(
-                            PersonalityTrait.ESCAPE );
+                    personalityTraitValue = ind.getPersonalityTrait(
+                            PersonalityTrait.FEARFUL_ASSERTIVE );
                 }
                 else
                 {
@@ -307,6 +311,7 @@ public class MultiplePersonalityTraitsEventTimeCalculator extends
                 // Modify the rate
                 float k = calculateK( 1.0f - personalityTraitValue );
                 cRate = cRate * k;
+//                _LOG.warn( "Cancel: k=[" + k + "] cRate=[" + cRate + "] task=[" + task + "] trait=[" + personalityTraitValue + "]" );
             }
 
             cancelTime = MathUtils.generateRandomExponential( cRate,

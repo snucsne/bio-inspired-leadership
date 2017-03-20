@@ -20,6 +20,7 @@ package edu.snu.leader.hidden.personality;
 
 import edu.snu.leader.hidden.SimulationState;
 import edu.snu.leader.hidden.SpatialIndividual;
+import edu.snu.leader.hidden.Task;
 
 /**
  * ConstantPersonalityCalculator
@@ -60,6 +61,22 @@ public class ConstantPersonalityCalculator implements PersonalityCalculator
     {
         // Just return the original value
         return individual.getPersonality();
+    }
+
+    /**
+     * Calculate the personality trait value(s)
+     *
+     * @param individual The individual's current personality
+     * @param updateType The type of update being applied
+     * @param task The current task
+     * @see edu.snu.leader.hidden.personality.PersonalityCalculator#updateTraits(edu.snu.leader.hidden.SpatialIndividual, edu.snu.leader.hidden.personality.PersonalityUpdateType, edu.snu.leader.hidden.Task)
+     */
+    @Override
+    public void updateTraits( SpatialIndividual individual,
+            PersonalityUpdateType updateType,
+            Task currentTask )
+    {
+        // Do nothing
     }
 
 }

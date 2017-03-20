@@ -28,7 +28,6 @@ package edu.snu.leader.hidden;
  */
 public enum Task
 {
-    NONE,
     NAVIGATE,
     EXPLORE,
     ESCAPE

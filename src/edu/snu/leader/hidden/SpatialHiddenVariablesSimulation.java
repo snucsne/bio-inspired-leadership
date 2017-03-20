@@ -58,6 +58,7 @@ public class SpatialHiddenVariablesSimulation
     /** Key for the number of observers */
     private static final String _OBSERVER_COUNT_KEY = "observer-count";
 
+    
 
     private class IndividualEvent {
         public final float time;
@@ -80,6 +81,7 @@ public class SpatialHiddenVariablesSimulation
         }
     }
 
+    
     /** The simulation state */
     private SimulationState _simState = new SimulationState();
 
@@ -87,7 +89,7 @@ public class SpatialHiddenVariablesSimulation
     private Properties _props = new Properties();
 
     /** The results reporter */
-    private ResultsReporter _reporter = new ResultsReporter();
+    private ResultsReporter _reporter = new DefaultResultsReporter();
 
     /** The number of times to run the simulator */
     private int _simulationCount = 0;
@@ -95,7 +97,6 @@ public class SpatialHiddenVariablesSimulation
     /** The simulation observers */
     private List<SimulationObserver> _simObservers =
             new LinkedList<SimulationObserver>();
-
 
 
     /**
