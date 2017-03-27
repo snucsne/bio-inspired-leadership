@@ -1365,13 +1365,13 @@ public class SpatialIndividual
             builder.append( " " );
         }
         _meanTopologicalDistance = distanceTotals / ((float) indDistanceMap.size() - 1.0f);
-        _LOG.warn( "Mean topological distance for ind=["
-                + getID()
-                + "] => ["
-                + _meanTopologicalDistance
-//                + "]  distances=[ "
-//                + builder.toString()
-                + "] total=[" + distanceTotals + "]" );
+//        _LOG.warn( "Mean topological distance for ind=["
+//                + getID()
+//                + "] => ["
+//                + _meanTopologicalDistance
+////                + "]  distances=[ "
+////                + builder.toString()
+//                + "] total=[" + distanceTotals + "]" );
     }
     
     public float getMeanTopologicalDistance()

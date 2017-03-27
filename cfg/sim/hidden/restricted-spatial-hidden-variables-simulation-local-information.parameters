@@ -1,13 +1,14 @@
 simulation-count = 2000
 random-seed = 42
 individual-count = 30
-nearest-neighbor-count = 100
+nearest-neighbor-count = 10
 rebuild-individuals = false
 use-nearest-neighbor-group-size = true
 max-location-radius = 10
 results-file = data/spatial-hidden-variables-leadership-personality-local-reversal.dat
 use-sim-log-file-flag = true
 use-location-log-file-flag = false
+task = navigate
 
 event-time-calculator-class = edu.snu.leader.hidden.event.RestrictedInitiatorEventTimeCalculator
 initiator-id = Ind00000

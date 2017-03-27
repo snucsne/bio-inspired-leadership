@@ -203,8 +203,6 @@ public class SpatialHiddenVariablesSimulation
         // Report the final results
         _reporter.reportFinalResults();
 
-
-
         _LOG.trace( "Leaving run()" );
     }
 
