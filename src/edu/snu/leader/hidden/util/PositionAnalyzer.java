@@ -78,7 +78,7 @@ public class PositionAnalyzer
 
     /** Flag indicating that the mean resultant vector should be scaled by the
      *  number of nearest neighbors */
-    private boolean _scaleMeanResultantVector = true;
+    private static boolean _scaleMeanResultantVector = true;
 
     
     /**
@@ -262,7 +262,7 @@ public class PositionAnalyzer
         _writer.close();
     }
 
-    private List<Vector2D> calculateRelativePositionsOfNeighbors( SpatialIndividual ind )
+    public static List<Vector2D> calculateRelativePositionsOfNeighbors( SpatialIndividual ind )
     {
         // Get the individual's location
         Vector2D indLocation = ind.getLocation();
@@ -282,7 +282,7 @@ public class PositionAnalyzer
         return relativePositions;
     }
     
-    private float calculateMeanRelativeDistanceOfNeighbors( SpatialIndividual ind )
+    public static float calculateMeanRelativeDistanceOfNeighbors( SpatialIndividual ind )
     {
         // Iterate over all the nearest neighbors
         float totalDistance = 0.0f;
@@ -298,7 +298,7 @@ public class PositionAnalyzer
         return meanRelativeDistance;
     }
 
-    private Vector2D calculateMeanRelativePositionsOfNeighbors( SpatialIndividual ind )
+    public static Vector2D calculateMeanRelativePositionsOfNeighbors( SpatialIndividual ind )
     {
         // Iterate over all the nearest neighbors
         Vector2D meanRelativePosition = Vector2D.ZERO;
@@ -322,7 +322,7 @@ public class PositionAnalyzer
      * @param ind The individual
      * @return The circle statistic
      */
-    private Vector2D calculateMeanResultantVector( SpatialIndividual ind )
+    public static Vector2D calculateMeanResultantVector( SpatialIndividual ind )
     {
         // Iterate over all the nearest neighbors
         Vector2D meanResultantVector = Vector2D.ZERO;
