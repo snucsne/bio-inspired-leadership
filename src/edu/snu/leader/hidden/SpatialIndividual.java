@@ -1194,6 +1194,16 @@ public class SpatialIndividual
 
         return value;
     }
+    
+    /**
+     * Returns all the personality trait values
+     *
+     * @return All the personality trait values
+     */
+    public Map<PersonalityTrait,Float> getAllPersonalityTraits()
+    {
+        return new HashMap<PersonalityTrait,Float>( _personalityTraits );
+    }
 
     /**
      * Returns the initial personality for this individual

@@ -233,15 +233,17 @@ public class PredatorExposureSimulator
                             / (2.0 * _sigmaSquared ) );
                 }
                 
-                // Compute the "reward"
-                double reward = indMRV.distance( Vector2D.ZERO );
-                
                 // Get the old value for the individual and update it
                 List<Double> indFearfulnessHistory = _fearfulnessHistory.get( ind.getID() );
                 int count = indFearfulnessHistory.size();
                 double currentFearfulness = indFearfulnessHistory.get( count - 1 );
+                
+                // Compute the "error"
+                double error = indMRV.distance( Vector2D.ZERO );
+                
+                // Compute the new fearfulness
                 double nextFearfulness = currentFearfulness * (1.0 - alpha)
-                        + (alpha * reward);
+                        + (alpha * error);
                 if( nextFearfulness < _minFearfulness )
                 {
                     nextFearfulness = _minFearfulness;
@@ -270,8 +272,10 @@ public class PredatorExposureSimulator
 //                        + String.format( "%6.4f", x )
 //                        + "]  alpha=["
 //                        + String.format( "%6.4f", alpha )
-//                        + "]  reward=["
-//                        + String.format( "%6.4f", reward )
+//                        + "]  mrvDist=["
+//                        + String.format( "%6.4f", indMRV.distance( Vector2D.ZERO ) )
+//                        + "]  error=["
+//                        + String.format( "%+6.4f", error )
 //                        + "]  currentFearfulness=["
 //                        + String.format( "%6.4f", currentFearfulness )
 //                        + "]  nextFearfulness=["

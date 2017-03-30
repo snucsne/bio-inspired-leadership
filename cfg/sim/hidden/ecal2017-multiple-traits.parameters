@@ -20,12 +20,14 @@ modify-following-rate = true
 modify-cancellation-rate = true
 sigmoid-slope-value = 10
 
+individual-builder-class = edu.snu.leader.hidden.builder.SpecificMultiplePersonalityTraitsIndividualBuilder
+personality-traits-file = cfg/sim/locations/metric/personality-traits/personality-traits-indcount-020-map-00001.dat
 
-individual-builder-class = edu.snu.leader.hidden.builder.HomogeneousPersonalityTraitsIndBuilder
-bold-trait-value = 0.9
-social-trait-value = 0.9
-activity-trait-value = 0.9
-fearful-trait-value = 0.9
+#individual-builder-class = edu.snu.leader.hidden.builder.HomogeneousPersonalityTraitsIndBuilder
+#bold-trait-value = 0.9
+#social-trait-value = 0.9
+#activity-trait-value = 0.9
+#fearful-trait-value = 0.9
 
 
 personality-calculator-class = edu.snu.leader.hidden.personality.CorrelatedTraitsPersonalityCalculator

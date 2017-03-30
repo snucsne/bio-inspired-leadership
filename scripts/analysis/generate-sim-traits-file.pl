@@ -36,6 +36,10 @@ foreach my $dataFile (@dataFiles)
     $dataFile =~ /map-(\d+)/;
     my $mapID = $1;
 
+    # Save the min and max activity level so we can normalize for the group
+    my $minActivityValue = 10;
+    my $maxActivityValue = -10;
+
     # Read each line
     while( <INPUT> )
     {
@@ -53,8 +57,16 @@ foreach my $dataFile (@dataFiles)
         if( $dataKey =~ /distance-to-neighbors.mean/ )
         {
             # Normalize the value
-            my $activityValue = ensureValidTraitValue( $value / 10 );
+            my $activityValue = $value / 10; #ensureValidTraitValue( $value / 10 );
             $data{$id}{'activity'} = $activityValue;
+            if( $activityValue < $minActivityValue )
+            {
+                $minActivityValue = $activityValue;
+            }
+            if( $activityValue > $maxActivityValue )
+            {
+                $maxActivityValue = $activityValue;
+            }
         }
         elsif( $dataKey =~ /mean-resultant-vector.length/ )
         {
@@ -67,14 +79,24 @@ foreach my $dataFile (@dataFiles)
     # Close the file
     close( INPUT );
 
-    print( "#           Data dir  [$dataDir]\n" );
-    print( "#          Ind count  [$indCount]\n" );
-    print( "# Output file prefix  [$outputFilePrefix]\n" );
-    print( "#         Bold value  [$boldValue]\n" );
+    # Calculate the activity value difference
+    my $activityDiff = $maxActivityValue - $minActivityValue;
+
+    # Build the output file name
+    my $outputFile = $outputFilePrefix."sim-traits-map-$mapID.dat";
+
+    # Open the output file
+    open( OUTPUT, "> $outputFile" ) or die "Unable to open output file [$outputFile]: $!\n";
+
+    # Dump header information
+    print OUTPUT "#           Data dir  [$dataDir]\n";
+    print OUTPUT "#          Ind count  [$indCount]\n";
+    print OUTPUT "# Output file prefix  [$outputFilePrefix]\n";
+    print OUTPUT "#         Bold value  [$boldValue]\n";
     my $nowString = localtime;
-    print( "#               Time  [$nowString]\n" );
-    print( "# ======================================================================\n\n" );
-    print( "# Activity  Fearful     Bold        Social\n" );
+    print OUTPUT "#               Time  [$nowString]\n";
+    print OUTPUT "# ======================================================================\n\n";
+    print OUTPUT "# Activity  Fearful     Bold        Social\n";
 
     # Dump out the data by individual ID
     foreach my $id (sort (keys %data))
@@ -83,13 +105,18 @@ foreach my $dataFile (@dataFiles)
         my $activityValue = $data{$id}{'activity'};
         my $fearfulValue = $data{$id}{'fearful'};
 
-        printf( "%6.4f      %6.4f      %6.4f      %6.4f\n",
+        # Adjust the activity value
+        $activityValue = 0.1 + 0.8*( ($activityValue - $minActivityValue)
+                / $activityDiff );
+
+        printf( OUTPUT "%6.4f      %6.4f      %6.4f      %6.4f\n",
                 $activityValue,
                 $fearfulValue,
                 $boldValue,
                 (1 - $boldValue) );
     }
-exit;
+
+    close( OUTPUT );
 }
 
 

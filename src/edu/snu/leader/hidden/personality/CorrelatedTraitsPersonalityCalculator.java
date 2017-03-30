@@ -164,7 +164,7 @@ public class CorrelatedTraitsPersonalityCalculator
             Task currentTask )
     {
         // Update depends on the trait type
-        Map<PersonalityTrait, Float> traits = null;
+        Map<PersonalityTrait, Float> traits = individual.getAllPersonalityTraits();
         switch( currentTask )
         {
             case NAVIGATE:
@@ -172,11 +172,11 @@ public class CorrelatedTraitsPersonalityCalculator
                 break;
             
             case EXPLORE:
-                traits = updateTraitsForExplore( individual, updateType );
+//                traits = updateTraitsForExplore( individual, updateType );
                 break;
                 
             case ESCAPE:
-                traits = updateTraitsForEscape( individual, updateType );
+//                traits = updateTraitsForEscape( individual, updateType );
                 break;
                 
             default:
@@ -185,17 +185,17 @@ public class CorrelatedTraitsPersonalityCalculator
                         + "]" );
         }
         
-        // Log the new personality traits
-        StringBuilder builder = new StringBuilder();
-        Iterator<PersonalityTrait> iter = traits.keySet().iterator();
-        while( iter.hasNext() )
-        {
-            PersonalityTrait current = iter.next();
-            builder.append( current.name() );
-            builder.append( "=[" );
-            builder.append( traits.get( current ) );
-            builder.append( "] " );
-        }
+//        // Log the new personality traits
+//        StringBuilder builder = new StringBuilder();
+//        Iterator<PersonalityTrait> iter = traits.keySet().iterator();
+//        while( iter.hasNext() )
+//        {
+//            PersonalityTrait current = iter.next();
+//            builder.append( current.name() );
+//            builder.append( "=[" );
+//            builder.append( traits.get( current ) );
+//            builder.append( "] " );
+//        }
 //        _LOG.warn( "Updated traits for ind=["
 //                + individual.getID()
 //                + "] task=["
@@ -267,26 +267,26 @@ public class CorrelatedTraitsPersonalityCalculator
                 result );
         traits.put( PersonalityTrait.BOLD_SHY, new Float( boldValue) );
         
-        // Sociability is positively correlated with bold
+        // Sociability is negatively correlated with bold
         float socialValue = updatePersonalityTrait(
                 individual.getPersonalityTrait( PersonalityTrait.SOCIAL_SOLITARY ),
                 correlatedDiscount,
                 1 - result );
         traits.put( PersonalityTrait.SOCIAL_SOLITARY, new Float( socialValue) );
         
-        // Activity is negatively correlated with bold
-        float activeValue = updatePersonalityTrait(
-                individual.getPersonalityTrait( PersonalityTrait.ACTIVE_LAZY ),
-                correlatedDiscount,
-                1 -  result );
-        traits.put( PersonalityTrait.ACTIVE_LAZY, new Float( activeValue) );
-
-        // Fearfulness is negatively correlated with bold
-        float fearfulValue = updatePersonalityTrait(
-                individual.getPersonalityTrait( PersonalityTrait.FEARFUL_ASSERTIVE ),
-                correlatedDiscount,
-                1 - result );
-        traits.put( PersonalityTrait.FEARFUL_ASSERTIVE, new Float( fearfulValue) );
+//        // Activity is negatively correlated with bold
+//        float activeValue = updatePersonalityTrait(
+//                individual.getPersonalityTrait( PersonalityTrait.ACTIVE_LAZY ),
+//                correlatedDiscount,
+//                1 -  result );
+//        traits.put( PersonalityTrait.ACTIVE_LAZY, new Float( activeValue) );
+//
+//        // Fearfulness is negatively correlated with bold
+//        float fearfulValue = updatePersonalityTrait(
+//                individual.getPersonalityTrait( PersonalityTrait.FEARFUL_ASSERTIVE ),
+//                correlatedDiscount,
+//                1 - result );
+//        traits.put( PersonalityTrait.FEARFUL_ASSERTIVE, new Float( fearfulValue) );
 
         return traits;
     }

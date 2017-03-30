@@ -139,19 +139,27 @@ public class SpecificMultiplePersonalityTraitsIndividualBuilder extends
                 String[] parts = line.split( "\\s+" );
 
                 // Parse it
-                Float meanShortestPath = new Float( parts[0] );
-                Float bold = new Float( parts[1] );
-                Float sociability = new Float( parts[2] );
-                Float exploration = new Float( parts[3] );
-                Float escape = new Float( parts[4] );
+                Float activity = new Float( parts[0] );
+                Float fearful = new Float( parts[1] );
+                Float bold = new Float( parts[2] );
+                Float social = new Float( parts[3] );
+//                Float meanShortestPath = new Float( parts[0] );
+//                Float bold = new Float( parts[1] );
+//                Float sociability = new Float( parts[2] );
+//                Float exploration = new Float( parts[3] );
+//                Float escape = new Float( parts[4] );
 
                 // Add it to the list
                 Map<PersonalityTrait,Float> personalityTraits =
                         new EnumMap<PersonalityTrait,Float>( PersonalityTrait.class );
+                personalityTraits.put( PersonalityTrait.ACTIVE_LAZY, activity );
+                personalityTraits.put( PersonalityTrait.FEARFUL_ASSERTIVE, fearful );
                 personalityTraits.put( PersonalityTrait.BOLD_SHY, bold );
-                personalityTraits.put( PersonalityTrait.SOCIAL_SOLITARY, sociability );
-                personalityTraits.put( PersonalityTrait.EXPLORATION, exploration );
-                personalityTraits.put( PersonalityTrait.ESCAPE, escape );
+                personalityTraits.put( PersonalityTrait.SOCIAL_SOLITARY, social );
+//                personalityTraits.put( PersonalityTrait.BOLD_SHY, bold );
+//                personalityTraits.put( PersonalityTrait.SOCIAL_SOLITARY, sociability );
+//                personalityTraits.put( PersonalityTrait.EXPLORATION, exploration );
+//                personalityTraits.put( PersonalityTrait.ESCAPE, escape );
                 _allPersonalityTraits.add( personalityTraits );
             }
         }

@@ -170,7 +170,7 @@ public class LocalSpatialSimulation
         // Run the simulation a number of times
         for( int i = 0; i < _simulationCount; i++ )
         {
-            _LOG.warn( "Simulation ["
+            _LOG.debug( "Simulation ["
                     + i
                     + "]" );
 
