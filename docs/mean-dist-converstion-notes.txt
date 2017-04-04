@@ -1,0 +1,112 @@
+clear
+reset
+unset key
+set xlabel 'Mean distance to nearest neighbors'
+set ylabel 'Frequency'
+set y2label 'Cumulative frequency'
+set y2tics 0,0.25,1
+set format y2 "%3.1f"
+set ytics nomirror
+set ytics 0,0.04,0.16
+set format y "%4.2f"
+set boxwidth 0.7 relative
+set style fill solid solid 0.5 border lt -1
+f(x) = a*exp(-(x-b)*(x-b)/c/c)
+set size 0.65,0.6
+
+stats 'mean-dist.dat'
+set yrange [0:0.16]
+set xrange [0.5:9]
+
+bw = 0.2
+bin(x,width)=width*floor(x/width)
+
+plot 'mean-dist.dat' using (bin($1,bw)):(1.0/STATS_records) smooth frequency with boxes lc rgb "#FFA500",\
+'' using (bin($1,bw)):(1.0/STATS_records) smooth cumulative axis x1y2 w l lt 2 lw 2 lc rgb "#3333FF"
+
+set terminal postscript eps enhanced color "Arial,15" fontfile "/usr/share/fonts/truetype/msttcorefonts/Arial.pfa"
+set output "/tmp/dist-plot.eps"
+replot
+
+
+set terminal postscript eps enhanced color "NimbusSanL-Regu,17" fontfile "/usr/share/texmf-texlive/fonts/type1/urw/helvetic/uhvr8a.pfb"
+
+
+mu = 0.9
+sig = 0.3
+
+shape = 17.159584
+rate = 5.911511
+
+gammadist(x,alpha,beta)
+lognorm(x,m,s) = (1/(s*sqrt(2*3.14159))) * exp(-1*((log(x) - m)**2)/(2*s*s))
+replot lognorm(x,mu,sig)/10 w l lc rgb "#FF0000" lw 2
+
+replot 0.5*erfc(-1*(log(x)-mu)/(sig*sqrt(2))) axis x1y2 w l lc rgb "#00FF00" lw 2
+
+
+
+=========================================================================================
+# R
+
+library("fitdistrplus")
+
+meandist <- scan("~/research/projects/leader/dist-test/data/map-position-analysis/analysis/all-mean-dist.dat")
+plotdist(meandist,histo=TRUE,demp=TRUE)
+fln <- fitdist(meandist, "lnorm")
+summary(fln)
+
+
+ml <- 1.0713780
+sd <- 0.2806598
+plotdist(meandist,histo=TRUE,demp=TRUE,distr="lnorm",para=list(meanlog=ml,sdlog=sd))
+
+library('NORMT3')
+converted <- 0.5*erfc(-1*(log(meandist)-mu)/(sig*sqrt(2)))
+convertedreal <- lapply(converted,Re)
+
+# R output
+
+Fitting of the distribution ' lnorm ' by maximum likelihood 
+Parameters : 
+         estimate  Std. Error
+meanlog 1.0713780 0.003354526
+sdlog   0.2806598 0.002371873
+Loglikelihood:  -8537.932   AIC:  17079.86   BIC:  17093.57 
+Correlation matrix:
+        meanlog sdlog
+meanlog       1     0
+sdlog         0     1
+
+
+
+poisson(x,a,b) = 1 - exp(-1*(a*x**(1.61)+b))
+gumbel(x,a,b) = exp(-1*exp(-1*(a*x**(0.210)+b)))
+replot gumbel(x,16.8302,-20.5370) axis x1y2 w l lc rgb "#FF0000" lw 2
+replot poisson(x, 0.304305,-0.892899) axis x1y2 w l lc rgb "#00FF00" lw 2
+
+#replot gumbel(x,16.0,-19.3) axis x1y2 w l lc rgb "#00FF00" lw 2
+
+
+dinvgamma((x-1),3.75,5)*0.25 lc rgb "#FF0000" lw 2
+
+=========================================================================================
+
+filtered <- meandist[!meandist %in% boxplot.stats(meandist)$out]
+plotdist(filtered,histo=TRUE,demp=TRUE)
+descdist(filtered, boot=1000)
+plotdist(filtered,histo=TRUE,demp=TRUE)
+filtw <- fitdist(filtered, "weibull")
+filtg <- fitdist(filtered, "gamma")
+filtln <- fitdist(filtered,"lnorm")
+gofstat(list(filtw,filtg,filtln), fitnames=c("weibull","gamma","lnorm"))
+par(mfrow = c(2, 2))
+plot.legend <- c("Weibull", "lognormal", "gamma")
+denscomp(list(filtw,filtln,filtg),legendtext=plot.legend)
+qqcomp(list(filtw,filtln,filtg),legendtext=plot.legend)
+cdfcomp(list(filtw,filtln,filtg),legendtext=plot.legend)
+ppcomp(list(filtw,filtln,filtg),legendtext=plot.legend)
+
+
+filtered <- meandist[ meandist > quantile(meandist,0.25) - 1.25*IQR(meandist) & meandist < quantile(meandist,0.75) + 1.25*IQR(meandist)]
+

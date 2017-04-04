@@ -1,0 +1,42 @@
+simulation-count = 60000
+random-seed = 42
+individual-count = 30
+nearest-neighbor-count = 10
+rebuild-individuals = false
+use-nearest-neighbor-group-size = false
+max-location-radius = 10
+results-file = data/ecal2017-multiple-traits.dat
+use-sim-log-file-flag = true
+use-location-log-file-flag = false
+randomize-tasks = true
+task = escape
+nearest-neighbor-distance = 4
+
+event-time-calculator-class = edu.snu.leader.hidden.event.MultiplePersonalityTraitsEventTimeCalculator
+initiator-id = Ind00000
+restrict-initiating = false
+restrict-canceling = false
+modify-initiation-rate = true
+modify-following-rate = true
+modify-cancellation-rate = true
+sigmoid-slope-value = 10
+
+individual-builder-class = edu.snu.leader.hidden.builder.MetricIndividualBuilder
+# individual-builder-class = edu.snu.leader.hidden.builder.SpecificMultiplePersonalityTraitsIndividualBuilder
+personality-traits-file = cfg/sim/locations/metric/personality-traits/personality-traits-indcount-020-map-00001.dat
+
+#individual-builder-class = edu.snu.leader.hidden.builder.HomogeneousPersonalityTraitsIndBuilder
+#bold-trait-value = 0.9
+#social-trait-value = 0.9
+#activity-trait-value = 0.9
+#fearful-trait-value = 0.9
+
+
+personality-calculator-class = edu.snu.leader.hidden.personality.CorrelatedTraitsPersonalityCalculator
+trait-update-discount = 0.02
+correlated-trait-update-discount = 0.02
+min-trait-value = 0.1
+max-trait-value = 0.9
+
+
+locations-file = cfg/sim/locations/complex-formation-binary-few.loc

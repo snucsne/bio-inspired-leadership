@@ -69,6 +69,5 @@ do
                 -Drun-id=default-$$ \
                 -Dlogname=restricted \
                 edu.snu.leader.hidden.util.PositionAnalyzer > tmp.out
-
     done
 done

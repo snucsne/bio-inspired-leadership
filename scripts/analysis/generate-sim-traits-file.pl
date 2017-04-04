@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 use strict;
+use strict;
+use Math::Erf::Approx -all => { -prefix => 'math_' };
+use Statistics::Descriptive::Weighted;
 
 # -------------------------------------------------------------------
 # Get the data directory
@@ -17,10 +20,34 @@ my $boldValue = shift( @ARGV );
 # Get each of the data files
 my @dataFiles;
 opendir( DIR, $dataDir ) or die "Unable to open data directory [$dataDir]: $!\n";
-@dataFiles = sort( grep { /\.dat$/ } readdir( DIR ) );
+@dataFiles = sort( grep { /^position.*\.dat$/ } readdir( DIR ) );
 closedir( DIR );
 
 #print "Found ",(scalar @dataFiles)," files\n";
+
+
+# -------------------------------------------------------------------
+my $mu = 1.0;
+my $sig = 0.28;
+
+my $distFile = "/home/brent/research/projects/leader/dist-test/data/map-position-analysis/metric/analysis/all-mean-dist.dat";
+my @distValues;
+my @weights;
+open( INPUT, "$distFile" ) or die "Unable to open input file [$distFile]: $!\n";
+while( <INPUT> )
+{
+    s/#.*//;
+    s/^\s+//;
+    s/\s+$//;
+    next unless length;
+    push( @distValues, $_ );
+    push( @weights, 1 );
+}
+close( INPUT );
+
+my $stat = Statistics::Descriptive::Weighted::Full->new();
+$stat->add_data( \@distValues, \@weights );
+
 
 # -------------------------------------------------------------------
 # Process each data file
@@ -32,13 +59,11 @@ foreach my $dataFile (@dataFiles)
     # Open the file
     open( INPUT, "$dataDir/$dataFile" ) or die "Unable to open data file [$dataFile]: $!\n";
 
+#print "file: $dataDir/$dataFile\n";
+
     # Get the map id
     $dataFile =~ /map-(\d+)/;
     my $mapID = $1;
-
-    # Save the min and max activity level so we can normalize for the group
-    my $minActivityValue = 10;
-    my $maxActivityValue = -10;
 
     # Read each line
     while( <INPUT> )
@@ -56,21 +81,17 @@ foreach my $dataFile (@dataFiles)
         # Is it the data in which we are interested?
         if( $dataKey =~ /distance-to-neighbors.mean/ )
         {
-            # Normalize the value
-            my $activityValue = $value / 10; #ensureValidTraitValue( $value / 10 );
+#            my $erfValue = 0.5 * math_erfc( -1 * (log($value) - $mu)/($sig * sqrt(2)) );
+#            $erfValue = 0.1 + 0.8 * $erfValue;
+#            my $activityValue = ensureValidTraitValue( $erfValue );
+
+            my $activityValue = ensureValidTraitValue( $stat->cdf( $value ) );
             $data{$id}{'activity'} = $activityValue;
-            if( $activityValue < $minActivityValue )
-            {
-                $minActivityValue = $activityValue;
-            }
-            if( $activityValue > $maxActivityValue )
-            {
-                $maxActivityValue = $activityValue;
-            }
+#printf( "%6.4f      %6.4f\n", $value, $activityValue );
+#printf( "%6.4f      %6.4f      %6.4f      %6.4f\n", $value, $erfValue, $activityValue );
         }
         elsif( $dataKey =~ /mean-resultant-vector.length/ )
         {
-            # This one is already normalized
             my $fearfulValue = ensureValidTraitValue( $value );
             $data{$id}{'fearful'} = $fearfulValue;
         }
@@ -78,9 +99,6 @@ foreach my $dataFile (@dataFiles)
 
     # Close the file
     close( INPUT );
-
-    # Calculate the activity value difference
-    my $activityDiff = $maxActivityValue - $minActivityValue;
 
     # Build the output file name
     my $outputFile = $outputFilePrefix."sim-traits-map-$mapID.dat";
@@ -105,10 +123,6 @@ foreach my $dataFile (@dataFiles)
         my $activityValue = $data{$id}{'activity'};
         my $fearfulValue = $data{$id}{'fearful'};
 
-        # Adjust the activity value
-        $activityValue = 0.1 + 0.8*( ($activityValue - $minActivityValue)
-                / $activityDiff );
-
         printf( OUTPUT "%6.4f      %6.4f      %6.4f      %6.4f\n",
                 $activityValue,
                 $fearfulValue,
@@ -117,6 +131,7 @@ foreach my $dataFile (@dataFiles)
     }
 
     close( OUTPUT );
+#exit;
 }
 
 
@@ -129,13 +144,15 @@ sub ensureValidTraitValue
     # Set up our min and max values
     my $minTraitValue = 0.1;
     my $maxTraitValue = 0.9;
+    my $traitDiff = $maxTraitValue - $minTraitValue;
 
-    # Ensure it is valid on the lower bound
+    $traitValue = $minTraitValue + $traitDiff
+            * ($traitValue - $minTraitValue);
+
     if( $traitValue < $minTraitValue )
     {
         $traitValue = $minTraitValue;
     }
-    # And the upper bound
     elsif( $traitValue > $maxTraitValue )
     {
         $traitValue = $maxTraitValue;

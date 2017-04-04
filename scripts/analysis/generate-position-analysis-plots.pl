@@ -378,6 +378,16 @@ sub processData
            `cp $epsFile $tmpEPSFile`;
             `/usr/bin/epstool --copy --bbox $tmpEPSFile $epsFile`;
             `epstopdf $epsFile`;
+
+            my $pdfFile = $epsFile;
+            $pdfFile =~ s/eps$/pdf/;
+            my $title = $epsFile;
+            $title =~ s/.*\/(.*)\.eps$/\1/;
+            `exiftool -Title="$title" -Author="Brent E. Eskridge" $pdfFile`;
+            # See the link below for more exiftool help with PDFs
+            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PDF.html
+            # See the link below for more exiftool help with PostScript
+            # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PostScript.html
         }
     }
     
