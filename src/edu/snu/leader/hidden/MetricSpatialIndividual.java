@@ -23,6 +23,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.PriorityQueue;
 
 /**
@@ -67,6 +68,21 @@ public class MetricSpatialIndividual extends SpatialIndividual
                 describeInitiationHistory );
     }
 
+    public MetricSpatialIndividual( Object id,
+            Vector2D location,
+            Map<PersonalityTrait,Float> personalityTraits,
+            float assertiveness,
+            float preferredDirection,
+            float conflict,
+            boolean describeInitiationHistory )
+    {
+        // Just call the super-class constructor
+        super( id, location, personalityTraits,
+                assertiveness, preferredDirection, conflict,
+                describeInitiationHistory );
+    }
+
+    
     /**
      * TODO Method description
      *
@@ -125,6 +141,9 @@ public class MetricSpatialIndividual extends SpatialIndividual
 //                break;
 //            }
         }
+
+        // Compute the mean position of the nearest neighbors
+        computeMeanPositionOfNearestNeighbors();
 
         _LOG.trace( "Leaving findNearestNeighbors( simState )" );
 

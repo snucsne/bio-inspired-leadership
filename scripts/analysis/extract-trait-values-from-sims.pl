@@ -17,7 +17,7 @@ opendir( DIR, $dataDir ) or die "Unable to open data directory [$dataDir]: $!\n"
 @dataFiles = sort( grep { /^spatial.*\.dat$/ } readdir( DIR ) );
 closedir( DIR );
 
-#print "Found ",(scalar @dataFiles)," files\n";
+print "Found ",(scalar @dataFiles)," files\n";
 
 # -------------------------------------------------------------------
 # Process each data file

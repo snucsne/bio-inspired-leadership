@@ -18,15 +18,6 @@
  */
 package edu.snu.leader.hidden.builder;
 
-// Imports
-import edu.snu.leader.hidden.PersonalityTrait;
-import edu.snu.leader.hidden.SimulationState;
-import edu.snu.leader.hidden.SpatialIndividual;
-
-import org.apache.commons.lang.Validate;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -35,20 +26,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * SpecificMultiplerPersonalityTraitsIndividualBuilder
- *
- * TODO Class description
- *
- * @author Brent Eskridge
- * @version $Revision$ ($Author$)
- */
-public class SpecificMultiplePersonalityTraitsIndividualBuilder extends
-        AbstractIndividualBuilder
+import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.log4j.Logger;
+
+import edu.snu.leader.hidden.MetricSpatialIndividual;
+import edu.snu.leader.hidden.PersonalityTrait;
+import edu.snu.leader.hidden.SimulationState;
+import edu.snu.leader.hidden.SpatialIndividual;
+
+public class SpecificMultiplePersonalityTraitsMetricIndividualBuilder
+        extends MetricIndividualBuilder
 {
     /** Our logger */
     private static final Logger _LOG = Logger.getLogger(
-            SpecificMultiplePersonalityTraitsIndividualBuilder.class.getName() );
+            SpecificMultiplePersonalityTraitsMetricIndividualBuilder.class.getName() );
 
     /** Key for the personality traits file */
     private static final String _PERSONALITY_TRAITS_FILE = "personality-traits-file";
@@ -111,7 +103,7 @@ public class SpecificMultiplePersonalityTraitsIndividualBuilder extends
                 index );
 
         // Create the individual
-        SpatialIndividual ind = new SpatialIndividual(
+        MetricSpatialIndividual ind = new MetricSpatialIndividual(
                 generateUniqueIndividualID( index ),
                 location,
                 personalityTraits,
@@ -206,4 +198,5 @@ public class SpecificMultiplePersonalityTraitsIndividualBuilder extends
 
         return personalityTraits;
     }
+
 }

@@ -1389,7 +1389,7 @@ public class SpatialIndividual
         return _meanTopologicalDistance;
     }
     
-    private void computeMeanPositionOfNearestNeighbors()
+    protected void computeMeanPositionOfNearestNeighbors()
     {
         // Sum all the positions
         Vector2D sumOfPositions = Vector2D.ZERO;

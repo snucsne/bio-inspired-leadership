@@ -69,16 +69,29 @@ foreach my $dataFile (@dataFiles)
 
 # -------------------------------------------------------------------
 
-print "bold <- scan()\n";
-print join( " ", @{$traits{'bold_shy'}} ),"\n\n";
-print "activity <- scan()\n";
-print join( " ", @{$traits{'active_lazy'}} ),"\n\n";
-print "fearful <- scan()\n";
-print join( " ", @{$traits{'fearful_assertive'}} ),"\n\n";
-print "social <- scan()\n";
-print join( " ", @{$traits{'social_solitary'}} ),"\n\n";
+#print "bold <- scan()\n";
+#print join( " ", @{$traits{'bold_shy'}} ),"\n\n";
+#print "activity <- scan()\n";
+#print join( " ", @{$traits{'active_lazy'}} ),"\n\n";
+#print "fearful <- scan()\n";
+#print join( " ", @{$traits{'fearful_assertive'}} ),"\n\n";
+#print "social <- scan()\n";
+#print join( " ", @{$traits{'social_solitary'}} ),"\n\n";
+
+print "bold <- c(";
+print join( ", ", @{$traits{'bold_shy'}} ),")\n\n";
+print "activity <- c(";
+print join( ", ", @{$traits{'active_lazy'}} ),")\n\n";
+print "fearful <- c(";
+print join( ", ", @{$traits{'fearful_assertive'}} ),")\n\n";
+print "social <- c(";
+print join( ", ", @{$traits{'social_solitary'}} ),")\n\n";
 
 print "traitsdf = data.frame( bold, activity, fearful, social )\n";
 print "cor(traitsdf)\n";
 print "pairs(traitsdf)\n";
+print "cor(traitsdf, method=\"pearson\")\n";
+print "cor.test(traitsdf\$bold,traitsdf\$activity,method=\"pearson\")\n";
+print "cor.test(traitsdf\$bold,traitsdf\$fearful,method=\"pearson\")\n";
+print "cor.test(traitsdf\$activity,traitsdf\$fearful,method=\"pearson\")\n";
 
